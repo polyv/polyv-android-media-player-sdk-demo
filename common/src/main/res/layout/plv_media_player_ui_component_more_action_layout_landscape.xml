@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/plv_media_player_float_menu_bg_landscape">
+
+    <ImageView
+        android:id="@+id/plv_media_player_more_action_close_iv"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:padding="12dp"
+        android:src="@drawable/plv_media_player_float_menu_close_icon"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <android.support.constraint.ConstraintLayout
+        android:id="@+id/plv_media_player_more_action_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <android.support.constraint.Guideline
+            android:id="@+id/more_action_start_guide_line"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.56" />
+
+        <net.polyv.android.player.common.ui.component.PLVMediaPlayerMoreLayoutAudioModeActionView
+            android:id="@+id/plv_media_player_more_audio_mode_action_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="48dp"
+            app:layout_constraintStart_toStartOf="@+id/more_action_start_guide_line"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <net.polyv.android.player.common.ui.component.PLVMediaPlayerMoreLayoutFloatWindowActionView
+            android:id="@+id/plv_media_player_more_float_window_action_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="28dp"
+            android:layout_marginTop="48dp"
+            app:layout_constraintStart_toEndOf="@+id/plv_media_player_more_audio_mode_action_view"
+            app:layout_constraintTop_toTopOf="parent" />
+
+    </android.support.constraint.ConstraintLayout>
+
+</android.support.constraint.ConstraintLayout>

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="@drawable/plv_media_player_brightness_volume_hint_bg"
+    android:paddingStart="16dp"
+    android:paddingEnd="12dp">
+
+    <TextView
+        android:id="@+id/plv_media_player_speed_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="#FFFFFF"
+        android:textSize="20sp"
+        app:layout_constraintBaseline_toBaselineOf="@+id/plv_media_player_speed_hint_tv"
+        app:layout_constraintStart_toStartOf="parent"
+        tools:text="2x" />
+
+    <TextView
+        android:id="@+id/plv_media_player_speed_hint_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="2dp"
+        android:layout_marginTop="11dp"
+        android:layout_marginBottom="9dp"
+        android:text="@string/plv_media_player_ui_component_long_press_speed_control_hint_text"
+        android:textColor="#FFFFFF"
+        android:textSize="14sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/plv_media_player_speed_tv"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <com.opensource.svgaplayer.SVGAImageView
+        android:layout_width="28dp"
+        android:layout_height="28dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/plv_media_player_speed_hint_tv"
+        app:layout_constraintTop_toTopOf="parent"
+        app:source="plv_media_player_long_press_speed_control_anim.svga" />
+
+</android.support.constraint.ConstraintLayout>

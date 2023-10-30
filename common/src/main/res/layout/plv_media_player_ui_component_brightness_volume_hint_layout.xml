@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="@drawable/plv_media_player_brightness_volume_hint_bg">
+
+    <ImageView
+        android:id="@+id/plv_media_player_brightness_volume_iv"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_marginVertical="8dp"
+        android:layout_marginStart="16dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:src="@drawable/plv_media_player_brightness_hint_icon" />
+
+    <ProgressBar
+        android:id="@+id/plv_media_player_brightness_volume_progress"
+        style="@android:style/Widget.ProgressBar.Horizontal"
+        android:layout_width="100dp"
+        android:layout_height="2dp"
+        android:layout_marginStart="12dp"
+        android:layout_marginEnd="24dp"
+        android:indeterminate="false"
+        android:max="100"
+        android:progressDrawable="@drawable/plv_media_player_brightness_volume_hint_progress_bar_style"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/plv_media_player_brightness_volume_iv"
+        app:layout_constraintTop_toTopOf="parent" />
+
+</android.support.constraint.ConstraintLayout>

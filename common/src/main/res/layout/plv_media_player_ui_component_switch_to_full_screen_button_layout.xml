@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:gravity="center_vertical"
+    android:paddingVertical="5dp"
+    android:paddingHorizontal="8dp"
+    android:background="@drawable/plv_media_player_switch_to_full_screen_button_bg">
+
+    <ImageView
+        android:layout_width="16dp"
+        android:layout_height="16dp"
+        android:src="@drawable/plv_media_player_full_screen_icon" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="#FFFFFF"
+        android:textSize="12sp"
+        android:layout_marginStart="2dp"
+        android:includeFontPadding="false"
+        android:text="@string/plv_media_player_ui_component_full_screen_hint_text" />
+
+</LinearLayout>

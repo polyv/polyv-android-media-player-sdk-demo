@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/plv_media_player_video_layout"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <!-- 裸播放器容器 -->
+    <FrameLayout
+        android:id="@+id/plv_media_player_video_view_container"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:background="@android:color/black"
+        app:layout_constraintDimensionRatio="16:9"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:background="@drawable/plv_media_player_audio_mode_cover_layout_bg" />
+
+    <!-- 音频模式覆盖层 -->
+    <net.polyv.android.player.common.ui.component.PLVMediaPlayerAudioModeCoverLayoutPortrait
+        android:id="@+id/plv_media_player_audio_mode_cover_landscape"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="@+id/plv_media_player_video_view_container"
+        app:layout_constraintEnd_toEndOf="@+id/plv_media_player_video_view_container"
+        app:layout_constraintStart_toStartOf="@+id/plv_media_player_video_view_container"
+        app:layout_constraintTop_toTopOf="@+id/plv_media_player_video_view_container" />
+
+    <!-- 亮度/音量手势控制层 -->
+    <net.polyv.android.player.common.ui.component.PLVMediaPlayerBrightnessVolumeControlLayout
+        android:id="@+id/plv_media_player_brightness_volume_control_layout"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="@+id/plv_media_player_video_view_container"
+        app:layout_constraintEnd_toEndOf="@+id/plv_media_player_video_view_container"
+        app:layout_constraintStart_toStartOf="@+id/plv_media_player_video_view_container"
+        app:layout_constraintTop_toTopOf="@+id/plv_media_player_video_view_container" />
+
+    <!-- 长按快进手势控制层 -->
+    <net.polyv.android.player.common.ui.component.PLVMediaPlayerLongPressSpeedControlLayout
+        android:id="@+id/plv_media_player_long_press_speed_control_layout"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="@+id/plv_media_player_video_view_container"
+        app:layout_constraintEnd_toEndOf="@+id/plv_media_player_video_view_container"
+        app:layout_constraintStart_toStartOf="@+id/plv_media_player_video_view_container"
+        app:layout_constraintTop_toTopOf="@+id/plv_media_player_video_view_container" />
+
+    <!-- 左右滑动seek控制层 -->
+    <net.polyv.android.player.common.ui.component.PLVMediaPlayerHorizontalDragControlLayout
+        android:id="@+id/plv_media_player_horizontal_drag_control_layout"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="@+id/plv_media_player_video_view_container"
+        app:layout_constraintEnd_toEndOf="@+id/plv_media_player_video_view_container"
+        app:layout_constraintStart_toStartOf="@+id/plv_media_player_video_view_container"
+        app:layout_constraintTop_toTopOf="@+id/plv_media_player_video_view_container" />
+
+    <!-- 皮肤控件底部渐变遮罩蒙层 -->
+    <net.polyv.android.player.common.ui.component.PLVMediaPlayerControllerGradientMaskLayout
+        android:id="@+id/plv_media_player_controller_gradient_mask_layout"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="@+id/plv_media_player_video_view_container"
+        app:layout_constraintEnd_toEndOf="@+id/plv_media_player_video_view_container"
+        app:layout_constraintStart_toStartOf="@+id/plv_media_player_video_view_container"
+        app:layout_constraintTop_toTopOf="@+id/plv_media_player_video_view_container"
+        app:plvBottomMaskHeight="64dp"
+        app:plvTopMaskHeight="64dp" />
+
+    <!-- 播放结束弹层 -->
+    <net.polyv.android.player.common.ui.component.PLVMediaPlayerPlayCompleteManualRestartOverlayLayout
+        android:id="@+id/plv_media_player_complete_overlay_layout"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="@+id/plv_media_player_video_view_container"
+        app:layout_constraintEnd_toEndOf="@+id/plv_media_player_video_view_container"
+        app:layout_constraintStart_toStartOf="@+id/plv_media_player_video_view_container"
+        app:layout_constraintTop_toTopOf="@+id/plv_media_player_video_view_container" />
+
+    <!-- 播放异常弹层 -->
+    <net.polyv.android.player.common.ui.component.PLVMediaPlayerPlayErrorOverlayLayout
+        android:id="@+id/plv_media_player_error_overlay_layout"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="@+id/plv_media_player_video_view_container"
+        app:layout_constraintEnd_toEndOf="@+id/plv_media_player_video_view_container"
+        app:layout_constraintStart_toStartOf="@+id/plv_media_player_video_view_container"
+        app:layout_constraintTop_toTopOf="@+id/plv_media_player_video_view_container" />
+
+    <!-- 返回按钮 -->
+    <net.polyv.android.player.common.ui.component.PLVMediaPlayerBackImageView
+        android:id="@+id/plv_media_player_back_iv"
+        android:layout_width="28dp"
+        android:layout_height="28dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="8dp"
+        android:src="@drawable/plv_media_player_back_icon"
+        app:layout_constraintStart_toStartOf="@+id/plv_media_player_video_view_container"
+        app:layout_constraintTop_toTopOf="@+id/plv_media_player_video_view_container" />
+
+    <!-- 视频标题 -->
+    <net.polyv.android.player.common.ui.component.PLVMediaPlayerTitleTextView
+        android:id="@+id/plv_media_player_title_tv"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:textColor="#FFFFFF"
+        android:textSize="16sp"
+        app:layout_constraintBottom_toBottomOf="@+id/plv_media_player_back_iv"
+        app:layout_constraintEnd_toStartOf="@+id/plv_media_player_more_action_button"
+        app:layout_constraintStart_toEndOf="@+id/plv_media_player_back_iv"
+        app:layout_constraintTop_toTopOf="@+id/plv_media_player_back_iv" />
+
+    <!-- 更多功能按钮 -->
+    <net.polyv.android.player.common.ui.component.PLVMediaPlayerMoreActionImageView
+        android:id="@+id/plv_media_player_more_action_button"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_marginEnd="6dp"
+        android:padding="10dp"
+        android:src="@drawable/plv_media_player_more_action_icon"
+        app:layout_constraintEnd_toEndOf="@+id/plv_media_player_video_view_container"
+        app:layout_constraintTop_toTopOf="@+id/plv_media_player_video_view_container" />
+
+    <!-- 播放/暂停按钮 -->
+    <net.polyv.android.player.common.ui.component.PLVMediaPlayerPlayButtonLandscape
+        android:id="@+id/plv_media_player_play_button"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_marginStart="4dp"
+        android:layout_marginBottom="4dp"
+        android:padding="8dp"
+        app:layout_constraintBottom_toBottomOf="@+id/plv_media_player_video_view_container"
+        app:layout_constraintStart_toStartOf="@+id/plv_media_player_video_view_container"
+        tools:src="@drawable/plv_media_player_play_button_icon_to_play_landscape" />
+
+    <!-- 播放进度文本 -->
+    <net.polyv.android.player.common.ui.component.PLVMediaPlayerProgressTextView
+        android:id="@+id/plv_media_player_progress_text_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="@+id/plv_media_player_play_button"
+        app:layout_constraintStart_toEndOf="@+id/plv_media_player_play_button"
+        app:layout_constraintTop_toTopOf="@+id/plv_media_player_play_button" />
+
+    <!-- 切换全屏按钮 -->
+    <net.polyv.android.player.common.ui.component.PLVMediaPlayerSwitchToFullScreenButtonPortraitHalfScreen
+        android:id="@+id/plv_media_player_switch_video_mode_btn"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_marginEnd="4dp"
+        android:layout_marginBottom="4dp"
+        android:padding="8dp"
+        android:src="@drawable/plv_media_player_full_screen_icon"
+        app:layout_constraintBottom_toBottomOf="@+id/plv_media_player_video_view_container"
+        app:layout_constraintEnd_toEndOf="@+id/plv_media_player_video_view_container" />
+
+    <!-- 进度条 -->
+    <net.polyv.android.player.common.ui.component.PLVMediaPlayerProgressSeekBar
+        android:id="@+id/plv_media_player_progress_seek_bar"
+        android:layout_width="0dp"
+        android:layout_height="14dp"
+        android:max="10000"
+        android:progressDrawable="@drawable/plv_media_player_progress_seek_bar_style_normal"
+        android:thumb="@drawable/plv_media_player_progress_position_point_style_portrait_normal"
+        app:layout_constraintBottom_toTopOf="@+id/plv_media_player_play_button"
+        app:layout_constraintEnd_toEndOf="@+id/plv_media_player_video_view_container"
+        app:layout_constraintStart_toStartOf="@+id/plv_media_player_video_view_container"
+        app:plvProgressDrawableOnDrag="@drawable/plv_media_player_progress_seek_bar_style_drag"
+        app:plvSeekBarHeight="2dp"
+        app:plvSeekBarHeightOnDrag="8dp"
+        app:plvThumbDrawableOnDrag="@drawable/plv_media_player_progress_position_point_style_drag" />
+
+    <!-- 弱网提示 -->
+    <net.polyv.android.player.common.ui.component.PLVMediaPlayerNetworkPoorIndicateLayoutPortrait
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="2dp"
+        android:translationY="-10dp"
+        app:layout_constraintEnd_toEndOf="@+id/plv_media_player_more_action_button"
+        app:layout_constraintTop_toBottomOf="@+id/plv_media_player_more_action_button" />
+
+    <!-- 亮度/音量控制提示 -->
+    <net.polyv.android.player.common.ui.component.PLVMediaPlayerBrightnessVolumeHintLayout
+        android:id="@+id/plv_media_player_brightness_volume_hint_layout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="28dp"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="@+id/plv_media_player_video_view_container"
+        app:layout_constraintStart_toStartOf="@+id/plv_media_player_video_view_container"
+        app:layout_constraintTop_toTopOf="@+id/plv_media_player_video_view_container" />
+
+    <!-- 长按快进控制提示 -->
+    <net.polyv.android.player.common.ui.component.PLVMediaPlayerLongPressSpeedHintLayout
+        android:id="@+id/plv_media_player_long_press_speed_hint_layout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="28dp"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="@+id/plv_media_player_video_view_container"
+        app:layout_constraintStart_toStartOf="@+id/plv_media_player_video_view_container"
+        app:layout_constraintTop_toTopOf="@+id/plv_media_player_video_view_container" />
+
+</android.support.constraint.ConstraintLayout>

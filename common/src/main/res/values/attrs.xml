@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <attr name="radius" format="dimension" />
+    <attr name="mode" format="flags">
+        <flag name="none" value="0" />
+        <flag name="leftTop" value="1" />
+        <flag name="leftBottom" value="2" />
+        <flag name="rightTop" value="4" />
+        <flag name="rightBottom" value="8" />
+        <flag name="left" value="3" />
+        <flag name="top" value="5" />
+        <flag name="bottom" value="10" />
+        <flag name="right" value="12" />
+        <flag name="all" value="15" />
+    </attr>
+
+    <attr name="plvIconTintNormal" format="color" />
+    <attr name="plvIconTintSelected" format="color" />
+    <attr name="plvTextColorNormal" format="color" />
+    <attr name="plvTextColorSelected" format="color" />
+
+    <attr name="triangleWidth" format="dimension" />
+    <attr name="triangleHeight" format="dimension" />
+    <attr name="triangleMargin" format="dimension" />
+    <attr name="trianglePosition" format="enum">
+        <enum name="top" value="0" />
+        <enum name="bottom" value="1" />
+        <enum name="left" value="2" />
+        <enum name="right" value="3" />
+    </attr>
+    <attr name="triangleMarginType" format="enum">
+        <enum name="left" value="0" />
+        <enum name="right" value="1" />
+        <enum name="top" value="2" />
+        <enum name="bottom" value="3" />
+        <enum name="center" value="4" />
+        <enum name="anchor" value="5" />
+    </attr>
+    <attr name="triangleCenter" format="boolean" />
+    <attr name="indicateColor" format="color" />
+    <attr name="indicateEndColor" format="color" />
+    <attr name="rectRadius" format="dimension" />
+    <attr name="plvGradientOrientation" format="enum">
+        <enum name="leftRight" value="0" />
+        <enum name="bottomLeftTopRight" value="1" />
+        <enum name="bottomTop" value="2" />
+        <enum name="bottomRightTopLeft" value="3" />
+        <enum name="rightLeft" value="4" />
+        <enum name="topRightBottomLeft" value="5" />
+        <enum name="topBottom" value="6" />
+        <enum name="topLeftBottomRight" value="7" />
+    </attr>
+    <attr name="plvGradientStartColor" format="color" />
+    <attr name="plvGradientMiddleColor" format="color" />
+    <attr name="plvGradientEndColor" format="color" />
+    <attr name="plvGradientColors" format="string" />
+
+    <declare-styleable name="PLVMediaPlayerProgressSeekBar">
+        <attr name="plvSeekBarHeight" format="dimension" />
+        <attr name="plvSeekBarHeightOnDrag" format="dimension" />
+        <attr name="plvProgressDrawableOnDrag" format="reference" />
+        <attr name="plvThumbDrawableOnDrag" format="reference" />
+    </declare-styleable>
+
+    <declare-styleable name="PLVMediaPlayerMoreLayoutAudioModeActionView">
+        <attr name="plvIconTintNormal" />
+        <attr name="plvIconTintSelected" />
+        <attr name="plvTextColorNormal" />
+        <attr name="plvTextColorSelected" />
+    </declare-styleable>
+    <declare-styleable name="PLVMediaPlayerMoreLayoutFloatWindowActionView">
+        <attr name="plvIconTintNormal" />
+        <attr name="plvIconTintSelected" />
+        <attr name="plvTextColorNormal" />
+        <attr name="plvTextColorSelected" />
+    </declare-styleable>
+    <declare-styleable name="PLVRoundRectConstraintLayout">
+        <attr name="radius" />
+        <attr name="mode" />
+    </declare-styleable>
+    <declare-styleable name="PLVMediaPlayerControllerGradientMaskLayout">
+        <attr name="plvTopMaskHeight" format="dimension" />
+        <attr name="plvBottomMaskHeight" format="dimension" />
+    </declare-styleable>
+    <declare-styleable name="PLVTriangleIndicateLayout">
+        <attr name="triangleWidth" />
+        <attr name="triangleHeight" />
+        <attr name="triangleMargin" />
+        <attr name="trianglePosition" />
+        <attr name="triangleMarginType" />
+        <attr name="indicateColor" />
+        <attr name="plvGradientColors" />
+        <attr name="plvGradientOrientation" />
+        <attr name="rectRadius" />
+    </declare-styleable>
+</resources>

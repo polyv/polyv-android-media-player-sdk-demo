@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <android.support.constraint.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/plv_media_player_more_action_layout_bg_portrait"
+        android:clickable="true"
+        android:paddingBottom="53dp"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <ImageView
+            android:id="@+id/plv_media_player_more_action_close_iv"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            android:padding="12dp"
+            android:src="@drawable/plv_media_player_float_menu_close_icon"
+            android:tint="#333333"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <android.support.constraint.ConstraintLayout
+            android:id="@+id/plv_media_player_more_layout_action_container"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="24dp"
+            android:layout_marginTop="48dp"
+            android:paddingBottom="8dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <net.polyv.android.player.common.ui.component.PLVMediaPlayerMoreLayoutAudioModeActionView
+                android:id="@+id/plv_media_player_more_audio_mode_action_view"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:plvIconTintNormal="#333333"
+                app:plvIconTintSelected="#3F76FC"
+                app:plvTextColorNormal="#CC333333"
+                app:plvTextColorSelected="#CC3F76FC" />
+
+            <net.polyv.android.player.common.ui.component.PLVMediaPlayerMoreLayoutFloatWindowActionView
+                android:id="@+id/plv_media_player_more_float_window_action_view"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="28dp"
+                app:layout_constraintStart_toEndOf="@+id/plv_media_player_more_audio_mode_action_view"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_goneMarginStart="0dp"
+                app:plvIconTintNormal="#333333"
+                app:plvIconTintSelected="#3F76FC"
+                app:plvTextColorNormal="#CC333333"
+                app:plvTextColorSelected="#CC3F76FC" />
+
+        </android.support.constraint.ConstraintLayout>
+
+        <TextView
+            android:id="@+id/plv_media_player_more_bit_rate_hint_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="24dp"
+            android:layout_marginTop="20dp"
+            android:text="@string/plv_media_player_ui_component_bit_rate_hint_text_portrait"
+            android:textColor="#CC333333"
+            android:textSize="12sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/plv_media_player_more_layout_action_container" />
+
+        <net.polyv.android.player.common.ui.component.PLVMediaPlayerBitRateSelectLayoutPortrait
+            android:id="@+id/plv_media_player_more_bit_rate_ll"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="35dp"
+            android:orientation="horizontal"
+            app:layout_constraintBottom_toBottomOf="@+id/plv_media_player_more_bit_rate_hint_tv"
+            app:layout_constraintStart_toEndOf="@+id/plv_media_player_more_bit_rate_hint_tv"
+            app:layout_constraintTop_toTopOf="@+id/plv_media_player_more_bit_rate_hint_tv" />
+
+        <android.support.constraint.Group
+            android:id="@+id/plv_media_player_more_bit_rate_group"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:constraint_referenced_ids="plv_media_player_more_bit_rate_hint_tv, plv_media_player_more_bit_rate_ll" />
+
+        <TextView
+            android:id="@+id/plv_media_player_more_speed_hint_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="24dp"
+            android:layout_marginTop="20dp"
+            android:text="@string/plv_media_player_ui_component_speed_hint_text_portrait"
+            android:textColor="#CC333333"
+            android:textSize="12sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/plv_media_player_more_bit_rate_hint_tv" />
+
+        <net.polyv.android.player.common.ui.component.PLVMediaPlayerSpeedSelectLayoutPortrait
+            android:id="@+id/plv_media_player_more_speed_ll"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="47dp"
+            android:orientation="horizontal"
+            app:layout_constraintBottom_toBottomOf="@+id/plv_media_player_more_speed_hint_tv"
+            app:layout_constraintStart_toEndOf="@+id/plv_media_player_more_speed_hint_tv"
+            app:layout_constraintTop_toTopOf="@+id/plv_media_player_more_speed_hint_tv" />
+
+    </android.support.constraint.ConstraintLayout>
+
+</android.support.constraint.ConstraintLayout>

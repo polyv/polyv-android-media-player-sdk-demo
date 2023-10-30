@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- 悬浮窗功能，小窗播放 -->
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+    <!-- 网络请求 -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <!-- httpdns -->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <!-- httpdns -->
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <!-- 移除 httpdns 的 read_phone_state 权限 -->
+    <uses-permission
+        android:name="android.permission.READ_PHONE_STATE"
+        tools:node="remove" />
+
+</manifest>
