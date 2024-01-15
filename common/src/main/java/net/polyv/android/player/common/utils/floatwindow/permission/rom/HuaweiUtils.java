@@ -72,8 +72,7 @@ public class HuaweiUtils {
             //此处可跳转到指定app对应的权限管理页面，但是需要相关权限，未解决
             intent.setComponent(comp);
             fragment.startActivityForResult(intent, PLVFloatPermissionUtils.REQUEST_CODE_MANAGE_OVERLAY_PERMISSION);
-            e.printStackTrace();
-            Log.e(TAG, Log.getStackTraceString(e));
+            Log.e(TAG, e.getMessage(), e);
         } catch (Exception e) {
             //抛出异常时提示信息
             Toast.makeText(fragment.getActivity(), "进入设置页面失败，请手动设置", Toast.LENGTH_LONG).show();

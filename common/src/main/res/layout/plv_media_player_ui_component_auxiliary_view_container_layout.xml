@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/black">
+
+    <FrameLayout
+        android:id="@+id/plv_media_player_auxiliary_video_view_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <net.polyv.android.player.common.ui.component.PLVMediaPlayerAuxiliaryCountDownTextView
+        android:id="@+id/plv_media_player_auxiliary_count_down_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@android:color/white"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="@string/plv_media_player_ui_component_auxiliary_time_left_text"
+        tools:visibility="visible" />
+
+</android.support.constraint.ConstraintLayout>

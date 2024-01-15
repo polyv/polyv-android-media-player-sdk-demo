@@ -33,4 +33,6 @@ dependencies {
     implementation("com.android.support:multidex:$deps_multidex_version")
 
     implementation(project(":common"))
+
+    annotationProcessor("com.github.bumptech.glide:compiler:$deps_glide_version")
 }

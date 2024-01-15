@@ -101,7 +101,7 @@ public class PLVMediaPlayerProgressTextView extends FrameLayout {
 
     protected void onViewStateChanged() {
         PLVRememberState.rememberStateOf(this, "onChangeProgress")
-                .compareLastAndSet(currentControlViewState, currentProgress)
+                .compareLastAndSet(currentProgress)
                 .ifNotEquals(new PLVSugarUtil.Consumer<PLVRememberStateCompareResult>() {
                     @Override
                     public void accept(PLVRememberStateCompareResult result) {
@@ -129,11 +129,7 @@ public class PLVMediaPlayerProgressTextView extends FrameLayout {
     }
 
     protected void onChangeProgress() {
-        if (currentControlViewState != null && currentControlViewState.progressSeekBarDragging) {
-            progressTv.setText(PLVTimeUtils.generateTime(currentControlViewState.progressSeekBarDragPosition));
-        } else {
-            progressTv.setText(PLVTimeUtils.generateTime(currentProgress));
-        }
+        progressTv.setText(PLVTimeUtils.generateTime(currentProgress));
     }
 
     protected void onChangeDuration() {

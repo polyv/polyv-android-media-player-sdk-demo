@@ -1,4 +1,4 @@
-package net.polyv.android.player.demo.utils;
+package net.polyv.android.player.common.utils.ui.viewpager;
 
 import android.content.Context;
 import android.content.res.Resources;

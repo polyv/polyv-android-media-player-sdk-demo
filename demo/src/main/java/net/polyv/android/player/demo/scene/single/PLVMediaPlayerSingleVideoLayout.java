@@ -5,7 +5,6 @@ import static com.plv.foundationsdk.utils.PLVSugarUtil.listOf;
 import android.arch.lifecycle.GenericLifecycleObserver;
 import android.arch.lifecycle.Lifecycle;
 import android.arch.lifecycle.LifecycleOwner;
-import android.arch.lifecycle.LiveData;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.support.annotation.NonNull;
@@ -16,19 +15,24 @@ import android.view.LayoutInflater;
 import android.widget.FrameLayout;
 
 import com.plv.foundationsdk.component.exts.Lazy;
+import com.plv.foundationsdk.utils.PLVSugarUtil;
 import com.plv.thirdpart.blankj.utilcode.util.ScreenUtils;
 
 import net.polyv.android.player.business.scene.common.model.vo.PLVMediaResource;
+import net.polyv.android.player.common.ui.component.PLVMediaPlayerAutoFloatWindowOnBackgroundComponent;
+import net.polyv.android.player.common.ui.component.PLVMediaPlayerAuxiliaryBeforePlayListener;
 import net.polyv.android.player.common.ui.component.PLVMediaPlayerMoreActionLayoutPortrait;
 import net.polyv.android.player.common.ui.component.floatwindow.PLVMediaPlayerFloatWindowManager;
 import net.polyv.android.player.common.ui.localprovider.PLVMediaPlayerLocalProvider;
 import net.polyv.android.player.common.ui.viewmodel.PLVMediaPlayerControlViewModel;
 import net.polyv.android.player.common.ui.viewmodel.action.PLVMediaPlayerControlAction;
 import net.polyv.android.player.common.utils.orientation.PLVActivityOrientationManager;
+import net.polyv.android.player.common.utils.ui.PLVViewLifecycleObservable;
 import net.polyv.android.player.core.api.option.PLVMediaPlayerOptionEnum;
 import net.polyv.android.player.demo.R;
 import net.polyv.android.player.demo.scene.single.layout.PLVMediaPlayerSingleLandscapeItemLayout;
 import net.polyv.android.player.demo.scene.single.layout.PLVMediaPlayerSinglePortraitItemLayout;
+import net.polyv.android.player.sdk.PLVAuxiliaryVideoView;
 import net.polyv.android.player.sdk.PLVVideoView;
 
 /**
@@ -39,6 +43,9 @@ public class PLVMediaPlayerSingleVideoLayout extends FrameLayout {
     // <editor-fold defaultstate="collapsed" desc="Layout-属性">
     // 裸播放器 view
     private final PLVVideoView videoView = new PLVVideoView(getContext());
+    // 广告播放器
+    private final PLVAuxiliaryVideoView auxiliaryVideoView = new PLVAuxiliaryVideoView(getContext());
+    private final PLVMediaPlayerAuxiliaryBeforePlayListener auxiliaryBeforePlayListener = new PLVMediaPlayerAuxiliaryBeforePlayListener();
 
     // 播放器皮肤 对应的 数据模型，控制 播放器皮肤 的显示状态
     private final PLVMediaPlayerControlViewModel controlViewModel = new PLVMediaPlayerControlViewModel();
@@ -58,6 +65,12 @@ public class PLVMediaPlayerSingleVideoLayout extends FrameLayout {
             return new LandscapeLayout(getContext());
         }
     };
+
+    // App进入后台时自动唤起小窗
+    private final PLVMediaPlayerAutoFloatWindowOnBackgroundComponent autoFloatWindowOnBackgroundComponent = new PLVMediaPlayerAutoFloatWindowOnBackgroundComponent(getContext());
+
+    // 生命周期
+    private final PLVViewLifecycleObservable viewLifecycleObservable = new PLVViewLifecycleObservable();
 
     // 横竖屏方向
     private int lastOrientation = -1;
@@ -88,14 +101,14 @@ public class PLVMediaPlayerSingleVideoLayout extends FrameLayout {
 
     private void initLayout() {
         setKeepScreenOn(true); // 缺省设置屏幕常亮
+        autoFloatWindowOnBackgroundComponent.setUserVisibleHint(true);
     }
 
     private void initProvider() {
-        // 监听裸播放器的状态变化
         PLVMediaPlayerLocalProvider.localMediaPlayer.on(this).provide(videoView);
-
-        // 监听皮肤的状态变化
+        PLVMediaPlayerLocalProvider.localAuxiliaryMediaPlayer.on(this).provide(auxiliaryVideoView);
         PLVMediaPlayerLocalProvider.localControlViewModel.on(this).provide(controlViewModel);
+        PLVMediaPlayerLocalProvider.localLifecycleObservable.on(this).provide(viewLifecycleObservable);
     }
 
     private void initVideoView() {
@@ -103,6 +116,9 @@ public class PLVMediaPlayerSingleVideoLayout extends FrameLayout {
                 PLVMediaPlayerOptionEnum.ENABLE_ACCURATE_SEEK.value("1")
         ));
         videoView.setAutoContinue(true);
+
+        auxiliaryVideoView.getAuxiliaryListenerRegistry().setOnBeforeAdvertListener(auxiliaryBeforePlayListener);
+        videoView.bindAuxiliaryPlayer(auxiliaryVideoView);
     }
 
     private void observeLifecycle() {
@@ -118,11 +134,14 @@ public class PLVMediaPlayerSingleVideoLayout extends FrameLayout {
 
     private void updateVideoLayout() {
         removeAllViews();
+        addView(autoFloatWindowOnBackgroundComponent);
         if (ScreenUtils.isPortrait()) {
             portraitLayout.get().setVideoView(videoView);
+            portraitLayout.get().setAuxiliaryVideoView(auxiliaryVideoView);
             addView(portraitLayout.get());
         } else {
             landscapeLayout.get().setVideoView(videoView);
+            landscapeLayout.get().setAuxiliaryVideoView(auxiliaryVideoView);
             addView(landscapeLayout.get());
         }
     }
@@ -135,16 +154,8 @@ public class PLVMediaPlayerSingleVideoLayout extends FrameLayout {
         }
     }
 
-    public PLVMediaResource getMediaResource() {
-        LiveData<PLVMediaResource> mediaResource = null;
-        if (videoView != null) {
-            mediaResource = videoView.getBusinessListenerRegistry().getCurrentMediaResource();
-        }
-        return mediaResource.getValue();
-    }
-
-    public PLVVideoView getVideoView() {
-        return videoView;
+    public void setEnterFromFloatWindow(boolean enterFromFloatWindow) {
+        auxiliaryBeforePlayListener.setEnterFromFloatWindow(enterFromFloatWindow);
     }
     // </editor-fold>
 
@@ -175,6 +186,12 @@ public class PLVMediaPlayerSingleVideoLayout extends FrameLayout {
     }
 
     private void destroy() {
+        viewLifecycleObservable.callObserver(new PLVSugarUtil.Consumer<PLVViewLifecycleObservable.IViewLifecycleObserver>() {
+            @Override
+            public void accept(PLVViewLifecycleObservable.IViewLifecycleObserver observer) {
+                observer.onDestroy(viewLifecycleObservable);
+            }
+        });
         PLVMediaPlayerFloatWindowManager.getInstance()
                 .runOnFloatingWindowClosed(new Runnable() {
                     @Override
@@ -215,6 +232,10 @@ public class PLVMediaPlayerSingleVideoLayout extends FrameLayout {
             singlePortVideoLayout.setVideoView(videoView);
         }
 
+        public void setAuxiliaryVideoView(PLVAuxiliaryVideoView auxiliaryVideoView) {
+            singlePortVideoLayout.setAuxiliaryVideoView(auxiliaryVideoView);
+        }
+
     }
     // </editor-fold>
 
@@ -241,6 +262,10 @@ public class PLVMediaPlayerSingleVideoLayout extends FrameLayout {
 
         public void setVideoView(PLVVideoView videoView) {
             landscapeLayout.setVideoView(videoView);
+        }
+
+        public void setAuxiliaryVideoView(PLVAuxiliaryVideoView auxiliaryVideoView) {
+            landscapeLayout.setAuxiliaryVideoView(auxiliaryVideoView);
         }
 
     }

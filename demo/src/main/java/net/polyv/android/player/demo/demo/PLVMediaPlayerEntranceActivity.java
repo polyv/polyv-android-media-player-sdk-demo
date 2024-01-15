@@ -7,6 +7,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 
+import com.plv.thirdpart.blankj.utilcode.util.ToastUtils;
+
 import net.polyv.android.player.business.scene.common.model.vo.PLVMediaResource;
 import net.polyv.android.player.common.utils.ui.PLVDebounceClicker;
 import net.polyv.android.player.demo.R;
@@ -33,6 +35,9 @@ public class PLVMediaPlayerEntranceActivity extends AppCompatActivity implements
         super.onCreate(savedInstanceState);
         PLVDeviceManager.setTransparentStatusBar(getWindow());
         setContentView(R.layout.plv_media_player_entrance_layout);
+
+        // 提前初始化视频列表数据
+        PLVMockMediaResourceData.getInstance();
 
         entranceFeedVideoBtn = findViewById(R.id.plv_media_player_entrance_feed_video_btn);
         entranceSingleVideoBtn = findViewById(R.id.plv_media_player_entrance_single_video_btn);
@@ -64,6 +69,10 @@ public class PLVMediaPlayerEntranceActivity extends AppCompatActivity implements
     private void gotoFeedVideoActivity() {
         // mock data
         List<PLVMediaResource> sourceList = PLVMockMediaResourceData.getInstance().getMediaResources();
+        if (sourceList == null || sourceList.isEmpty()) {
+            ToastUtils.showShort("视频数据未初始化");
+            return;
+        }
         List<PLVMediaResource> mediaResourceList = sourceList.subList(0, Math.min(10, sourceList.size()));
 
         // goto Feed Video Activity
@@ -74,6 +83,10 @@ public class PLVMediaPlayerEntranceActivity extends AppCompatActivity implements
     private void gotoSingleVideoActivity() {
         // mock data
         PLVMediaResource mediaResource = PLVMockMediaResourceData.getInstance().getRandomMediaResource();
+        if (mediaResource == null) {
+            ToastUtils.showShort("视频数据未初始化");
+            return;
+        }
 
         // goto Single Video Activity
         Intent intent = new Intent(PLVMediaPlayerEntranceActivity.this, PLVMediaPlayerSingleVideoActivity.class);

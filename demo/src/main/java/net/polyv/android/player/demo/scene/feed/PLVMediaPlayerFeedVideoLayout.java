@@ -4,11 +4,9 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentActivity;
-import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
-import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.Toast;
 
@@ -18,12 +16,15 @@ import com.plv.thirdpart.blankj.utilcode.util.ScreenUtils;
 
 import net.polyv.android.player.business.scene.common.model.vo.PLVMediaResource;
 import net.polyv.android.player.common.utils.data.PLVStatefulData;
+import net.polyv.android.player.common.utils.feed.PLVFeedViewPager;
+import net.polyv.android.player.common.utils.feed.PLVFeedViewPagerAdapter;
 import net.polyv.android.player.common.utils.orientation.PLVActivityOrientationManager;
 import net.polyv.android.player.demo.R;
+import net.polyv.android.player.demo.scene.feed.item.PLVMediaPlayerFeedVideoItemFragment;
 import net.polyv.android.player.demo.scene.feed.pager.PLVMediaPlayerFeedViewPager;
-import net.polyv.android.player.demo.scene.feed.pager.PLVMediaPlayerFeedViewPagerAdapter;
 import net.polyv.android.player.demo.scene.feed.viewmodel.IPLVMediaPlayerFeedVideoDataViewModel;
-import net.polyv.android.player.demo.utils.VerticalViewPager;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
@@ -38,8 +39,7 @@ public class PLVMediaPlayerFeedVideoLayout extends FrameLayout {
 
     private PLVMediaPlayerFeedViewPager feedViewPager;
 
-    private final PLVMediaPlayerFeedViewPagerAdapter feedViewPagerAdapter
-            = new PLVMediaPlayerFeedViewPagerAdapter(((FragmentActivity) getContext()).getSupportFragmentManager());
+    private final PLVFeedViewPagerAdapter<PLVMediaPlayerFeedVideoItemFragment, PLVMediaResource> feedViewPagerAdapter = new PLVFeedViewPagerAdapter<>(((FragmentActivity) getContext()).getSupportFragmentManager());
 
     private boolean isRequestingMediaResource = false;
     private boolean isRequestingRefreshMediaResource = false;
@@ -65,7 +65,7 @@ public class PLVMediaPlayerFeedVideoLayout extends FrameLayout {
 
         initLayout();  // 初始化layout布局
         initViewModel();  // 设置 feedViewModel 从HTTP接口获取到数据后的处理逻辑
-        initViewPager();  // 设置 ViewPager 的手势操作逻辑，包括 滑动、翻页 等
+        initViewPager();  // 设置 ViewPager 回调
     }
 
     private void initLayout() {
@@ -84,9 +84,10 @@ public class PLVMediaPlayerFeedVideoLayout extends FrameLayout {
                             @Override
                             public void success(List<PLVMediaResource> data) {
                                 if (isRequestingRefreshMediaResource) {
-                                    feedViewPagerAdapter.clearMediaResource();
+                                    feedViewPagerAdapter.setFeedResources(data);
+                                } else {
+                                    feedViewPagerAdapter.appendFeedResources(data);
                                 }
-                                feedViewPagerAdapter.acceptMediaResource(data);
                             }
                         })
                         .ifError(new PLVStatefulData.ErrorHandler() {
@@ -101,78 +102,60 @@ public class PLVMediaPlayerFeedVideoLayout extends FrameLayout {
         });
     }
 
-    // 设置 ViewPager 的手势操作逻辑，包括 滑动、翻页 等
+    // 设置 ViewPager 回调
     private void initViewPager() {
-        feedViewPager.setOverScrollMode(View.OVER_SCROLL_NEVER);
+        feedViewPagerAdapter
+                .setOnCreateFeedViewListener(new PLVFeedViewPagerAdapter.OnCreateFeedViewListener<PLVMediaPlayerFeedVideoItemFragment>() {
+                    @Override
+                    public PLVMediaPlayerFeedVideoItemFragment onCreateFeedView(int position) {
+                        return new PLVMediaPlayerFeedVideoItemFragment();
+                    }
+                })
+                .setOnBindFeedViewListener(new PLVFeedViewPagerAdapter.OnBindFeedViewListener<PLVMediaPlayerFeedVideoItemFragment, PLVMediaResource>() {
+                    @Override
+                    public void onBindFeedView(@NonNull @NotNull PLVMediaPlayerFeedVideoItemFragment feedView, PLVMediaResource resource) {
+                        feedView.setMediaResource(resource);
+                    }
+                });
+
+        feedViewPager
+                .setOnOverScrollListener(new PLVFeedViewPager.OnOverScrollListener() {
+                    @Override
+                    public void onOverScroll(float topOverScroll, float bottomOverScroll) {
+                        updateViewPagerPosition(topOverScroll, bottomOverScroll);
+                    }
+
+                    @Override
+                    public void onFinishOverScroll(float topOverScroll, float bottomOverScroll) {
+                        updateViewPagerPosition(0, 0);
+                    }
+
+                    private void updateViewPagerPosition(float topOverScroll, float bottomOverScroll) {
+                        MarginLayoutParams lp = (MarginLayoutParams) feedViewPager.getLayoutParams();
+                        lp.topMargin = Math.min((int) (-topOverScroll * 0.75F), ConvertUtils.dp2px(100));
+                        lp.bottomMargin = Math.min((int) (bottomOverScroll * 0.75F), ConvertUtils.dp2px(100));
+                        feedViewPager.setLayoutParams(lp);
+                    }
+                })
+                .setOnLoadFeedResourceListener(new PLVFeedViewPager.OnLoadFeedResourceListener() {
+                    @Override
+                    public void onRequestLoadFeedResource(int fromIndex) {
+                        if (isRequestingMediaResource) {
+                            return;
+                        }
+                        feedViewModel.requireMoreMediaResource(fromIndex);
+                        isRequestingMediaResource = true;
+                        isRequestingRefreshMediaResource = fromIndex == 0;
+                    }
+                });
+
         feedViewPager.setAdapter(feedViewPagerAdapter);
-        feedViewPager.setOnHandleScrollListener(new VerticalViewPager.OnHandleScrollListener() {
-            private float accumulateTopOverScroll = 0;
-            private float accumulateBottomOverScroll = 0;
-
-            @Override
-            public float onScroll(float oldScrollY, float scrollY, float deltaY, float topBound, float bottomBound) {
-                if (oldScrollY + accumulateBottomOverScroll + deltaY >= bottomBound) {
-                    scrollY = bottomBound;
-                    accumulateBottomOverScroll += deltaY - (bottomBound - oldScrollY);
-                } else if (oldScrollY + accumulateTopOverScroll + deltaY >= topBound) {
-                    scrollY = oldScrollY + accumulateTopOverScroll + deltaY;
-                    accumulateTopOverScroll = 0;
-                    accumulateBottomOverScroll = 0;
-                } else {
-                    scrollY = topBound;
-                    accumulateTopOverScroll += deltaY - (oldScrollY - topBound);
-                }
-                updateViewPagerPosition();
-                return scrollY;
-            }
-
-            @Override
-            public void onFinishScroll() {
-                boolean isHandleTopOverScroll = accumulateTopOverScroll < -ScreenUtils.getScreenOrientatedHeight() * 0.2F;
-                if (isHandleTopOverScroll && !isRequestingMediaResource) {
-                    feedViewModel.requireMoreMediaResource(0);
-                    isRequestingMediaResource = true;
-                    isRequestingRefreshMediaResource = true;
-                }
-                if (accumulateBottomOverScroll > 0 && !isRequestingMediaResource) {
-                    feedViewModel.requireMoreMediaResource(feedViewPagerAdapter.getCount());
-                    isRequestingMediaResource = true;
-                }
-                accumulateTopOverScroll = 0;
-                accumulateBottomOverScroll = 0;
-                updateViewPagerPosition();
-            }
-
-            private void updateViewPagerPosition() {
-                MarginLayoutParams lp = (MarginLayoutParams) feedViewPager.getLayoutParams();
-                lp.topMargin = Math.min((int) (-accumulateTopOverScroll * 0.75F), ConvertUtils.dp2px(100));
-                lp.bottomMargin = Math.min((int) (accumulateBottomOverScroll * 0.75F), ConvertUtils.dp2px(100));
-                feedViewPager.setLayoutParams(lp);
-            }
-        });
-        feedViewPager.setOnPageChangeListener(new ViewPager.OnPageChangeListener() {
-            @Override
-            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-            }
-
-            @Override
-            public void onPageSelected(int position) {
-                if (position > feedViewPagerAdapter.getCount() - 5 && !isRequestingMediaResource) {
-                    feedViewModel.requireMoreMediaResource(feedViewPagerAdapter.getCount());
-                    isRequestingMediaResource = true;
-                }
-            }
-
-            @Override
-            public void onPageScrollStateChanged(int state) {
-            }
-        });
     }
     // </editor-fold>
 
     // <editor-fold defaultstate="collapsed" desc="Layout-从外部设置视频信息资源">
     public void setTargetMediaResource(List<PLVMediaResource> mediaResources) {
-        feedViewPagerAdapter.acceptMediaResource(mediaResources);
+        feedViewPagerAdapter.setFeedResources(mediaResources);
     }
     // </editor-fold>
 

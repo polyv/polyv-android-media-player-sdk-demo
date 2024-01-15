@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 
@@ -113,20 +114,31 @@ public class PLVMediaPlayerFeedVideoActivity extends AppCompatActivity {
                 .setControlActionListener(new IPLVMediaPlayerFloatWindowControlActionListener() {
 
                     @Override
-                    public void onAfterFloatWindowShow() {
-                        finish();
+                    public void onAfterFloatWindowShow(int reason) {
+                        if (reason == PLVMediaPlayerFloatWindowManager.SHOW_REASON_MANUAL) {
+                            finish();
+                        }
                     }
 
                     @Override
-                    public void onClickContentGoBack(@Nullable PLVMediaResource saveMediaResource) {
-                        Intent intent = launchActivity(PLVMediaPlayerFeedVideoActivity.this, listOf(saveMediaResource));
+                    public void onClickContentGoBack(@NonNull Bundle bundle) {
+                        PLVMediaResource mediaResource = bundle.getParcelable(PLVMediaPlayerFloatWindowManager.KEY_SAVE_MEDIA_RESOURCE);
+
+                        if (mediaResource == null) {
+                            onClickClose();
+                            return;
+                        }
+
+                        Intent intent = launchActivity(PLVMediaPlayerFeedVideoActivity.this, listOf(mediaResource));
+                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
                         startActivity(intent);
+
                         PLVMediaPlayerFloatWindowManager.getInstance().hide();
                     }
 
                     @Override
                     public void onClickClose() {
-                        PLVMediaPlayerFloatWindowManager.getInstance().clear();
+                        PLVMediaPlayerFloatWindowManager.getInstance().hide();
                     }
 
                 });

@@ -1,5 +1,6 @@
 package net.polyv.android.player.common.ui.component;
 
+import static com.plv.foundationsdk.component.event.PLVEventKt.observeUntilViewDetached;
 import static com.plv.foundationsdk.component.livedata.PLVLiveDataExt.observeUntilViewDetached;
 import static com.plv.foundationsdk.utils.PLVSugarUtil.nullable;
 import static com.plv.foundationsdk.utils.PLVSugarUtil.requireNotNull;
@@ -21,6 +22,8 @@ import com.plv.foundationsdk.utils.PLVSugarUtil;
 import net.polyv.android.player.business.scene.common.model.api.vo.PLVVodVideoJsonVO;
 import net.polyv.android.player.common.ui.localprovider.PLVMediaPlayerLocalProvider;
 import net.polyv.android.player.common.utils.ui.image.glide.transform.BlurTransformation;
+import net.polyv.android.player.core.api.listener.event.PLVMediaPlayerOnInfoEvent;
+import net.polyv.android.player.core.api.listener.state.PLVMediaPlayerState;
 
 /**
  * @author Hoshiiro
@@ -28,6 +31,7 @@ import net.polyv.android.player.common.utils.ui.image.glide.transform.BlurTransf
 public class PLVMediaPlayerVideoFirstImageView extends AppCompatImageView {
 
     protected PLVVodVideoJsonVO currentVodVideoJson = null;
+    protected boolean isFirstFrameRendered = false;
 
     public PLVMediaPlayerVideoFirstImageView(Context context) {
         super(context);
@@ -59,11 +63,43 @@ public class PLVMediaPlayerVideoFirstImageView extends AppCompatImageView {
                     }
                 }
         );
+
+        observeUntilViewDetached(
+                requireNotNull(PLVMediaPlayerLocalProvider.localMediaPlayer.on(this).current())
+                        .getStateListenerRegistry()
+                        .getPlayerState(),
+                this,
+                new Observer<PLVMediaPlayerState>() {
+                    @Override
+                    public void onChanged(@Nullable @org.jetbrains.annotations.Nullable PLVMediaPlayerState playerState) {
+                        if (playerState == PLVMediaPlayerState.STATE_PREPARING) {
+                            isFirstFrameRendered = false;
+                        }
+                        onViewStateChanged();
+                    }
+                }
+        );
+
+        observeUntilViewDetached(
+                requireNotNull(PLVMediaPlayerLocalProvider.localMediaPlayer.on(this).current())
+                        .getEventListenerRegistry()
+                        .getOnInfo(),
+                this,
+                new PLVSugarUtil.Consumer<PLVMediaPlayerOnInfoEvent>() {
+                    @Override
+                    public void accept(PLVMediaPlayerOnInfoEvent onInfoEvent) {
+                        if (onInfoEvent != null && onInfoEvent.getWhat() == PLVMediaPlayerOnInfoEvent.MEDIA_INFO_VIDEO_RENDERING_START) {
+                            isFirstFrameRendered = true;
+                            onViewStateChanged();
+                        }
+                    }
+                }
+        );
     }
 
     protected void onViewStateChanged() {
         PLVRememberState.rememberStateOf(this, "onChangeFirstImage")
-                .compareLastAndSet(currentVodVideoJson)
+                .compareLastAndSet(currentVodVideoJson, isFirstFrameRendered)
                 .ifNotEquals(new PLVSugarUtil.Consumer<PLVRememberStateCompareResult>() {
                     @Override
                     public void accept(PLVRememberStateCompareResult result) {
@@ -79,7 +115,7 @@ public class PLVMediaPlayerVideoFirstImageView extends AppCompatImageView {
                 return currentVodVideoJson.getFirst_image();
             }
         });
-        if (TextUtils.isEmpty(url)) {
+        if (isFirstFrameRendered || TextUtils.isEmpty(url)) {
             setVisibility(View.GONE);
             return;
         }

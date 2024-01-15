@@ -14,9 +14,9 @@ import net.polyv.android.player.business.scene.common.player.IPLVMediaPlayer;
  */
 public class PLVMediaPlayerFloatWindowHelper {
 
-    private static final int FLOAT_WINDOW_WIDTH_LANDSCAPE = ConvertUtils.dp2px(153);
-    private static final int FLOAT_WINDOW_WIDTH_PORTRAIT = ConvertUtils.dp2px(86);
-    private static final int FLOAT_WINDOW_SIZE_MAX = ConvertUtils.dp2px(153);
+    private static final int FLOAT_WINDOW_WIDTH_LANDSCAPE = ConvertUtils.dp2px(176);
+    private static final int FLOAT_WINDOW_WIDTH_PORTRAIT = ConvertUtils.dp2px(153);
+    private static final int FLOAT_WINDOW_SIZE_MAX = ConvertUtils.dp2px(278);
 
     @Nullable
     public static Rect calculateFloatWindowPosition(@Nullable IPLVMediaPlayer mediaPlayer) {

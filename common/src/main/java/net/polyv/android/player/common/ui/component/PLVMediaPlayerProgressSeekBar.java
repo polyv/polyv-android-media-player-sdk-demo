@@ -42,7 +42,7 @@ public class PLVMediaPlayerProgressSeekBar extends AppCompatSeekBar implements S
     private Drawable thumbDrawableOnDrag;
 
     protected boolean isSeekBarDragging = false;
-    protected boolean waitBufferEndAfterSeek = false;
+    protected boolean waitSeekFinish = false;
     protected int progressOnDrag = 0;
     protected long currentPosition = 0;
     protected long currentDuration = 0;
@@ -133,9 +133,14 @@ public class PLVMediaPlayerProgressSeekBar extends AppCompatSeekBar implements S
                 new PLVSugarUtil.Consumer<PLVMediaPlayerOnInfoEvent>() {
                     @Override
                     public void accept(PLVMediaPlayerOnInfoEvent onInfoEvent) {
-                        if (onInfoEvent != null && onInfoEvent.getWhat() == PLVMediaPlayerOnInfoEvent.MEDIA_INFO_BUFFERING_END) {
-                            waitBufferEndAfterSeek = false;
-                            onViewStateChanged();
+                        if (onInfoEvent != null) {
+                            if (onInfoEvent.getWhat() == PLVMediaPlayerOnInfoEvent.MEDIA_INFO_AUDIO_SEEK_RENDERING_START
+                                    || onInfoEvent.getWhat() == PLVMediaPlayerOnInfoEvent.MEDIA_INFO_VIDEO_SEEK_RENDERING_START
+                                    || onInfoEvent.getWhat() == PLVMediaPlayerOnInfoEvent.MEDIA_INFO_AUDIO_RENDERING_START
+                                    || onInfoEvent.getWhat() == PLVMediaPlayerOnInfoEvent.MEDIA_INFO_VIDEO_RENDERING_START) {
+                                waitSeekFinish = false;
+                                onViewStateChanged();
+                            }
                         }
                     }
                 }
@@ -144,7 +149,7 @@ public class PLVMediaPlayerProgressSeekBar extends AppCompatSeekBar implements S
 
     protected void onViewStateChanged() {
         PLVRememberState.rememberStateOf(this, "onProgressUpdated")
-                .compareLastAndSet(currentPosition, currentDuration, currentControlViewState, waitBufferEndAfterSeek)
+                .compareLastAndSet(currentPosition, currentDuration, currentControlViewState, waitSeekFinish)
                 .ifNotEquals(new PLVSugarUtil.Consumer<PLVRememberStateCompareResult>() {
                     @Override
                     public void accept(PLVRememberStateCompareResult result) {
@@ -166,7 +171,7 @@ public class PLVMediaPlayerProgressSeekBar extends AppCompatSeekBar implements S
                 .ifNotEquals(new PLVSugarUtil.Consumer<PLVRememberStateCompareResult>() {
                     @Override
                     public void accept(PLVRememberStateCompareResult result) {
-                        updateWaitBufferEndAfterSeek();
+                        updateWaitSeekFinishAfterSeek();
                     }
                 });
     }
@@ -175,7 +180,7 @@ public class PLVMediaPlayerProgressSeekBar extends AppCompatSeekBar implements S
         if (currentControlViewState == null) {
             return;
         }
-        if (!currentControlViewState.progressSeekBarDragging && waitBufferEndAfterSeek) {
+        if (!currentControlViewState.progressSeekBarDragging && waitSeekFinish) {
             invalidate();
             return;
         }
@@ -201,12 +206,12 @@ public class PLVMediaPlayerProgressSeekBar extends AppCompatSeekBar implements S
         setVisibility(visible ? View.VISIBLE : View.GONE);
     }
 
-    protected void updateWaitBufferEndAfterSeek() {
+    protected void updateWaitSeekFinishAfterSeek() {
         if (currentControlViewState == null) {
             return;
         }
         if (currentControlViewState.progressSeekBarDragging) {
-            waitBufferEndAfterSeek = true;
+            waitSeekFinish = true;
         }
     }
 
@@ -224,6 +229,7 @@ public class PLVMediaPlayerProgressSeekBar extends AppCompatSeekBar implements S
     public void onStartTrackingTouch(SeekBar seekBar) {
         isSeekBarDragging = true;
         progressOnDrag = getProgress();
+        waitSeekFinish = true;
         postDraggingAction();
     }
 

@@ -79,8 +79,10 @@ public class PLVMediaPlayerControlAction {
         return action;
     }
 
-    public static PLVMediaPlayerControlAction launchFloatWindow() {
-        return new LaunchFloatWindow();
+    public static PLVMediaPlayerControlAction launchFloatWindow(int reason) {
+        LaunchFloatWindow action = new LaunchFloatWindow();
+        action.reason = reason;
+        return action;
     }
 
     public static class ShowMediaController extends PLVMediaPlayerControlAction {}
@@ -117,7 +119,9 @@ public class PLVMediaPlayerControlAction {
         public boolean isLongPressing;
     }
 
-    public static class LaunchFloatWindow extends PLVMediaPlayerControlAction {}
+    public static class LaunchFloatWindow extends PLVMediaPlayerControlAction {
+        public int reason;
+    }
 
     public static class HintErrorOverlayLayoutVisible extends PLVMediaPlayerControlAction {
         public boolean visible;

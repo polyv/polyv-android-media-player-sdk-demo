@@ -66,7 +66,7 @@ public class OppoUtils {
             intent.setComponent(comp);
             fragment.startActivityForResult(intent, PLVFloatPermissionUtils.REQUEST_CODE_MANAGE_OVERLAY_PERMISSION);
         } catch (Exception e) {
-            e.printStackTrace();
+            Log.e(TAG, e.getMessage(), e);
         }
     }
 }

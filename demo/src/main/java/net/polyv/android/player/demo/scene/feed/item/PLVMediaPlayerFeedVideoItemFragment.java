@@ -12,13 +12,16 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
 import com.plv.foundationsdk.component.exts.Lazy;
+import com.plv.foundationsdk.utils.PLVSugarUtil;
 import com.plv.thirdpart.blankj.utilcode.util.ScreenUtils;
 
 import net.polyv.android.player.business.scene.common.model.vo.PLVMediaResource;
+import net.polyv.android.player.common.ui.component.PLVMediaPlayerAutoFloatWindowOnBackgroundComponent;
 import net.polyv.android.player.common.ui.component.floatwindow.PLVMediaPlayerFloatWindowManager;
 import net.polyv.android.player.common.ui.localprovider.PLVMediaPlayerLocalProvider;
 import net.polyv.android.player.common.ui.viewmodel.PLVMediaPlayerControlViewModel;
 import net.polyv.android.player.common.ui.viewmodel.action.PLVMediaPlayerControlAction;
+import net.polyv.android.player.common.utils.ui.PLVViewLifecycleObservable;
 import net.polyv.android.player.demo.scene.feed.item.layout.PLVMediaPlayerFeedLandscapeItemLayout;
 import net.polyv.android.player.demo.scene.feed.item.layout.PLVMediaPlayerFeedPortraitItemLayout;
 import net.polyv.android.player.sdk.PLVVideoView;
@@ -47,11 +50,18 @@ public class PLVMediaPlayerFeedVideoItemFragment extends Fragment {
     @Nullable
     private PLVVideoView videoView;
 
+    // App进入后台时自动唤起小窗
+    @Nullable
+    private PLVMediaPlayerAutoFloatWindowOnBackgroundComponent autoFloatWindowOnBackgroundComponent;
+
     // 皮肤状态 的数据监听中心，用于监听播放器状态的变化
     private final PLVMediaPlayerControlViewModel controlViewModel = new PLVMediaPlayerControlViewModel();
 
     // 裸播放器状态 的数据处理
     private final PLVMediaPlayerFeedVideoStateHandler videoStateHandler = new PLVMediaPlayerFeedVideoStateHandler();
+
+    // 生命周期
+    private final PLVViewLifecycleObservable viewLifecycleObservable = new PLVViewLifecycleObservable();
 
     // 记录上一次的屏幕方向
     private int lastOrientation = -1;
@@ -80,9 +90,11 @@ public class PLVMediaPlayerFeedVideoItemFragment extends Fragment {
             }
         };
         videoView = new PLVVideoView(context);
+        autoFloatWindowOnBackgroundComponent = new PLVMediaPlayerAutoFloatWindowOnBackgroundComponent(context);
 
         PLVMediaPlayerLocalProvider.localMediaPlayer.on(rootContainer).provide(videoView);
         PLVMediaPlayerLocalProvider.localControlViewModel.on(rootContainer).provide(controlViewModel);
+        PLVMediaPlayerLocalProvider.localLifecycleObservable.on(rootContainer).provide(viewLifecycleObservable);
 
         videoStateHandler.onCreateView(videoView);
         return rootContainer;
@@ -93,12 +105,18 @@ public class PLVMediaPlayerFeedVideoItemFragment extends Fragment {
         super.onActivityCreated(savedInstanceState);
         updateVideoLayout();
         videoStateHandler.onActivityCreated();
+        if (autoFloatWindowOnBackgroundComponent != null) {
+            autoFloatWindowOnBackgroundComponent.setUserVisibleHint(getUserVisibleHint());
+        }
     }
 
     @Override
     public void setUserVisibleHint(boolean isVisibleToUser) {
         super.setUserVisibleHint(isVisibleToUser);
         videoStateHandler.setUserVisibleHint(isVisibleToUser);
+        if (autoFloatWindowOnBackgroundComponent != null) {
+            autoFloatWindowOnBackgroundComponent.setUserVisibleHint(isVisibleToUser);
+        }
     }
     // </editor-fold>
 
@@ -107,6 +125,12 @@ public class PLVMediaPlayerFeedVideoItemFragment extends Fragment {
     public void onDestroyView() {
         super.onDestroyView();
         videoStateHandler.onDestroyView();
+        viewLifecycleObservable.callObserver(new PLVSugarUtil.Consumer<PLVViewLifecycleObservable.IViewLifecycleObserver>() {
+            @Override
+            public void accept(PLVViewLifecycleObservable.IViewLifecycleObserver observer) {
+                observer.onDestroy(viewLifecycleObservable);
+            }
+        });
         PLVMediaPlayerFloatWindowManager.getInstance()
                 .runOnFloatingWindowClosed(new Runnable() {
                     @Override
@@ -134,8 +158,13 @@ public class PLVMediaPlayerFeedVideoItemFragment extends Fragment {
         if (rootContainer == null || portraitVideoLayout == null || landscapeVideoLayout == null) {
             return;
         }
-        // 根据屏幕方向，切换对应的横屏或者竖屏皮肤，并设置裸播放器进对应的皮肤
+
         rootContainer.removeAllViews();
+        if (autoFloatWindowOnBackgroundComponent != null) {
+            rootContainer.addView(autoFloatWindowOnBackgroundComponent);
+        }
+
+        // 根据屏幕方向，切换对应的横屏或者竖屏皮肤，并设置裸播放器进对应的皮肤
         if (ScreenUtils.isPortrait()) {
             portraitVideoLayout.get().setVideoView(videoView);
             rootContainer.addView(portraitVideoLayout.get());

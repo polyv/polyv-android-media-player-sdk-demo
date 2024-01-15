@@ -1,9 +1,9 @@
 package net.polyv.android.player.demo.demo;
 
-import android.arch.lifecycle.Observer;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 
@@ -13,7 +13,6 @@ import net.polyv.android.player.business.scene.common.model.vo.PLVMediaResource;
 import net.polyv.android.player.common.ui.component.floatwindow.IPLVMediaPlayerFloatWindowControlActionListener;
 import net.polyv.android.player.common.ui.component.floatwindow.PLVMediaPlayerFloatWindowManager;
 import net.polyv.android.player.common.utils.orientation.PLVActivityOrientationManager;
-import net.polyv.android.player.core.api.listener.state.PLVMediaPlayerState;
 import net.polyv.android.player.demo.scene.single.PLVMediaPlayerSingleVideoLayout;
 import net.polyv.android.player.sdk.PLVDeviceManager;
 
@@ -24,10 +23,12 @@ public class PLVMediaPlayerSingleVideoActivity extends AppCompatActivity {
 
     // 进入页面时的视频资源传参Key
     public static final String KEY_TARGET_MEDIA_RESOURCE = "key_target_media_resource";
+    public static final String KEY_ENTER_FROM_FLOAT_WINDOW = "key_enter_from_float_window";
 
     // 进入页面时初始的视频资源
     @Nullable
     private PLVMediaResource targetMediaResource = null;
+    private boolean enterFromFloatWindow = false;
 
     // 实际的业务布局
     private PLVMediaPlayerSingleVideoLayout contentLayout;
@@ -59,6 +60,7 @@ public class PLVMediaPlayerSingleVideoActivity extends AppCompatActivity {
         Bundle bundle = getIntent().getExtras();
         if (bundle != null) {
             targetMediaResource = bundle.getParcelable(KEY_TARGET_MEDIA_RESOURCE);
+            enterFromFloatWindow = bundle.getBoolean(KEY_ENTER_FROM_FLOAT_WINDOW, false);
         }
     }
 
@@ -67,39 +69,9 @@ public class PLVMediaPlayerSingleVideoActivity extends AppCompatActivity {
         if (targetMediaResource != null) {
             contentLayout.setMediaResource(targetMediaResource);
         }
-
-        onSingleVideoLayoutStatus();
+        contentLayout.setEnterFromFloatWindow(enterFromFloatWindow);
     }
 
-    // 初始化数据 - 从 intent 中读取视频资源数据 PLVMediaResource，并赋值给 contentLayout
-    private void initLayoutData() {
-
-    }
-    // </editor-fold>
-
-    // <editor-fold defaultstate="collapsed" desc="页面-Layout监听">
-    // 初始化监听器 - 监听播放状态
-    private void onSingleVideoLayoutStatus() {
-        // 监听播放状态
-        contentLayout.getVideoView().getStateListenerRegistry().getPlayerState().observe(this, new Observer<PLVMediaPlayerState>() {
-            @Override
-            public void onChanged(@Nullable PLVMediaPlayerState plvMediaPlayerState) {
-                switch (plvMediaPlayerState) {
-                    case STATE_PLAYING:
-                        break;
-                    case STATE_PAUSED:
-                        break;
-                    case STATE_COMPLETED:
-                        //  播放下一个视频
-//                        PLVMediaResource anotherMediaResource = 获取下一个视频;
-//                        contentLayout.setMediaResource(anotherMediaResource);
-                        break;
-                    case STATE_ERROR:
-                        break;
-                }
-            }
-        });
-    }
     // </editor-fold>
 
     // <editor-fold defaultstate="collapsed" desc="页面-横竖屏切换">
@@ -130,21 +102,33 @@ public class PLVMediaPlayerSingleVideoActivity extends AppCompatActivity {
                 .setControlActionListener(new IPLVMediaPlayerFloatWindowControlActionListener() {
 
                     @Override
-                    public void onAfterFloatWindowShow() {
-                        finish();
+                    public void onAfterFloatWindowShow(int reason) {
+                        if (reason == PLVMediaPlayerFloatWindowManager.SHOW_REASON_MANUAL) {
+                            finish();
+                        }
                     }
 
                     @Override
-                    public void onClickContentGoBack(@Nullable PLVMediaResource saveMediaResource) {
+                    public void onClickContentGoBack(@NonNull Bundle bundle) {
+                        PLVMediaResource mediaResource = bundle.getParcelable(PLVMediaPlayerFloatWindowManager.KEY_SAVE_MEDIA_RESOURCE);
+
+                        if (mediaResource == null) {
+                            onClickClose();
+                            return;
+                        }
+
                         Intent intent = new Intent(PLVMediaPlayerSingleVideoActivity.this, PLVMediaPlayerSingleVideoActivity.class);
-                        intent.putExtra(PLVMediaPlayerSingleVideoActivity.KEY_TARGET_MEDIA_RESOURCE, saveMediaResource);
+                        intent.putExtra(PLVMediaPlayerSingleVideoActivity.KEY_TARGET_MEDIA_RESOURCE, mediaResource);
+                        intent.putExtra(PLVMediaPlayerSingleVideoActivity.KEY_ENTER_FROM_FLOAT_WINDOW, true);
+                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
                         startActivity(intent);
+
                         PLVMediaPlayerFloatWindowManager.getInstance().hide();
                     }
 
                     @Override
                     public void onClickClose() {
-                        PLVMediaPlayerFloatWindowManager.getInstance().clear();
+                        PLVMediaPlayerFloatWindowManager.getInstance().hide();
                     }
 
                 });

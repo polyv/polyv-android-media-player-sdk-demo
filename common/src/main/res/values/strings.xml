@@ -14,4 +14,5 @@
     <string name="plv_media_player_ui_component_complete_hint_restart_text">重播</string>
     <string name="plv_media_player_ui_component_network_poor_hint_text">当前网络较差，可尝试</string>
     <string name="plv_media_player_ui_component_network_poor_switch_bitrate_action_text">切换到{}</string>
+    <string name="plv_media_player_ui_component_auxiliary_time_left_text">广告也精彩：{}秒</string>
 </resources>

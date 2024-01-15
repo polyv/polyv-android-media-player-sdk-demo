@@ -6,11 +6,11 @@
     android:paddingVertical="6dp"
     app:indicateColor="#CC000000"
     app:rectRadius="8dp"
-    app:triangleHeight="8dp"
+    app:triangleHeight="0dp"
     app:triangleMargin="16dp"
     app:triangleMarginType="right"
     app:trianglePosition="bottom"
-    app:triangleWidth="16dp">
+    app:triangleWidth="0dp">
 
     <android.support.constraint.ConstraintLayout
         android:layout_width="wrap_content"

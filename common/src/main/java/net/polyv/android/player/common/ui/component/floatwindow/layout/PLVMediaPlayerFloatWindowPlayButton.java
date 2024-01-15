@@ -1,4 +1,4 @@
-package net.polyv.android.player.common.ui.component.floatwindow;
+package net.polyv.android.player.common.ui.component.floatwindow.layout;
 
 import static com.plv.foundationsdk.component.livedata.PLVLiveDataExt.observeForeverUntilViewDetached;
 import static com.plv.foundationsdk.utils.PLVSugarUtil.requireNotNull;

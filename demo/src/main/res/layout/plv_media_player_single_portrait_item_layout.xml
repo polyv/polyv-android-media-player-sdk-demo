@@ -16,6 +16,15 @@
         app:layout_constraintTop_toTopOf="parent"
         tools:background="@drawable/plv_media_player_audio_mode_cover_layout_bg" />
 
+    <!-- 播放器跑马灯 -->
+    <net.polyv.android.player.common.ui.component.PLVMediaPlayerMarqueeLayout
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="@+id/plv_media_player_video_view_container"
+        app:layout_constraintEnd_toEndOf="@+id/plv_media_player_video_view_container"
+        app:layout_constraintStart_toStartOf="@+id/plv_media_player_video_view_container"
+        app:layout_constraintTop_toTopOf="@+id/plv_media_player_video_view_container" />
+
     <!-- 音频模式覆盖层 -->
     <net.polyv.android.player.common.ui.component.PLVMediaPlayerAudioModeCoverLayoutPortrait
         android:id="@+id/plv_media_player_audio_mode_cover_landscape"
@@ -177,6 +186,16 @@
         app:plvSeekBarHeightOnDrag="8dp"
         app:plvThumbDrawableOnDrag="@drawable/plv_media_player_progress_position_point_style_drag" />
 
+    <!-- 拖动进度条时缩略图预览 -->
+    <net.polyv.android.player.common.ui.component.PLVMediaPlayerSeekProgressPreviewLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        app:layout_constraintBottom_toTopOf="@+id/plv_media_player_progress_seek_bar"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_goneMarginBottom="58dp" />
+
     <!-- 弱网提示 -->
     <net.polyv.android.player.common.ui.component.PLVMediaPlayerNetworkPoorIndicateLayoutPortrait
         android:layout_width="wrap_content"
@@ -207,5 +226,15 @@
         app:layout_constraintEnd_toEndOf="@+id/plv_media_player_video_view_container"
         app:layout_constraintStart_toStartOf="@+id/plv_media_player_video_view_container"
         app:layout_constraintTop_toTopOf="@+id/plv_media_player_video_view_container" />
+
+    <!-- 广告播放器容器 -->
+    <net.polyv.android.player.common.ui.component.PLVMediaPlayerAuxiliaryViewContainer
+        android:id="@+id/plv_media_player_auxiliary_view_container"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:background="@android:color/black"
+        app:layout_constraintDimensionRatio="16:9"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:background="@drawable/plv_media_player_audio_mode_cover_layout_bg" />
 
 </android.support.constraint.ConstraintLayout>

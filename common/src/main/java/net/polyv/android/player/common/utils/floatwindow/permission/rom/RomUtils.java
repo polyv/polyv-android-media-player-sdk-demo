@@ -29,7 +29,7 @@ public class RomUtils {
                 return Double.parseDouble(version);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            Log.e(TAG, e.getMessage(), e);
         }
         return 4.0;
     }

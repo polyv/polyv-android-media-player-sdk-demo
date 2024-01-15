@@ -2,7 +2,6 @@ package net.polyv.android.player.common.ui.component;
 
 import static com.plv.foundationsdk.component.event.PLVEventKt.observeUntilViewDetached;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.support.annotation.NonNull;
@@ -13,6 +12,7 @@ import android.view.View;
 import com.plv.foundationsdk.utils.PLVSugarUtil;
 
 import net.polyv.android.player.business.scene.common.player.IPLVMediaPlayer;
+import net.polyv.android.player.common.ui.component.floatwindow.PLVMediaPlayerFloatWindowManager;
 import net.polyv.android.player.common.ui.localprovider.PLVMediaPlayerLocalProvider;
 import net.polyv.android.player.core.api.listener.event.PLVMediaPlayerOnCompletedEvent;
 
@@ -33,19 +33,9 @@ public class PLVMediaPlayerPlayCompleteAutoRestartComponent extends View {
         super(context, attrs, defStyleAttr);
     }
 
-    {
-        setVisibility(View.GONE);
-    }
-
     @Override
-    public void setVisibility(int visibility) {
-        super.setVisibility(View.GONE);
-    }
-
-    @SuppressLint("MissingSuperCall")
-    @Override
-    public void draw(Canvas canvas) {
-
+    protected void onDraw(@NonNull Canvas canvas) {
+        // do nothing
     }
 
     @Override
@@ -53,12 +43,8 @@ public class PLVMediaPlayerPlayCompleteAutoRestartComponent extends View {
         super.onAttachedToWindow();
         if (isInEditMode()) return;
 
-        IPLVMediaPlayer mediaPlayer = PLVMediaPlayerLocalProvider.localMediaPlayer.on(this).current();
+        final IPLVMediaPlayer mediaPlayer = PLVMediaPlayerLocalProvider.localMediaPlayer.on(this).current();
         if (mediaPlayer != null) {
-            // 播放器自带的循环播放
-            mediaPlayer.setLoopCount(-1);
-
-            // 播放器未自动重播时，通过 onComplete 事件实现自动重播
             observeUntilViewDetached(
                     mediaPlayer.getEventListenerRegistry().getOnCompleted(),
                     this,
@@ -75,8 +61,9 @@ public class PLVMediaPlayerPlayCompleteAutoRestartComponent extends View {
     }
 
     protected void onCompleteAutoRestart(PLVMediaPlayerOnCompletedEvent onCompletedEvent) {
-        IPLVMediaPlayer mp = PLVMediaPlayerLocalProvider.localMediaPlayer.on(this).current();
-        if (mp != null) {
+        final IPLVMediaPlayer mp = PLVMediaPlayerLocalProvider.localMediaPlayer.on(this).current();
+        final boolean shouldAutoRestart = !PLVMediaPlayerFloatWindowManager.getInstance().isFloatingWindowShowing();
+        if (mp != null && shouldAutoRestart) {
             mp.restart();
         }
     }

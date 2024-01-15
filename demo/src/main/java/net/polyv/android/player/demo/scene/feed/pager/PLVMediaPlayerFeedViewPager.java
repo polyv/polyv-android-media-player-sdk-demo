@@ -6,12 +6,12 @@ import android.view.MotionEvent;
 
 import com.plv.thirdpart.blankj.utilcode.util.ScreenUtils;
 
-import net.polyv.android.player.demo.utils.VerticalViewPager;
+import net.polyv.android.player.common.utils.feed.PLVFeedViewPager;
 
 /**
  * @author Hoshiiro
  */
-public class PLVMediaPlayerFeedViewPager extends VerticalViewPager {
+public class PLVMediaPlayerFeedViewPager extends PLVFeedViewPager {
 
     private boolean isRequestDisallowInterceptTouchEvent = false;
 

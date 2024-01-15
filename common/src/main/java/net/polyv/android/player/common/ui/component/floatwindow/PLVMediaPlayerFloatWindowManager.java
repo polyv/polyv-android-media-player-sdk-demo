@@ -1,17 +1,20 @@
 package net.polyv.android.player.common.ui.component.floatwindow;
 
-import static com.plv.foundationsdk.component.livedata.PLVLiveDataExt.mutableLiveData;
+import static com.plv.foundationsdk.component.livedata.PLVLiveDataExt.mutableStateLiveData;
 
 import android.app.Activity;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.graphics.Point;
+import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.view.View;
 
+import com.plv.foundationsdk.utils.PLVSugarUtil;
 import com.plv.thirdpart.blankj.utilcode.util.ConvertUtils;
 
-import net.polyv.android.player.business.scene.common.model.vo.PLVMediaResource;
+import net.polyv.android.player.common.ui.component.floatwindow.layout.PLVMediaPlayerFloatWindowContentLayout;
 import net.polyv.android.player.common.utils.floatwindow.PLVFloatingWindowManager;
 import net.polyv.android.player.common.utils.floatwindow.enums.PLVFloatingEnums;
 import net.polyv.android.player.common.utils.floatwindow.permission.PLVFloatPermissionUtils;
@@ -40,12 +43,17 @@ public class PLVMediaPlayerFloatWindowManager {
 
     // <editor-fold defaultstate="collapsed" desc="变量">
 
+    public static final int SHOW_REASON_MANUAL = 100;
+    public static final int SHOW_REASON_ENTER_BACKGROUND = 200;
+
+    // 保存小窗视频播放数据 PLVMediaResource
+    public static final String KEY_SAVE_MEDIA_RESOURCE = "key_save_media_resource";
+
     private final Queue<Runnable> onClosedTaskQueue = new ArrayDeque<>();
 
-    private final MutableLiveData<Boolean> floatingViewShowState = mutableLiveData(false);
+    private final MutableLiveData<Boolean> floatingViewShowState = mutableStateLiveData(false);
 
-    @Nullable
-    private PLVMediaResource saveMediaResource = null;
+    private final Bundle saveDataBundle = new Bundle();
     @Nullable
     private PLVMediaPlayerFloatWindowContentLayout contentLayout = null;
 
@@ -67,8 +75,8 @@ public class PLVMediaPlayerFloatWindowManager {
         return this;
     }
 
-    public PLVMediaPlayerFloatWindowManager saveMediaResource(@Nullable PLVMediaResource mediaResource) {
-        this.saveMediaResource = mediaResource;
+    public PLVMediaPlayerFloatWindowManager saveData(@NonNull PLVSugarUtil.Consumer<Bundle> consumer) {
+        consumer.accept(saveDataBundle);
         return this;
     }
 
@@ -106,7 +114,7 @@ public class PLVMediaPlayerFloatWindowManager {
         return this;
     }
 
-    public void show() {
+    public void show(final int reason) {
         if (contentLayout == null || isFloatingWindowShowing()) {
             return;
         }
@@ -116,7 +124,7 @@ public class PLVMediaPlayerFloatWindowManager {
                     @Override
                     public void onResult(boolean isGrant) {
                         if (isGrant) {
-                            showFloatingWindow();
+                            showFloatingWindow(reason);
                             floatingViewShowState.setValue(true);
                         }
                     }
@@ -130,7 +138,7 @@ public class PLVMediaPlayerFloatWindowManager {
         }
         closeFloatingWindow();
         contentLayout = null;
-        saveMediaResource = null;
+        saveDataBundle.clear();
 
         runAllClosePendingTask();
         floatingViewShowState.setValue(false);
@@ -159,7 +167,7 @@ public class PLVMediaPlayerFloatWindowManager {
 
     // <editor-fold defaultstate="collapsed" desc="内部方法">
 
-    private void showFloatingWindow() {
+    private void showFloatingWindow(int reason) {
         if (contentLayout == null) {
             return;
         }
@@ -175,7 +183,7 @@ public class PLVMediaPlayerFloatWindowManager {
                 .build()
                 .show((Activity) contentLayout.getContext());
         if (controlActionListener != null) {
-            controlActionListener.onAfterFloatWindowShow();
+            controlActionListener.onAfterFloatWindowShow(reason);
         }
     }
 
@@ -201,7 +209,7 @@ public class PLVMediaPlayerFloatWindowManager {
                     @Override
                     public void onClick(View v) {
                         if (controlActionListener != null) {
-                            controlActionListener.onClickContentGoBack(saveMediaResource);
+                            controlActionListener.onClickContentGoBack((Bundle) saveDataBundle.clone());
                         }
                     }
                 });

@@ -1,18 +1,18 @@
 package net.polyv.android.player.demo.scene.single.layout;
 
 import static com.plv.foundationsdk.component.event.PLVEventKt.observeUntilViewDetached;
-import static com.plv.foundationsdk.component.livedata.PLVLiveDataExt.observeUntilViewDetached;
+import static com.plv.foundationsdk.component.livedata.PLVLiveDataExt.observeForeverUntilViewDetached;
 import static com.plv.foundationsdk.utils.PLVSugarUtil.requireNotNull;
 
 import android.app.Activity;
 import android.arch.lifecycle.Observer;
 import android.content.Context;
 import android.graphics.Rect;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.constraint.ConstraintLayout;
 import android.util.AttributeSet;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.ViewGroup;
@@ -23,6 +23,7 @@ import com.plv.foundationsdk.component.remember.PLVRememberStateCompareResult;
 import com.plv.foundationsdk.utils.PLVSugarUtil;
 
 import net.polyv.android.player.common.ui.component.PLVMediaPlayerAudioModeCoverLayoutPortrait;
+import net.polyv.android.player.common.ui.component.PLVMediaPlayerAuxiliaryViewContainer;
 import net.polyv.android.player.common.ui.component.PLVMediaPlayerBackImageView;
 import net.polyv.android.player.common.ui.component.PLVMediaPlayerBrightnessVolumeControlLayout;
 import net.polyv.android.player.common.ui.component.PLVMediaPlayerBrightnessVolumeHintLayout;
@@ -38,9 +39,9 @@ import net.polyv.android.player.common.ui.component.PLVMediaPlayerProgressSeekBa
 import net.polyv.android.player.common.ui.component.PLVMediaPlayerProgressTextView;
 import net.polyv.android.player.common.ui.component.PLVMediaPlayerSwitchToFullScreenButtonPortraitHalfScreen;
 import net.polyv.android.player.common.ui.component.PLVMediaPlayerTitleTextView;
-import net.polyv.android.player.common.ui.component.floatwindow.PLVMediaPlayerFloatWindowContentLayout;
 import net.polyv.android.player.common.ui.component.floatwindow.PLVMediaPlayerFloatWindowHelper;
 import net.polyv.android.player.common.ui.component.floatwindow.PLVMediaPlayerFloatWindowManager;
+import net.polyv.android.player.common.ui.component.floatwindow.layout.PLVMediaPlayerFloatWindowContentLayout;
 import net.polyv.android.player.common.ui.localprovider.PLVMediaPlayerLocalProvider;
 import net.polyv.android.player.common.ui.viewmodel.PLVMediaPlayerControlViewModel;
 import net.polyv.android.player.common.ui.viewmodel.action.PLVMediaPlayerControlAction;
@@ -48,6 +49,7 @@ import net.polyv.android.player.common.utils.floatwindow.permission.PLVFloatPerm
 import net.polyv.android.player.common.utils.ui.PLVOnDoubleClickListener;
 import net.polyv.android.player.core.api.listener.state.PLVMediaPlayerPlayingState;
 import net.polyv.android.player.demo.R;
+import net.polyv.android.player.sdk.PLVAuxiliaryVideoView;
 import net.polyv.android.player.sdk.PLVVideoView;
 
 import java.lang.ref.WeakReference;
@@ -134,14 +136,14 @@ public class PLVMediaPlayerSinglePortraitItemLayout extends FrameLayout {
     private PLVMediaPlayerLongPressSpeedHintLayout longPressSpeedHintLayout;
 
     private PLVMediaPlayerHorizontalDragControlLayout horizontalDragControlLayout;
+
+    // 广告播放器容器
+    private PLVMediaPlayerAuxiliaryViewContainer auxiliaryViewContainer;
     // </editor-fold>
 
     // <editor-fold defaultstate="collapsed" desc="Layout-属性-数据">
     // 裸播放器的弱引用，持有外部传入的裸播放器 PLVVideoView 对象，并 addView 到 videoViewContainer容器 中
     private WeakReference<PLVVideoView> videoViewWeakRef = null;
-
-    // 当前视频尺寸
-    protected Rect currentVideoSize = null;
 
     // 当前是否正在浮窗显示
     protected Boolean currentFloatWindowShowing = null;
@@ -187,6 +189,7 @@ public class PLVMediaPlayerSinglePortraitItemLayout extends FrameLayout {
         progressSeekBar = findViewById(R.id.plv_media_player_progress_seek_bar);
         brightnessVolumeHintLayout = findViewById(R.id.plv_media_player_brightness_volume_hint_layout);
         longPressSpeedHintLayout = findViewById(R.id.plv_media_player_long_press_speed_hint_layout);
+        auxiliaryViewContainer = findViewById(R.id.plv_media_player_auxiliary_view_container);
     }
 
     @Override
@@ -194,23 +197,8 @@ public class PLVMediaPlayerSinglePortraitItemLayout extends FrameLayout {
         super.onAttachedToWindow();
         if (isInEditMode()) return;
 
-        // 监听 视视频尺寸 变化，触发 皮肤UI尺寸 更新
-        observeUntilViewDetached(
-                requireNotNull(PLVMediaPlayerLocalProvider.localMediaPlayer.on(this).current())
-                        .getStateListenerRegistry()
-                        .getVideoSize(),
-                this,
-                new Observer<Rect>() {
-                    @Override
-                    public void onChanged(@Nullable @org.jetbrains.annotations.Nullable Rect rect) {
-                        currentVideoSize = rect;
-                        onViewStateChanged();
-                    }
-                }
-        );
-
         // 监听 浮窗状态 变化，触发 Layout UI 更新
-        observeUntilViewDetached(
+        observeForeverUntilViewDetached(
                 PLVMediaPlayerFloatWindowManager.getInstance().getFloatingViewShowState(),
                 this,
                 new Observer<Boolean>() {
@@ -231,7 +219,7 @@ public class PLVMediaPlayerSinglePortraitItemLayout extends FrameLayout {
                     @Override
                     public void accept(PLVMediaPlayerControlAction action) {
                         if (action instanceof PLVMediaPlayerControlAction.LaunchFloatWindow) {
-                            onLaunchFloatWindowEvent();
+                            onLaunchFloatWindowEvent(((PLVMediaPlayerControlAction.LaunchFloatWindow) action).reason);
                         }
                     }
                 }
@@ -246,16 +234,6 @@ public class PLVMediaPlayerSinglePortraitItemLayout extends FrameLayout {
                     @Override
                     public void accept(PLVRememberStateCompareResult result) {
                         onFloatWindowShowingChanged();
-                    }
-                });
-
-        PLVRememberState
-                .rememberStateOf(this, "onChangeVideoSize")
-                .compareLastAndSet(currentVideoSize)
-                .ifNotEquals(new PLVSugarUtil.Consumer<PLVRememberStateCompareResult>() {
-                    @Override
-                    public void accept(PLVRememberStateCompareResult result) {
-                        onChangeVideoSize();
                     }
                 });
     }
@@ -326,55 +304,29 @@ public class PLVMediaPlayerSinglePortraitItemLayout extends FrameLayout {
             videoViewContainer.addView(videoView);
         }
     }
-    // </editor-fold>
 
-    // <editor-fold defaultstate="collapsed" desc="Layout-方法-响应视频尺寸变化的处理逻辑">
-    protected void onChangeVideoSize() {
-        if (currentVideoSize == null || currentVideoSize.width() == 0 || currentVideoSize.height() == 0) {
-            return;
-        }
-        boolean isVideoPortrait = currentVideoSize.width() < currentVideoSize.height();
-
-        ConstraintLayout.LayoutParams containerParam = (ConstraintLayout.LayoutParams) videoViewContainer.getLayoutParams();
-        if (isVideoPortrait) {
-            containerParam.height = 0;
-            containerParam.dimensionRatio = "16:9";
-        } else {
-            containerParam.height = ViewGroup.LayoutParams.WRAP_CONTENT;
-        }
-        videoViewContainer.setLayoutParams(containerParam);
-
-        PLVVideoView videoView = videoViewWeakRef.get();
-        if (videoView != null && videoView.getLayoutParams() instanceof FrameLayout.LayoutParams) {
-            FrameLayout.LayoutParams videoViewParam = (LayoutParams) videoView.getLayoutParams();
-            videoViewParam.gravity = Gravity.CENTER;
-            if (isVideoPortrait) {
-                videoViewParam.width = ViewGroup.LayoutParams.WRAP_CONTENT;
-            } else {
-                videoViewParam.width = ViewGroup.LayoutParams.MATCH_PARENT;
-            }
-            videoView.setLayoutParams(videoViewParam);
-        }
+    public void setAuxiliaryVideoView(@Nullable PLVAuxiliaryVideoView auxiliaryVideoView) {
+        auxiliaryViewContainer.setAuxiliaryVideoView(auxiliaryVideoView);
     }
     // </editor-fold>
 
     // <editor-fold defaultstate="collapsed" desc="Layout-方法-浮窗逻辑-响应普通模式切换到浮窗模式的处理逻辑">
-    protected void onLaunchFloatWindowEvent() {
+    protected void onLaunchFloatWindowEvent(final int reason) {
         // 浮窗权限处理逻辑
         PLVFloatPermissionUtils.requestPermission((Activity) getContext(),
                 new PLVFloatPermissionUtils.IPLVOverlayPermissionListener() {
                     @Override
                     public void onResult(boolean isGrant) {
                         if (isGrant) {
-                            launchFloatWindow();
+                            launchFloatWindow(reason);
                         }
                     }
                 });
     }
 
     // 真实的浮窗切换实现逻辑
-    protected void launchFloatWindow() {
-        PLVVideoView videoView = videoViewWeakRef.get();
+    protected void launchFloatWindow(int reason) {
+        final PLVVideoView videoView = videoViewWeakRef.get();
         Rect floatWindowPosition = PLVMediaPlayerFloatWindowHelper.calculateFloatWindowPosition(videoView);
         if (videoView == null || floatWindowPosition == null) {
             return;
@@ -388,10 +340,18 @@ public class PLVMediaPlayerSinglePortraitItemLayout extends FrameLayout {
 
         PLVMediaPlayerFloatWindowManager.getInstance()
                 .bindContentLayout(contentLayout)
-                .saveMediaResource(videoView.getBusinessListenerRegistry().getCurrentMediaResource().getValue())
+                .saveData(new PLVSugarUtil.Consumer<Bundle>() {
+                    @Override
+                    public void accept(Bundle bundle) {
+                        bundle.putParcelable(
+                                PLVMediaPlayerFloatWindowManager.KEY_SAVE_MEDIA_RESOURCE,
+                                videoView.getBusinessListenerRegistry().getCurrentMediaResource().getValue()
+                        );
+                    }
+                })
                 .setFloatingSize(floatWindowPosition.width(), floatWindowPosition.height())
                 .setFloatingPosition(floatWindowPosition.left, floatWindowPosition.top)
-                .show();
+                .show(reason);
     }
     // </editor-fold>
 

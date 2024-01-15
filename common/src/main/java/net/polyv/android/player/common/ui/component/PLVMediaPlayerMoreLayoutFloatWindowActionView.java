@@ -154,7 +154,7 @@ public class PLVMediaPlayerMoreLayoutFloatWindowActionView extends FrameLayout i
     public void onClick(View v) {
         PLVMediaPlayerControlViewModel viewModel = PLVMediaPlayerLocalProvider.localControlViewModel.on(PLVMediaPlayerMoreLayoutFloatWindowActionView.this).current();
         if (viewModel != null) {
-            viewModel.requestControl(PLVMediaPlayerControlAction.launchFloatWindow());
+            viewModel.requestControl(PLVMediaPlayerControlAction.launchFloatWindow(PLVMediaPlayerFloatWindowManager.SHOW_REASON_MANUAL));
             viewModel.requestControl(PLVMediaPlayerControlAction.closeFloatMenuLayout());
         }
     }
