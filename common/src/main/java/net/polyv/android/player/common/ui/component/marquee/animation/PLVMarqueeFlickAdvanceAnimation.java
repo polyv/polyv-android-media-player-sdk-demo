@@ -2,7 +2,7 @@ package net.polyv.android.player.common.ui.component.marquee.animation;
 
 import static com.plv.foundationsdk.utils.PLVTimeUnit.seconds;
 
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import android.view.View;
 import android.view.ViewGroup.MarginLayoutParams;
 import android.view.ViewTreeObserver;

@@ -2,8 +2,8 @@ package net.polyv.android.player.common.ui.viewmodel;
 
 import static com.plv.foundationsdk.component.livedata.PLVLiveDataExt.mutableLiveData;
 
-import android.arch.lifecycle.LiveData;
-import android.arch.lifecycle.MutableLiveData;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
 
 import com.plv.foundationsdk.component.event.PLVEvent;
 import com.plv.foundationsdk.component.event.PLVMutableEvent;

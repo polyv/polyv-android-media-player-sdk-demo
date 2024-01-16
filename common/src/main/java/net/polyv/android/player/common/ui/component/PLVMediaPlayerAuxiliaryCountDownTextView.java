@@ -5,10 +5,10 @@ import static com.plv.foundationsdk.component.livedata.PLVLiveDataExt.observeUnt
 import static com.plv.foundationsdk.utils.PLVSugarUtil.format;
 import static com.plv.foundationsdk.utils.PLVSugarUtil.requireNotNull;
 
-import android.arch.lifecycle.Observer;
+import androidx.lifecycle.Observer;
 import android.content.Context;
-import android.support.annotation.Nullable;
-import android.support.v7.widget.AppCompatTextView;
+import androidx.annotation.Nullable;
+import androidx.appcompat.widget.AppCompatTextView;
 import android.util.AttributeSet;
 
 import com.plv.foundationsdk.component.remember.PLVRememberState;

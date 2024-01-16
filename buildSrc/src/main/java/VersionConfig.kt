@@ -22,7 +22,7 @@ const val deps_android_live_data_version = "1.1.0"
 const val deps_android_room_version = "1.1.1"
 const val deps_kotlin_version = "1.3.72"
 const val deps_kotlinx_coroutine_version = "1.3.8"
-const val deps_glide_version = "4.7.1"
+const val deps_glide_version = "4.10.0"
 const val deps_circle_image_view_version = "2.2.0"
 const val deps_svga_version = "2.6.1"
 

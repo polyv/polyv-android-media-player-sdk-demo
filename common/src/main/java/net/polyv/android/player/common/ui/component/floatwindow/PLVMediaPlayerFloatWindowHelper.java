@@ -2,7 +2,7 @@ package net.polyv.android.player.common.ui.component.floatwindow;
 
 import android.graphics.Point;
 import android.graphics.Rect;
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 
 import com.plv.thirdpart.blankj.utilcode.util.ConvertUtils;
 import com.plv.thirdpart.blankj.utilcode.util.ScreenUtils;

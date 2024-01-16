@@ -2,7 +2,7 @@ package net.polyv.android.player.demo.mock;
 
 import static com.plv.foundationsdk.utils.PLVSugarUtil.listOf;
 
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 
 import com.plv.foundationsdk.component.collection.PLVSequenceWrapper;
 import com.plv.foundationsdk.log.PLVCommonLog;

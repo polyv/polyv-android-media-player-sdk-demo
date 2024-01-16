@@ -4,10 +4,10 @@ import static com.plv.foundationsdk.component.event.PLVEventKt.observeUntilViewD
 import static com.plv.foundationsdk.component.livedata.PLVLiveDataExt.observeUntilViewDetached;
 import static com.plv.foundationsdk.utils.PLVSugarUtil.requireNotNull;
 
-import android.arch.lifecycle.Observer;
+import androidx.lifecycle.Observer;
 import android.content.Context;
-import android.support.annotation.Nullable;
-import android.support.v7.widget.AppCompatImageView;
+import androidx.annotation.Nullable;
+import androidx.appcompat.widget.AppCompatImageView;
 import android.util.AttributeSet;
 import android.view.View;
 

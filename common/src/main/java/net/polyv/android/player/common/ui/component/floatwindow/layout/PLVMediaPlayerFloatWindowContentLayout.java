@@ -4,11 +4,11 @@ import static com.plv.foundationsdk.component.livedata.PLVLiveDataExt.observeFor
 import static com.plv.foundationsdk.utils.PLVSugarUtil.clamp;
 import static com.plv.foundationsdk.utils.PLVSugarUtil.requireNotNull;
 
-import android.arch.lifecycle.Observer;
+import androidx.lifecycle.Observer;
 import android.content.Context;
 import android.graphics.Rect;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;

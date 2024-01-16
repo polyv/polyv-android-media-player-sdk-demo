@@ -2,7 +2,7 @@ package net.polyv.android.player.common.utils.floatwindow.widget;
 
 import android.app.Activity;
 import android.graphics.Point;
-import android.support.annotation.Px;
+import androidx.annotation.Px;
 import android.view.View;
 
 import net.polyv.android.player.common.utils.floatwindow.enums.PLVFloatingEnums;

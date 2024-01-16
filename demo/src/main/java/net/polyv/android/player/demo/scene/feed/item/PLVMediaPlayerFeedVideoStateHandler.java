@@ -3,11 +3,11 @@ package net.polyv.android.player.demo.scene.feed.item;
 import static com.plv.foundationsdk.component.livedata.PLVLiveDataExt.mutableLiveData;
 import static com.plv.foundationsdk.utils.PLVSugarUtil.listOf;
 
-import android.arch.lifecycle.MutableLiveData;
-import android.arch.lifecycle.Observer;
+import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.Observer;
 import android.graphics.Rect;
-import android.support.annotation.Nullable;
-import android.support.v7.app.AppCompatActivity;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.plv.foundationsdk.utils.PLVSugarUtil;
 

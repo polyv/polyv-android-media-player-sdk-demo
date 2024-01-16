@@ -1,6 +1,6 @@
 package net.polyv.android.player.common.ui.viewmodel.viewstate;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import org.jetbrains.annotations.NotNull;
 

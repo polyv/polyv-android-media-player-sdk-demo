@@ -4,14 +4,14 @@ import static com.plv.foundationsdk.component.event.PLVEventKt.observeUntilViewD
 import static com.plv.foundationsdk.component.livedata.PLVLiveDataExt.observeUntilViewDetached;
 import static com.plv.foundationsdk.utils.PLVSugarUtil.requireNotNull;
 
-import android.arch.lifecycle.Observer;
+import androidx.lifecycle.Observer;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
-import android.support.annotation.Nullable;
-import android.support.v7.widget.AppCompatSeekBar;
+import androidx.annotation.Nullable;
+import androidx.appcompat.widget.AppCompatSeekBar;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.SeekBar;

@@ -12,7 +12,7 @@
     app:trianglePosition="top"
     app:triangleWidth="0dp">
 
-    <android.support.constraint.ConstraintLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content">
 
@@ -39,6 +39,6 @@
             app:layout_constraintStart_toEndOf="@+id/plv_media_player_network_poor_indicate_tv"
             app:layout_constraintTop_toTopOf="parent" />
 
-    </android.support.constraint.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 </net.polyv.android.player.common.utils.ui.PLVTriangleIndicateLayout>

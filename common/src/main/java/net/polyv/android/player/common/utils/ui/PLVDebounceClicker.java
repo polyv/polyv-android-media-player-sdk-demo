@@ -1,6 +1,6 @@
 package net.polyv.android.player.common.utils.ui;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 import android.util.Pair;
 import android.view.View;
 

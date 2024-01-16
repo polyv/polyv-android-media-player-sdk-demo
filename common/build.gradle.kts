@@ -25,9 +25,9 @@ android {
 }
 
 dependencies {
-    implementation("com.android.support:appcompat-v7:$deps_android_ui_version")
-    implementation("com.android.support:design:$deps_android_ui_version")
-    implementation("com.android.support.constraint:constraint-layout:$deps_constraint_layout_version")
+    implementation("androidx.appcompat:appcompat:1.0.0")
+    implementation("com.google.android.material:material:1.0.0")
+    implementation("androidx.constraintlayout:constraintlayout:1.1.3")
 
     api("net.polyv.android:media-player-full:2.1.0")
 

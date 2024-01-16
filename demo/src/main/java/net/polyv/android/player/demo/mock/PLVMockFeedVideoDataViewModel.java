@@ -3,7 +3,7 @@ package net.polyv.android.player.demo.mock;
 
 import static com.plv.foundationsdk.component.event.PLVEventKt.mutableEvent;
 
-import android.arch.lifecycle.ViewModel;
+import androidx.lifecycle.ViewModel;
 import com.plv.foundationsdk.component.event.PLVEvent;
 import com.plv.foundationsdk.component.event.PLVMutableEvent;
 import net.polyv.android.player.business.scene.common.model.vo.PLVMediaResource;
