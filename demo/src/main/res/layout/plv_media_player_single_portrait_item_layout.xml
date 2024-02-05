@@ -36,6 +36,15 @@
         app:layout_constraintStart_toStartOf="@+id/plv_media_player_video_view_container"
         app:layout_constraintTop_toTopOf="@+id/plv_media_player_video_view_container" />
 
+    <!-- 缓冲加载速度显示 -->
+    <net.polyv.android.player.common.ui.component.PLVMediaPlayerBufferingSpeedLayout
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="@+id/plv_media_player_video_view_container"
+        app:layout_constraintEnd_toEndOf="@+id/plv_media_player_video_view_container"
+        app:layout_constraintStart_toStartOf="@+id/plv_media_player_video_view_container"
+        app:layout_constraintTop_toTopOf="@+id/plv_media_player_video_view_container" />
+
     <!-- 亮度/音量手势控制层 -->
     <net.polyv.android.player.common.ui.component.PLVMediaPlayerBrightnessVolumeControlLayout
         android:id="@+id/plv_media_player_brightness_volume_control_layout"
@@ -195,6 +204,16 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_goneMarginBottom="58dp" />
+
+    <!-- 切换清晰度提示条 -->
+    <net.polyv.android.player.common.ui.component.PLVMediaPlayerSwitchBitRateHintLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="28dp"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <!-- 弱网提示 -->
     <net.polyv.android.player.common.ui.component.PLVMediaPlayerNetworkPoorIndicateLayoutPortrait

@@ -197,6 +197,16 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
 
+    <!-- 切换清晰度提示条 -->
+    <net.polyv.android.player.common.ui.component.PLVMediaPlayerSwitchBitRateHintLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="28dp"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
     <!-- 弱网提示 -->
     <net.polyv.android.player.common.ui.component.PLVMediaPlayerNetworkPoorIndicateLayoutLandscape
         android:layout_width="wrap_content"

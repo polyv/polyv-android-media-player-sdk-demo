@@ -171,6 +171,16 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_goneMarginBottom="91dp" />
 
+    <!-- 切换清晰度提示条 -->
+    <net.polyv.android.player.common.ui.component.PLVMediaPlayerSwitchBitRateHintLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="44dp"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/plv_media_player_status_bar_guild_line" />
+
     <!-- 弱网提示 -->
     <net.polyv.android.player.common.ui.component.PLVMediaPlayerNetworkPoorIndicateLayoutPortrait
         android:layout_width="wrap_content"

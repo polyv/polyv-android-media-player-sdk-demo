@@ -73,6 +73,8 @@ public class PLVMediaPlayerControlViewModel {
         } else if (action instanceof PLVMediaPlayerControlAction.HintNetworkPoorIndicateVisible) {
             currentControlViewState.networkPoorIndicateLayoutVisible = ((PLVMediaPlayerControlAction.HintNetworkPoorIndicateVisible) action).visible;
             updateControlViewState();
+        } else if (action instanceof PLVMediaPlayerControlAction.HintBitRateChanged) {
+            controlActionEvent.set(action);
         }
     }
 

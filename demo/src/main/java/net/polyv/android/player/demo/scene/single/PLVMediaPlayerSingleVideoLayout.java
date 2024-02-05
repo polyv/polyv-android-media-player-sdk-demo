@@ -26,6 +26,7 @@ import net.polyv.android.player.common.ui.component.floatwindow.PLVMediaPlayerFl
 import net.polyv.android.player.common.ui.localprovider.PLVMediaPlayerLocalProvider;
 import net.polyv.android.player.common.ui.viewmodel.PLVMediaPlayerControlViewModel;
 import net.polyv.android.player.common.ui.viewmodel.action.PLVMediaPlayerControlAction;
+import net.polyv.android.player.common.utils.audiofocus.PLVMediaPlayerAudioFocusManager;
 import net.polyv.android.player.common.utils.orientation.PLVActivityOrientationManager;
 import net.polyv.android.player.common.utils.ui.PLVViewLifecycleObservable;
 import net.polyv.android.player.core.api.option.PLVMediaPlayerOptionEnum;
@@ -68,6 +69,8 @@ public class PLVMediaPlayerSingleVideoLayout extends FrameLayout {
 
     // App进入后台时自动唤起小窗
     private final PLVMediaPlayerAutoFloatWindowOnBackgroundComponent autoFloatWindowOnBackgroundComponent = new PLVMediaPlayerAutoFloatWindowOnBackgroundComponent(getContext());
+    // 音频焦点管理
+    private final PLVMediaPlayerAudioFocusManager audioFocusManager = new PLVMediaPlayerAudioFocusManager(getContext());
 
     // 生命周期
     private final PLVViewLifecycleObservable viewLifecycleObservable = new PLVViewLifecycleObservable();
@@ -119,6 +122,8 @@ public class PLVMediaPlayerSingleVideoLayout extends FrameLayout {
 
         auxiliaryVideoView.getAuxiliaryListenerRegistry().setOnBeforeAdvertListener(auxiliaryBeforePlayListener);
         videoView.bindAuxiliaryPlayer(auxiliaryVideoView);
+
+        audioFocusManager.startFocus(videoView);
     }
 
     private void observeLifecycle() {
@@ -196,6 +201,7 @@ public class PLVMediaPlayerSingleVideoLayout extends FrameLayout {
                 .runOnFloatingWindowClosed(new Runnable() {
                     @Override
                     public void run() {
+                        audioFocusManager.stopFocus();
                         videoView.destroy();
                     }
                 });

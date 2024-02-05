@@ -138,7 +138,8 @@ public class PLVMediaPlayerBitRateSelectLayoutLandscape extends FrameLayout impl
 
     protected void onUpdateMediaBitRates() {
         final IPLVMediaPlayer mediaPlayer = PLVMediaPlayerLocalProvider.localMediaPlayer.on(this).current();
-        if (mediaPlayer == null) {
+        final PLVMediaPlayerControlViewModel viewModel = PLVMediaPlayerLocalProvider.localControlViewModel.on(this).current();
+        if (mediaPlayer == null || viewModel == null) {
             return;
         }
         if (currentSupportMediaBitRates == null || currentMediaBitRate == null) {
@@ -162,6 +163,8 @@ public class PLVMediaPlayerBitRateSelectLayoutLandscape extends FrameLayout impl
                             @Override
                             public void onClick(View v) {
                                 mediaPlayer.changeBitRate(mediaBitRate);
+                                viewModel.requestControl(PLVMediaPlayerControlAction.hintBitRateChanged(mediaBitRate));
+                                viewModel.requestControl(PLVMediaPlayerControlAction.hideMediaController());
                                 closeLayout();
                             }
                         });

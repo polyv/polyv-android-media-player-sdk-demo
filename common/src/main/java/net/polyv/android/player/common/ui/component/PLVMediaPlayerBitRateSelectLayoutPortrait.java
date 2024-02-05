@@ -132,6 +132,7 @@ public class PLVMediaPlayerBitRateSelectLayoutPortrait extends LinearLayout {
                                     mediaPlayer.changeBitRate(mediaBitRate);
                                 }
                                 if (viewModel != null) {
+                                    viewModel.requestControl(PLVMediaPlayerControlAction.hintBitRateChanged(mediaBitRate));
                                     viewModel.requestControl(PLVMediaPlayerControlAction.closeFloatMenuLayout());
                                 }
                             }

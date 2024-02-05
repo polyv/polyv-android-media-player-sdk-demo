@@ -1,7 +1,6 @@
 package net.polyv.android.player.common.ui.component.floatwindow.layout;
 
 import static com.plv.foundationsdk.component.livedata.PLVLiveDataExt.observeForeverUntilViewDetached;
-import static com.plv.foundationsdk.utils.PLVSugarUtil.clamp;
 import static com.plv.foundationsdk.utils.PLVSugarUtil.requireNotNull;
 
 import android.arch.lifecycle.Observer;
@@ -15,8 +14,6 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 
-import com.plv.foundationsdk.component.exts.Nullables;
-import com.plv.foundationsdk.utils.PLVSugarUtil;
 import com.plv.foundationsdk.utils.PLVTimeUnit;
 
 import net.polyv.android.player.business.scene.common.player.IPLVMediaPlayer;
@@ -24,6 +21,7 @@ import net.polyv.android.player.common.R;
 import net.polyv.android.player.common.ui.component.floatwindow.PLVMediaPlayerFloatWindowHelper;
 import net.polyv.android.player.common.ui.component.floatwindow.PLVMediaPlayerFloatWindowManager;
 import net.polyv.android.player.common.ui.localprovider.PLVMediaPlayerLocalProvider;
+import net.polyv.android.player.common.utils.extensions.PLVMediaPlayerExtensions;
 
 /**
  * @author Hoshiiro
@@ -134,19 +132,7 @@ public class PLVMediaPlayerFloatWindowContentLayout extends FrameLayout implemen
         if (mediaPlayer == null) {
             return;
         }
-        final long duration = Nullables.of(new PLVSugarUtil.Supplier<Long>() {
-            @Override
-            public Long get() {
-                return mediaPlayer.getStateListenerRegistry().getDurationState().getValue();
-            }
-        }).getOrDefault(0L);
-        final long nextPosition = clamp(mediaPlayer.getCurrentPosition() + offset, 0, duration);
-        mediaPlayer.seek(nextPosition);
-        if (nextPosition >= duration) {
-            mediaPlayer.pause();
-        } else {
-            mediaPlayer.start();
-        }
+        PLVMediaPlayerExtensions.seekTo(mediaPlayer, mediaPlayer.getCurrentPosition() + offset);
     }
 
     private void switchVisibility() {
