@@ -29,7 +29,7 @@ dependencies {
     implementation("com.google.android.material:material:1.0.0")
     implementation("androidx.constraintlayout:constraintlayout:1.1.3")
 
-    api("net.polyv.android:media-player-full:2.1.0")
+    api("net.polyv.android:media-player-full:2.1.1")
 
     api("de.hdodenhof:circleimageview:$deps_circle_image_view_version")
     api("com.github.yyued:SVGAPlayer-Android:$deps_svga_version")

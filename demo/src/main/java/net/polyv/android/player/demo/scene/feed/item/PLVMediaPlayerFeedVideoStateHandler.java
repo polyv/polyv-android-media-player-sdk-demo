@@ -14,6 +14,7 @@ import com.plv.foundationsdk.utils.PLVSugarUtil;
 import net.polyv.android.player.business.scene.common.model.vo.PLVMediaResource;
 import net.polyv.android.player.business.scene.common.player.IPLVMediaPlayer;
 import net.polyv.android.player.common.ui.component.floatwindow.PLVMediaPlayerFloatWindowManager;
+import net.polyv.android.player.common.utils.audiofocus.PLVMediaPlayerAudioFocusManager;
 import net.polyv.android.player.common.utils.orientation.PLVActivityOrientationManager;
 import net.polyv.android.player.core.api.listener.event.PLVMediaPlayerOnPreparedEvent;
 import net.polyv.android.player.core.api.option.PLVMediaPlayerOptionEnum;
@@ -31,6 +32,9 @@ public class PLVMediaPlayerFeedVideoStateHandler {
 
     @Nullable
     private IPLVMediaPlayer mediaPlayer;
+    // 音频焦点管理
+    @Nullable
+    private PLVMediaPlayerAudioFocusManager audioFocusManager;
 
     @Nullable
     private AppCompatActivity activity;
@@ -48,6 +52,7 @@ public class PLVMediaPlayerFeedVideoStateHandler {
         this.mediaPlayer = videoView;
         if (videoView != null) {
             activity = (AppCompatActivity) videoView.getContext();
+            audioFocusManager = new PLVMediaPlayerAudioFocusManager(activity);
         }
     }
 
@@ -74,6 +79,9 @@ public class PLVMediaPlayerFeedVideoStateHandler {
                     public void run() {
                         isCalledPrepare = false;
                         isPrepared = false;
+                        if (audioFocusManager != null) {
+                            audioFocusManager.stopFocus();
+                        }
                         if (mediaPlayer != null) {
                             mediaPlayer.destroy();
                         }
@@ -291,6 +299,9 @@ public class PLVMediaPlayerFeedVideoStateHandler {
     private class InvisiblePreparedState extends VideoState {
         @Override
         public void onEnter() {
+            if (audioFocusManager != null) {
+                audioFocusManager.stopFocus();
+            }
             if (mediaPlayer != null) {
                 mediaPlayer.pause();
                 mediaPlayer.setPlayerOption(listOf(
@@ -311,6 +322,9 @@ public class PLVMediaPlayerFeedVideoStateHandler {
     private class VisiblePreparedState extends VideoState {
         @Override
         public void onEnter() {
+            if (audioFocusManager != null) {
+                audioFocusManager.startFocus(mediaPlayer);
+            }
             if (mediaPlayer != null) {
                 mediaPlayer.start();
                 mediaPlayer.setPlayerOption(listOf(

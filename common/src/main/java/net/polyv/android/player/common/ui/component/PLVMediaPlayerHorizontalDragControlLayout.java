@@ -21,6 +21,7 @@ import net.polyv.android.player.common.ui.localprovider.PLVMediaPlayerLocalProvi
 import net.polyv.android.player.common.ui.viewmodel.PLVMediaPlayerControlViewModel;
 import net.polyv.android.player.common.ui.viewmodel.action.PLVMediaPlayerControlAction;
 import net.polyv.android.player.common.ui.viewmodel.viewstate.PLVMediaPlayerControlViewState;
+import net.polyv.android.player.common.utils.extensions.PLVMediaPlayerExtensions;
 
 /**
  * @author Hoshiiro
@@ -155,7 +156,7 @@ public class PLVMediaPlayerHorizontalDragControlLayout extends FrameLayout imple
         if (mediaPlayer == null || currentViewState == null || currentViewState.progressSeekBarDragPosition < 0) {
             return;
         }
-        mediaPlayer.seek(currentViewState.progressSeekBarDragPosition);
+        PLVMediaPlayerExtensions.seekTo(mediaPlayer, currentViewState.progressSeekBarDragPosition);
     }
 
     private void hintDragging(long targetProgress, boolean isDragging) {

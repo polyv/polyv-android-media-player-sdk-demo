@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<net.polyv.android.player.common.utils.ui.PLVRoundRectConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="#CC000000"
+    app:mode="all"
+    app:radius="20dp">
+
+    <TextView
+        android:id="@+id/plv_media_player_switch_bit_rate_hint_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingHorizontal="16dp"
+        android:paddingVertical="8dp"
+        android:textColor="#FFFFFF"
+        android:textSize="14sp"
+        tools:text="正在为您切换到 流畅 清晰度，请耐心等待~" />
+
+</net.polyv.android.player.common.utils.ui.PLVRoundRectConstraintLayout>

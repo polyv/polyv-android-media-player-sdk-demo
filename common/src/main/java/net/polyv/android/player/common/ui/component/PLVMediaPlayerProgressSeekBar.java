@@ -27,6 +27,7 @@ import net.polyv.android.player.common.ui.localprovider.PLVMediaPlayerLocalProvi
 import net.polyv.android.player.common.ui.viewmodel.PLVMediaPlayerControlViewModel;
 import net.polyv.android.player.common.ui.viewmodel.action.PLVMediaPlayerControlAction;
 import net.polyv.android.player.common.ui.viewmodel.viewstate.PLVMediaPlayerControlViewState;
+import net.polyv.android.player.common.utils.extensions.PLVMediaPlayerExtensions;
 import net.polyv.android.player.core.api.listener.event.PLVMediaPlayerOnInfoEvent;
 
 /**
@@ -250,7 +251,7 @@ public class PLVMediaPlayerProgressSeekBar extends AppCompatSeekBar implements S
     protected void seekOnStopDrag() {
         IPLVMediaPlayer mediaPlayer = PLVMediaPlayerLocalProvider.localMediaPlayer.on(PLVMediaPlayerProgressSeekBar.this).current();
         if (mediaPlayer != null) {
-            mediaPlayer.seek((long) (((double) progressOnDrag) / getMax() * currentDuration));
+            PLVMediaPlayerExtensions.seekTo(mediaPlayer, (long) (((double) progressOnDrag) / getMax() * currentDuration));
         }
     }
 

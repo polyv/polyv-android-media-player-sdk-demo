@@ -1,5 +1,7 @@
 package net.polyv.android.player.common.ui.viewmodel.action;
 
+import net.polyv.android.player.business.scene.common.model.vo.PLVMediaBitRate;
+
 /**
  * @author Hoshiiro
  */
@@ -45,6 +47,12 @@ public class PLVMediaPlayerControlAction {
         HintVolumeChanged hintVolumeChanged = new HintVolumeChanged();
         hintVolumeChanged.volume = volume;
         return hintVolumeChanged;
+    }
+
+    public static PLVMediaPlayerControlAction hintBitRateChanged(PLVMediaBitRate bitRate) {
+        HintBitRateChanged hintBitRateChanged = new HintBitRateChanged();
+        hintBitRateChanged.bitRate = bitRate;
+        return hintBitRateChanged;
     }
 
     public static PLVMediaPlayerControlAction progressSeekBarDrag(long position, boolean isDragging) {
@@ -107,6 +115,10 @@ public class PLVMediaPlayerControlAction {
 
     public static class HintVolumeChanged extends PLVMediaPlayerControlAction {
         public int volume;
+    }
+
+    public static class HintBitRateChanged extends PLVMediaPlayerControlAction {
+        public PLVMediaBitRate bitRate;
     }
 
     public static class ProgressSeekBarDragAction extends PLVMediaPlayerControlAction {

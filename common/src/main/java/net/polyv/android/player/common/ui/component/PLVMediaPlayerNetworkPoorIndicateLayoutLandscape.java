@@ -295,7 +295,8 @@ public class PLVMediaPlayerNetworkPoorIndicateLayoutLandscape extends FrameLayou
     @Nullable
     private SwitchBitrateAction getSwitchBitrateAction() {
         final IPLVMediaPlayer mediaPlayer = PLVMediaPlayerLocalProvider.localMediaPlayer.on(this).current();
-        if (mediaPlayer == null) {
+        final PLVMediaPlayerControlViewModel viewModel = PLVMediaPlayerLocalProvider.localControlViewModel.on(this).current();
+        if (mediaPlayer == null || viewModel == null) {
             return null;
         }
         final PLVMediaBitRate currentBitRate = mediaPlayer.getBusinessListenerRegistry().getCurrentMediaBitRate().getValue();
@@ -329,6 +330,7 @@ public class PLVMediaPlayerNetworkPoorIndicateLayoutLandscape extends FrameLayou
             @Override
             public void onCallback() {
                 mediaPlayer.changeBitRate(nextDowngradeBitRate);
+                viewModel.requestControl(PLVMediaPlayerControlAction.hintBitRateChanged(nextDowngradeBitRate));
             }
         };
         return action;
