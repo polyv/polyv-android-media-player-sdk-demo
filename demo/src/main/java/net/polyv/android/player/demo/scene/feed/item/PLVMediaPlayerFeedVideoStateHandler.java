@@ -14,6 +14,8 @@ import com.plv.foundationsdk.utils.PLVSugarUtil;
 import net.polyv.android.player.business.scene.common.model.vo.PLVMediaResource;
 import net.polyv.android.player.business.scene.common.player.IPLVMediaPlayer;
 import net.polyv.android.player.common.ui.component.floatwindow.PLVMediaPlayerFloatWindowManager;
+import net.polyv.android.player.common.ui.viewmodel.PLVMediaPlayerControlViewModel;
+import net.polyv.android.player.common.ui.viewmodel.action.PLVMediaPlayerControlAction;
 import net.polyv.android.player.common.utils.audiofocus.PLVMediaPlayerAudioFocusManager;
 import net.polyv.android.player.common.utils.orientation.PLVActivityOrientationManager;
 import net.polyv.android.player.core.api.listener.event.PLVMediaPlayerOnPreparedEvent;
@@ -32,6 +34,8 @@ public class PLVMediaPlayerFeedVideoStateHandler {
 
     @Nullable
     private IPLVMediaPlayer mediaPlayer;
+    @Nullable
+    private PLVMediaPlayerControlViewModel controlViewModel;
     // 音频焦点管理
     @Nullable
     private PLVMediaPlayerAudioFocusManager audioFocusManager;
@@ -48,8 +52,9 @@ public class PLVMediaPlayerFeedVideoStateHandler {
     private boolean isCalledPrepare = false;
     private boolean isPrepared = false;
 
-    public void onCreateView(PLVVideoView videoView) {
+    public void onCreateView(PLVVideoView videoView, PLVMediaPlayerControlViewModel controlViewModel) {
         this.mediaPlayer = videoView;
+        this.controlViewModel = controlViewModel;
         if (videoView != null) {
             activity = (AppCompatActivity) videoView.getContext();
             audioFocusManager = new PLVMediaPlayerAudioFocusManager(activity);
@@ -307,6 +312,9 @@ public class PLVMediaPlayerFeedVideoStateHandler {
                 mediaPlayer.setPlayerOption(listOf(
                         PLVMediaPlayerOptionEnum.START_ON_PREPARED.value("0")
                 ));
+                if (controlViewModel != null) {
+                    controlViewModel.requestControl(PLVMediaPlayerControlAction.hintManualPauseVideo(false));
+                }
             }
         }
 
@@ -326,6 +334,9 @@ public class PLVMediaPlayerFeedVideoStateHandler {
                 audioFocusManager.startFocus(mediaPlayer);
             }
             if (mediaPlayer != null) {
+                if (controlViewModel != null) {
+                    controlViewModel.requestControl(PLVMediaPlayerControlAction.hintManualPauseVideo(false));
+                }
                 mediaPlayer.start();
                 mediaPlayer.setPlayerOption(listOf(
                         PLVMediaPlayerOptionEnum.START_ON_PREPARED.value("1")

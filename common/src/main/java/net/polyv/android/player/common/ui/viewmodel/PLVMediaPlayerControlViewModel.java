@@ -75,6 +75,9 @@ public class PLVMediaPlayerControlViewModel {
             updateControlViewState();
         } else if (action instanceof PLVMediaPlayerControlAction.HintBitRateChanged) {
             controlActionEvent.set(action);
+        } else if (action instanceof PLVMediaPlayerControlAction.HintManualPauseVideo) {
+            currentControlViewState.isManualPauseVideo = ((PLVMediaPlayerControlAction.HintManualPauseVideo) action).isPause;
+            updateControlViewState();
         }
     }
 

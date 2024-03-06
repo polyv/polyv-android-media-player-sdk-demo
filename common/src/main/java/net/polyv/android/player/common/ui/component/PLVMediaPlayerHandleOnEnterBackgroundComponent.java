@@ -24,31 +24,41 @@ import net.polyv.android.player.common.ui.viewmodel.PLVMediaPlayerControlViewMod
 import net.polyv.android.player.common.ui.viewmodel.action.PLVMediaPlayerControlAction;
 import net.polyv.android.player.common.utils.floatwindow.permission.PLVFloatPermissionUtils;
 import net.polyv.android.player.common.utils.ui.PLVViewLifecycleObservable;
+import net.polyv.android.player.core.api.listener.state.PLVMediaPlayerPlayingState;
 import net.polyv.android.player.core.api.listener.state.PLVMediaPlayerState;
 
 /**
- * App进入后台时自动唤起小窗
- * <p>
- * 该组件不会自动申请悬浮窗权限，需要提前获取权限后才会自动唤起
+ * App进入后台时自动处理逻辑
  *
  * @author Hoshiiro
  */
-public class PLVMediaPlayerAutoFloatWindowOnBackgroundComponent extends View implements GenericLifecycleObserver {
+public class PLVMediaPlayerHandleOnEnterBackgroundComponent extends View implements GenericLifecycleObserver {
+
+    /**
+     * 是否自动唤起小窗，不会自动申请悬浮窗权限，需要提前获取权限后才会自动唤起
+     */
+    private static final boolean AUTO_FLOAT_WINDOW_ON_BACKGROUND = true;
+    /**
+     * 是否自动暂停播放，当未唤起小窗时自动暂停
+     */
+    private static final boolean AUTO_PAUSE_ON_BACKGROUND = true;
 
     private boolean isVisibleToUser = false;
     private boolean isAttach = false;
 
-    public PLVMediaPlayerAutoFloatWindowOnBackgroundComponent(Context context) {
+    private boolean isAutoPausedOnEnterBackground = false;
+
+    public PLVMediaPlayerHandleOnEnterBackgroundComponent(Context context) {
         super(context);
         init();
     }
 
-    public PLVMediaPlayerAutoFloatWindowOnBackgroundComponent(Context context, @Nullable AttributeSet attrs) {
+    public PLVMediaPlayerHandleOnEnterBackgroundComponent(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
         init();
     }
 
-    public PLVMediaPlayerAutoFloatWindowOnBackgroundComponent(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
+    public PLVMediaPlayerHandleOnEnterBackgroundComponent(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         init();
     }
@@ -64,12 +74,12 @@ public class PLVMediaPlayerAutoFloatWindowOnBackgroundComponent extends View imp
                 @Override
                 public void run() {
                     if (Utils.getStartedActivityCount() <= 0) {
-                        launchFloatWindow();
+                        onEnterBackground();
                     }
                 }
             });
         } else if (event == Lifecycle.Event.ON_START) {
-            hideFloatWindow();
+            onResumeFromBackground();
         }
     }
 
@@ -93,7 +103,7 @@ public class PLVMediaPlayerAutoFloatWindowOnBackgroundComponent extends View imp
         @Override
         public void onDestroy(PLVViewLifecycleObservable observable) {
             observable.removeObserver(this);
-            ((LifecycleOwner) getContext()).getLifecycle().removeObserver(PLVMediaPlayerAutoFloatWindowOnBackgroundComponent.this);
+            ((LifecycleOwner) getContext()).getLifecycle().removeObserver(PLVMediaPlayerHandleOnEnterBackgroundComponent.this);
         }
 
     };
@@ -107,10 +117,31 @@ public class PLVMediaPlayerAutoFloatWindowOnBackgroundComponent extends View imp
         // do nothing
     }
 
-    private void launchFloatWindow() {
-        if (!isHandleAutoFloatWindow() || !PLVFloatPermissionUtils.checkPermission((Activity) getContext())) {
+    private void onEnterBackground() {
+        if (isHandleAutoFloatWindow()) {
+            launchFloatWindow();
             return;
         }
+        if (isHandleAutoPause()) {
+            autoPauseOnEnterBackground();
+        }
+    }
+
+    private void onResumeFromBackground() {
+        if (isHandleAutoFloatWindow()) {
+            hideFloatWindow();
+            return;
+        }
+        if (isHandleAutoPause()) {
+            recoverPlayOnEnterBackground();
+        }
+    }
+
+    private boolean isHandleAutoFloatWindow() {
+        return AUTO_FLOAT_WINDOW_ON_BACKGROUND && isAttach && isVisibleToUser && PLVFloatPermissionUtils.checkPermission((Activity) getContext());
+    }
+
+    private void launchFloatWindow() {
         final PLVMediaPlayerControlViewModel controlViewModel = PLVMediaPlayerLocalProvider.localControlViewModel.on(this).current();
         final IPLVMediaPlayer mediaPlayer = PLVMediaPlayerLocalProvider.localMediaPlayer.on(this).current();
         if (controlViewModel == null || mediaPlayer == null) {
@@ -125,16 +156,36 @@ public class PLVMediaPlayerAutoFloatWindowOnBackgroundComponent extends View imp
     }
 
     private void hideFloatWindow() {
-        if (!isHandleAutoFloatWindow() || !PLVFloatPermissionUtils.checkPermission((Activity) getContext())) {
-            return;
-        }
         if (PLVMediaPlayerFloatWindowManager.getInstance().isFloatingWindowShowing()) {
             PLVMediaPlayerFloatWindowManager.getInstance().hide();
         }
     }
 
-    private boolean isHandleAutoFloatWindow() {
-        return isAttach && isVisibleToUser;
+    private boolean isHandleAutoPause() {
+        return AUTO_PAUSE_ON_BACKGROUND && isAttach && isVisibleToUser;
+    }
+
+    private void autoPauseOnEnterBackground() {
+        final IPLVMediaPlayer mediaPlayer = PLVMediaPlayerLocalProvider.localMediaPlayer.on(this).current();
+        if (mediaPlayer == null) {
+            return;
+        }
+        final boolean isPlaying = mediaPlayer.getStateListenerRegistry().getPlayingState().getValue() == PLVMediaPlayerPlayingState.PLAYING;
+        if (isPlaying) {
+            mediaPlayer.pause();
+            isAutoPausedOnEnterBackground = true;
+        }
+    }
+
+    private void recoverPlayOnEnterBackground() {
+        if (!isAutoPausedOnEnterBackground) {
+            return;
+        }
+        isAutoPausedOnEnterBackground = false;
+        final IPLVMediaPlayer mediaPlayer = PLVMediaPlayerLocalProvider.localMediaPlayer.on(this).current();
+        if (mediaPlayer != null) {
+            mediaPlayer.start();
+        }
     }
 
 }

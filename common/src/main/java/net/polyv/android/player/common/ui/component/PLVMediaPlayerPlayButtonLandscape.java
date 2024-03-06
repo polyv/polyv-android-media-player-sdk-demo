@@ -18,6 +18,8 @@ import com.plv.thirdpart.blankj.utilcode.util.ScreenUtils;
 import net.polyv.android.player.business.scene.common.player.IPLVMediaPlayer;
 import net.polyv.android.player.common.R;
 import net.polyv.android.player.common.ui.localprovider.PLVMediaPlayerLocalProvider;
+import net.polyv.android.player.common.ui.viewmodel.PLVMediaPlayerControlViewModel;
+import net.polyv.android.player.common.ui.viewmodel.action.PLVMediaPlayerControlAction;
 import net.polyv.android.player.common.ui.viewmodel.viewstate.PLVMediaPlayerControlViewState;
 import net.polyv.android.player.core.api.listener.state.PLVMediaPlayerPlayingState;
 
@@ -121,14 +123,17 @@ public class PLVMediaPlayerPlayButtonLandscape extends AppCompatImageView implem
     @Override
     public void onClick(View v) {
         final IPLVMediaPlayer mediaPlayer = PLVMediaPlayerLocalProvider.localMediaPlayer.on(this).current();
-        if (mediaPlayer == null) {
+        final PLVMediaPlayerControlViewModel controlViewModel = PLVMediaPlayerLocalProvider.localControlViewModel.on(this).current();
+        if (mediaPlayer == null || controlViewModel == null) {
             return;
         }
         PLVMediaPlayerPlayingState playingState = mediaPlayer.getStateListenerRegistry().getPlayingState().getValue();
         if (playingState == PLVMediaPlayerPlayingState.PLAYING) {
             mediaPlayer.pause();
+            controlViewModel.requestControl(PLVMediaPlayerControlAction.hintManualPauseVideo(true));
         } else {
             mediaPlayer.start();
+            controlViewModel.requestControl(PLVMediaPlayerControlAction.hintManualPauseVideo(false));
         }
     }
 

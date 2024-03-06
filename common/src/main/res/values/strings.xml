@@ -20,4 +20,8 @@
     <string name="plv_media_player_ui_component_switch_bit_rate_start_text_post">清晰度，请耐心等待~</string>
     <string name="plv_media_player_ui_component_switch_bit_rate_finish_text_pre">您已成功切换到</string>
     <string name="plv_media_player_ui_component_switch_bit_rate_finish_text_post">清晰度</string>
+    <string name="plv_media_player_ui_component_auto_continue_hint_pre">您上次观看至</string>
+    <string name="plv_media_player_ui_component_auto_continue_hint_post">，已为您自动续播</string>
+    <string name="plv_media_player_ui_component_auto_continue_hint_feed_pre">已从</string>
+    <string name="plv_media_player_ui_component_auto_continue_hint_feed_post">续播</string>
 </resources>

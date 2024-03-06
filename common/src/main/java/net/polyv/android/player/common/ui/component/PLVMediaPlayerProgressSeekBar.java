@@ -185,6 +185,9 @@ public class PLVMediaPlayerProgressSeekBar extends AppCompatSeekBar implements S
             invalidate();
             return;
         }
+        if (currentPosition <= 0 || currentDuration <= 0) {
+            return;
+        }
 
         long position = currentPosition;
         if (currentControlViewState.progressSeekBarDragging) {

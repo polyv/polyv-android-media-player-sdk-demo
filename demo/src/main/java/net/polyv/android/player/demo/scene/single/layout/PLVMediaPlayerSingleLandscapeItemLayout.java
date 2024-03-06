@@ -319,14 +319,17 @@ public class PLVMediaPlayerSingleLandscapeItemLayout extends FrameLayout {
             protected void onDoubleClick() {
                 // 暂停/播放
                 PLVVideoView videoView = videoViewWeakRef.get();
-                if (videoView == null) {
+                PLVMediaPlayerControlViewModel controlViewModel = PLVMediaPlayerLocalProvider.localControlViewModel.on(PLVMediaPlayerSingleLandscapeItemLayout.this).current();
+                if (videoView == null || controlViewModel == null) {
                     return;
                 }
                 boolean isPlaying = videoView.getStateListenerRegistry().getPlayingState().getValue() == PLVMediaPlayerPlayingState.PLAYING;
                 if (isPlaying) {
                     videoView.pause();
+                    controlViewModel.requestControl(PLVMediaPlayerControlAction.hintManualPauseVideo(true));
                 } else {
                     videoView.start();
+                    controlViewModel.requestControl(PLVMediaPlayerControlAction.hintManualPauseVideo(false));
                 }
             }
         });

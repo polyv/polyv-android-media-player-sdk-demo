@@ -110,6 +110,7 @@ public class PLVMediaPlayerPlayButtonPortraitFullScreen extends AppCompatImageVi
         final boolean visible = currentPlayerState == PLVMediaPlayerState.STATE_PAUSED
                 && isFirstFrameRendered
                 && currentControlViewState != null
+                && currentControlViewState.isManualPauseVideo
                 && !currentControlViewState.isOverlayLayoutVisible();
         setVisibility(visible ? View.VISIBLE : View.GONE);
     }

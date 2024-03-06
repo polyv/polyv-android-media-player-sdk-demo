@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<net.polyv.android.player.common.utils.ui.PLVRoundRectConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#99000000"
+    android:paddingHorizontal="6dp"
+    android:paddingVertical="4dp"
+    app:mode="all"
+    app:radius="4dp">
+
+    <TextView
+        android:id="@+id/plv_media_player_auto_continue_hint_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="#FFFFFF"
+        android:textSize="14sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+</net.polyv.android.player.common.utils.ui.PLVRoundRectConstraintLayout>
