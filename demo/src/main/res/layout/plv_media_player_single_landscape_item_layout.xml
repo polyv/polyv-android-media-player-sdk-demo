@@ -204,6 +204,18 @@
         app:plvSeekBarHeightOnDrag="8dp"
         app:plvThumbDrawableOnDrag="@drawable/plv_media_player_progress_position_point_style_drag" />
 
+    <!-- 自动续播提示条 -->
+    <net.polyv.android.player.common.ui.component.PLVMediaPlayerAutoContinueHintLayout
+        android:id="@+id/plv_media_player_auto_continue_hint_layout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="12dp"
+        android:layout_marginBottom="12dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@+id/plv_media_player_progress_seek_bar"
+        app:layout_constraintStart_toStartOf="@+id/plv_media_player_video_view_container"
+        app:layout_goneMarginBottom="90dp" />
+
     <!-- 拖动进度条时缩略图预览 -->
     <net.polyv.android.player.common.ui.component.PLVMediaPlayerSeekProgressPreviewLayout
         android:layout_width="wrap_content"

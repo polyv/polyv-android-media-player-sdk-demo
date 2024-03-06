@@ -129,10 +129,16 @@ public class PLVMediaPlayerProgressTextView extends FrameLayout {
     }
 
     protected void onChangeProgress() {
+        if (currentProgress <= 0) {
+            return;
+        }
         progressTv.setText(PLVTimeUtils.generateTime(currentProgress));
     }
 
     protected void onChangeDuration() {
+        if (currentDuration <= 0) {
+            return;
+        }
         durationTv.setText(PLVTimeUtils.generateTime(currentDuration));
     }
 

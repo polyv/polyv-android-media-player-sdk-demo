@@ -21,6 +21,7 @@ public class PLVMediaPlayerControlViewState implements Cloneable {
     public boolean errorOverlayLayoutVisible = false;
     public boolean completeOverlayLayoutVisible = false;
     public boolean networkPoorIndicateLayoutVisible = false;
+    public boolean isManualPauseVideo = false;
 
     public boolean isFloatActionPanelVisible() {
         return bitRateSelectLayoutVisible || speedSelectLayoutVisible || moreActionLayoutVisible;
@@ -34,13 +35,13 @@ public class PLVMediaPlayerControlViewState implements Cloneable {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        PLVMediaPlayerControlViewState viewState = (PLVMediaPlayerControlViewState) o;
-        return controllerVisible == viewState.controllerVisible && controllerLocking == viewState.controllerLocking && bitRateSelectLayoutVisible == viewState.bitRateSelectLayoutVisible && speedSelectLayoutVisible == viewState.speedSelectLayoutVisible && moreActionLayoutVisible == viewState.moreActionLayoutVisible && progressSeekBarDragging == viewState.progressSeekBarDragging && progressSeekBarDragPosition == viewState.progressSeekBarDragPosition && errorOverlayLayoutVisible == viewState.errorOverlayLayoutVisible && completeOverlayLayoutVisible == viewState.completeOverlayLayoutVisible && networkPoorIndicateLayoutVisible == viewState.networkPoorIndicateLayoutVisible;
+        PLVMediaPlayerControlViewState that = (PLVMediaPlayerControlViewState) o;
+        return controllerVisible == that.controllerVisible && controllerLocking == that.controllerLocking && bitRateSelectLayoutVisible == that.bitRateSelectLayoutVisible && speedSelectLayoutVisible == that.speedSelectLayoutVisible && moreActionLayoutVisible == that.moreActionLayoutVisible && progressSeekBarDragging == that.progressSeekBarDragging && progressSeekBarDragPosition == that.progressSeekBarDragPosition && errorOverlayLayoutVisible == that.errorOverlayLayoutVisible && completeOverlayLayoutVisible == that.completeOverlayLayoutVisible && networkPoorIndicateLayoutVisible == that.networkPoorIndicateLayoutVisible && isManualPauseVideo == that.isManualPauseVideo;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(controllerVisible, controllerLocking, bitRateSelectLayoutVisible, speedSelectLayoutVisible, moreActionLayoutVisible, progressSeekBarDragging, progressSeekBarDragPosition, errorOverlayLayoutVisible, completeOverlayLayoutVisible, networkPoorIndicateLayoutVisible);
+        return Objects.hash(controllerVisible, controllerLocking, bitRateSelectLayoutVisible, speedSelectLayoutVisible, moreActionLayoutVisible, progressSeekBarDragging, progressSeekBarDragPosition, errorOverlayLayoutVisible, completeOverlayLayoutVisible, networkPoorIndicateLayoutVisible, isManualPauseVideo);
     }
 
     @NonNull

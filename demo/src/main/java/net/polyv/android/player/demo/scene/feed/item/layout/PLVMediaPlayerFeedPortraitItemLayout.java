@@ -46,6 +46,7 @@ import net.polyv.android.player.common.ui.component.floatwindow.PLVMediaPlayerFl
 import net.polyv.android.player.common.ui.component.floatwindow.PLVMediaPlayerFloatWindowManager;
 import net.polyv.android.player.common.ui.component.floatwindow.layout.PLVMediaPlayerFloatWindowContentLayout;
 import net.polyv.android.player.common.ui.localprovider.PLVMediaPlayerLocalProvider;
+import net.polyv.android.player.common.ui.viewmodel.PLVMediaPlayerControlViewModel;
 import net.polyv.android.player.common.ui.viewmodel.action.PLVMediaPlayerControlAction;
 import net.polyv.android.player.common.utils.floatwindow.permission.PLVFloatPermissionUtils;
 import net.polyv.android.player.core.api.listener.state.PLVMediaPlayerPlayingState;
@@ -300,14 +301,17 @@ public class PLVMediaPlayerFeedPortraitItemLayout extends FrameLayout implements
     public void onClick(View v) {
         // 暂停/播放 视频
         final IPLVMediaPlayer mediaPlayer = PLVMediaPlayerLocalProvider.localMediaPlayer.on(PLVMediaPlayerFeedPortraitItemLayout.this).current();
-        if (mediaPlayer == null) {
+        final PLVMediaPlayerControlViewModel controlViewModel = PLVMediaPlayerLocalProvider.localControlViewModel.on(PLVMediaPlayerFeedPortraitItemLayout.this).current();
+        if (mediaPlayer == null || controlViewModel == null) {
             return;
         }
         PLVMediaPlayerPlayingState playingState = mediaPlayer.getStateListenerRegistry().getPlayingState().getValue();
         if (playingState == PLVMediaPlayerPlayingState.PLAYING) {
             mediaPlayer.pause();
+            controlViewModel.requestControl(PLVMediaPlayerControlAction.hintManualPauseVideo(true));
         } else {
             mediaPlayer.start();
+            controlViewModel.requestControl(PLVMediaPlayerControlAction.hintManualPauseVideo(false));
         }
     }
     // </editor-fold>

@@ -93,6 +93,12 @@ public class PLVMediaPlayerControlAction {
         return action;
     }
 
+    public static PLVMediaPlayerControlAction hintManualPauseVideo(boolean isPause) {
+        HintManualPauseVideo action = new HintManualPauseVideo();
+        action.isPause = isPause;
+        return action;
+    }
+
     public static class ShowMediaController extends PLVMediaPlayerControlAction {}
 
     public static class HideMediaController extends PLVMediaPlayerControlAction {}
@@ -145,6 +151,10 @@ public class PLVMediaPlayerControlAction {
 
     public static class HintNetworkPoorIndicateVisible extends PLVMediaPlayerControlAction {
         public boolean visible;
+    }
+
+    public static class HintManualPauseVideo extends PLVMediaPlayerControlAction {
+        public boolean isPause;
     }
 
 }

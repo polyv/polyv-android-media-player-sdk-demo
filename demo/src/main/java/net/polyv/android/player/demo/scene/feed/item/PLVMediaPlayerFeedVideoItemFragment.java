@@ -16,7 +16,7 @@ import com.plv.foundationsdk.utils.PLVSugarUtil;
 import com.plv.thirdpart.blankj.utilcode.util.ScreenUtils;
 
 import net.polyv.android.player.business.scene.common.model.vo.PLVMediaResource;
-import net.polyv.android.player.common.ui.component.PLVMediaPlayerAutoFloatWindowOnBackgroundComponent;
+import net.polyv.android.player.common.ui.component.PLVMediaPlayerHandleOnEnterBackgroundComponent;
 import net.polyv.android.player.common.ui.component.floatwindow.PLVMediaPlayerFloatWindowManager;
 import net.polyv.android.player.common.ui.localprovider.PLVMediaPlayerLocalProvider;
 import net.polyv.android.player.common.ui.viewmodel.PLVMediaPlayerControlViewModel;
@@ -52,7 +52,7 @@ public class PLVMediaPlayerFeedVideoItemFragment extends Fragment {
 
     // App进入后台时自动唤起小窗
     @Nullable
-    private PLVMediaPlayerAutoFloatWindowOnBackgroundComponent autoFloatWindowOnBackgroundComponent;
+    private PLVMediaPlayerHandleOnEnterBackgroundComponent handleOnEnterBackgroundComponent;
 
     // 皮肤状态 的数据监听中心，用于监听播放器状态的变化
     private final PLVMediaPlayerControlViewModel controlViewModel = new PLVMediaPlayerControlViewModel();
@@ -90,13 +90,13 @@ public class PLVMediaPlayerFeedVideoItemFragment extends Fragment {
             }
         };
         videoView = new PLVVideoView(context);
-        autoFloatWindowOnBackgroundComponent = new PLVMediaPlayerAutoFloatWindowOnBackgroundComponent(context);
+        handleOnEnterBackgroundComponent = new PLVMediaPlayerHandleOnEnterBackgroundComponent(context);
 
         PLVMediaPlayerLocalProvider.localMediaPlayer.on(rootContainer).provide(videoView);
         PLVMediaPlayerLocalProvider.localControlViewModel.on(rootContainer).provide(controlViewModel);
         PLVMediaPlayerLocalProvider.localLifecycleObservable.on(rootContainer).provide(viewLifecycleObservable);
 
-        videoStateHandler.onCreateView(videoView);
+        videoStateHandler.onCreateView(videoView, controlViewModel);
         return rootContainer;
     }
 
@@ -105,8 +105,8 @@ public class PLVMediaPlayerFeedVideoItemFragment extends Fragment {
         super.onActivityCreated(savedInstanceState);
         updateVideoLayout();
         videoStateHandler.onActivityCreated();
-        if (autoFloatWindowOnBackgroundComponent != null) {
-            autoFloatWindowOnBackgroundComponent.setUserVisibleHint(getUserVisibleHint());
+        if (handleOnEnterBackgroundComponent != null) {
+            handleOnEnterBackgroundComponent.setUserVisibleHint(getUserVisibleHint());
         }
     }
 
@@ -114,8 +114,8 @@ public class PLVMediaPlayerFeedVideoItemFragment extends Fragment {
     public void setUserVisibleHint(boolean isVisibleToUser) {
         super.setUserVisibleHint(isVisibleToUser);
         videoStateHandler.setUserVisibleHint(isVisibleToUser);
-        if (autoFloatWindowOnBackgroundComponent != null) {
-            autoFloatWindowOnBackgroundComponent.setUserVisibleHint(isVisibleToUser);
+        if (handleOnEnterBackgroundComponent != null) {
+            handleOnEnterBackgroundComponent.setUserVisibleHint(isVisibleToUser);
         }
     }
     // </editor-fold>
@@ -160,8 +160,8 @@ public class PLVMediaPlayerFeedVideoItemFragment extends Fragment {
         }
 
         rootContainer.removeAllViews();
-        if (autoFloatWindowOnBackgroundComponent != null) {
-            rootContainer.addView(autoFloatWindowOnBackgroundComponent);
+        if (handleOnEnterBackgroundComponent != null) {
+            rootContainer.addView(handleOnEnterBackgroundComponent);
         }
 
         // 根据屏幕方向，切换对应的横屏或者竖屏皮肤，并设置裸播放器进对应的皮肤

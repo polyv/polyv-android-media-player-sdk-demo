@@ -19,8 +19,8 @@ import com.plv.foundationsdk.utils.PLVSugarUtil;
 import com.plv.thirdpart.blankj.utilcode.util.ScreenUtils;
 
 import net.polyv.android.player.business.scene.common.model.vo.PLVMediaResource;
-import net.polyv.android.player.common.ui.component.PLVMediaPlayerAutoFloatWindowOnBackgroundComponent;
 import net.polyv.android.player.common.ui.component.PLVMediaPlayerAuxiliaryBeforePlayListener;
+import net.polyv.android.player.common.ui.component.PLVMediaPlayerHandleOnEnterBackgroundComponent;
 import net.polyv.android.player.common.ui.component.PLVMediaPlayerMoreActionLayoutPortrait;
 import net.polyv.android.player.common.ui.component.floatwindow.PLVMediaPlayerFloatWindowManager;
 import net.polyv.android.player.common.ui.localprovider.PLVMediaPlayerLocalProvider;
@@ -68,7 +68,7 @@ public class PLVMediaPlayerSingleVideoLayout extends FrameLayout {
     };
 
     // App进入后台时自动唤起小窗
-    private final PLVMediaPlayerAutoFloatWindowOnBackgroundComponent autoFloatWindowOnBackgroundComponent = new PLVMediaPlayerAutoFloatWindowOnBackgroundComponent(getContext());
+    private final PLVMediaPlayerHandleOnEnterBackgroundComponent handleOnEnterBackgroundComponent = new PLVMediaPlayerHandleOnEnterBackgroundComponent(getContext());
     // 音频焦点管理
     private final PLVMediaPlayerAudioFocusManager audioFocusManager = new PLVMediaPlayerAudioFocusManager(getContext());
 
@@ -104,7 +104,7 @@ public class PLVMediaPlayerSingleVideoLayout extends FrameLayout {
 
     private void initLayout() {
         setKeepScreenOn(true); // 缺省设置屏幕常亮
-        autoFloatWindowOnBackgroundComponent.setUserVisibleHint(true);
+        handleOnEnterBackgroundComponent.setUserVisibleHint(true);
     }
 
     private void initProvider() {
@@ -139,7 +139,7 @@ public class PLVMediaPlayerSingleVideoLayout extends FrameLayout {
 
     private void updateVideoLayout() {
         removeAllViews();
-        addView(autoFloatWindowOnBackgroundComponent);
+        addView(handleOnEnterBackgroundComponent);
         if (ScreenUtils.isPortrait()) {
             portraitLayout.get().setVideoView(videoView);
             portraitLayout.get().setAuxiliaryVideoView(auxiliaryVideoView);

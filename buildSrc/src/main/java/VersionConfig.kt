@@ -5,8 +5,8 @@
  * @author Hoshiiro
  */
 
-const val version_name = "2.1.1"
-const val version_code = 20101
+const val version_name = "2.1.3"
+const val version_code = 20103
 
 const val compile_sdk_version = 34
 const val target_sdk_version = 34
