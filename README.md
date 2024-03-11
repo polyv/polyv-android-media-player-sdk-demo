@@ -45,5 +45,7 @@ Demo [下载链接](https://www.pgyer.com/iE13Ej) （密码：polyv）
 ### 3 文档
 #### 3.1 接口文档
 [v2.1.3 接口文档](https://repo.polyv.net/android/documents/media_player_sdk/2.1.3/index.html)
-#### 3.2 版本更新记录
+#### 3.2 集成文档
+[集成文档](./docs/public)
+#### 3.3 版本更新记录
 [全版本更新记录](./CHANGELOG.md)
