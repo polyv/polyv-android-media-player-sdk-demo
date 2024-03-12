@@ -7,12 +7,12 @@ polyv-android-media-player-sdk-demo
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
-- [polyv-android-media-player-sdk-demo](#polyv-android-media-player-sdk-demo)
-    - [1 简介](#1-%E7%AE%80%E4%BB%8B)
-    - [2 体验 Demo](#2-%E4%BD%93%E9%AA%8C-demo)
-    - [3 文档](#3-%E6%96%87%E6%A1%A3)
-        - [3.1 接口文档](#31-%E6%8E%A5%E5%8F%A3%E6%96%87%E6%A1%A3)
-        - [3.2 Changelog](#32-changelog)
+- [1 简介](#1-%E7%AE%80%E4%BB%8B)
+- [2 体验 Demo](#2-%E4%BD%93%E9%AA%8C-demo)
+- [3 文档](#3-%E6%96%87%E6%A1%A3)
+  - [3.1 集成文档](#31-%E9%9B%86%E6%88%90%E6%96%87%E6%A1%A3)
+  - [3.2 接口文档](#32-%E6%8E%A5%E5%8F%A3%E6%96%87%E6%A1%A3)
+  - [3.3 版本更新记录](#33-%E7%89%88%E6%9C%AC%E6%9B%B4%E6%96%B0%E8%AE%B0%E5%BD%95)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -43,9 +43,9 @@ polyv-android-media-player-sdk-demo
 Demo [下载链接](https://www.pgyer.com/iE13Ej) （密码：polyv）
 
 ### 3 文档
-#### 3.1 接口文档
-[v2.1.3 接口文档](https://repo.polyv.net/android/documents/media_player_sdk/2.1.3/index.html)
-#### 3.2 集成文档
+#### 3.1 集成文档
 [集成文档](./docs/public)
+#### 3.2 接口文档
+[v2.1.3 接口文档](https://repo.polyv.net/android/documents/media_player_sdk/2.1.3/index.html)
 #### 3.3 版本更新记录
 [全版本更新记录](./CHANGELOG.md)
