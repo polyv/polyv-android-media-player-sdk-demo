@@ -1,9 +1,7 @@
 package net.polyv.android.player.common.ui.component;
 
-import static com.plv.foundationsdk.component.livedata.PLVLiveDataExt.observeUntilViewDetached;
-import static com.plv.foundationsdk.utils.PLVSugarUtil.requireNotNull;
+import static net.polyv.android.player.sdk.foundation.lang.PreconditionsKt.requireNotNull;
 
-import android.arch.lifecycle.Observer;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -13,17 +11,16 @@ import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 
-import com.plv.foundationsdk.component.remember.PLVRememberState;
-import com.plv.foundationsdk.component.remember.PLVRememberStateCompareResult;
-import com.plv.foundationsdk.utils.PLVSugarUtil;
-
-import net.polyv.android.player.business.scene.common.player.IPLVMediaPlayer;
-import net.polyv.android.player.business.scene.common.player.error.PLVMediaPlayerBusinessError;
 import net.polyv.android.player.common.R;
-import net.polyv.android.player.common.ui.localprovider.PLVMediaPlayerLocalProvider;
-import net.polyv.android.player.common.ui.viewmodel.PLVMediaPlayerControlViewModel;
-import net.polyv.android.player.common.ui.viewmodel.action.PLVMediaPlayerControlAction;
-import net.polyv.android.player.core.api.listener.state.PLVMediaPlayerPlayingState;
+import net.polyv.android.player.common.di.PLVMediaPlayerLocalProvider;
+import net.polyv.android.player.common.modules.media.viewmodel.PLVMPMediaViewModel;
+import net.polyv.android.player.common.modules.mediacontroller.viewmodel.PLVMPMediaControllerViewModel;
+import net.polyv.android.player.common.modules.mediacontroller.viewmodel.viewstate.PLVMPMediaControllerViewState;
+import net.polyv.android.player.sdk.foundation.lang.PLVRememberState;
+import net.polyv.android.player.sdk.foundation.lang.PLVRememberStateCompareResult;
+
+import kotlin.Unit;
+import kotlin.jvm.functions.Function1;
 
 /**
  * @author Hoshiiro
@@ -32,8 +29,7 @@ public class PLVMediaPlayerPlayErrorOverlayLayout extends FrameLayout implements
 
     private LinearLayout errorRestartLayout;
 
-    protected PLVMediaPlayerPlayingState currentPlayingState = null;
-    protected PLVMediaPlayerBusinessError currentBusinessError = null;
+    protected boolean isVisible = false;
 
     public PLVMediaPlayerPlayErrorOverlayLayout(@NonNull Context context) {
         super(context);
@@ -59,69 +55,43 @@ public class PLVMediaPlayerPlayErrorOverlayLayout extends FrameLayout implements
         super.onAttachedToWindow();
         if (isInEditMode()) return;
 
-        observeUntilViewDetached(
-                requireNotNull(PLVMediaPlayerLocalProvider.localMediaPlayer.on(this).current())
-                        .getStateListenerRegistry()
-                        .getPlayingState(),
-                this,
-                new Observer<PLVMediaPlayerPlayingState>() {
+        requireNotNull(PLVMediaPlayerLocalProvider.localDependScope.on(this).current())
+                .get(PLVMPMediaControllerViewModel.class)
+                .getMediaControllerViewState()
+                .observeUntilViewDetached(this, new Function1<PLVMPMediaControllerViewState, Unit>() {
                     @Override
-                    public void onChanged(@Nullable @org.jetbrains.annotations.Nullable PLVMediaPlayerPlayingState playingState) {
-                        currentPlayingState = playingState;
+                    public Unit invoke(PLVMPMediaControllerViewState viewState) {
+                        isVisible = viewState.getErrorOverlayLayoutVisible();
                         onViewStateChanged();
-                    }
-                }
-        );
-
-        observeUntilViewDetached(
-                requireNotNull(PLVMediaPlayerLocalProvider.localMediaPlayer.on(this).current())
-                        .getBusinessListenerRegistry()
-                        .getBusinessErrorState(),
-                this,
-                new Observer<PLVMediaPlayerBusinessError>() {
-                    @Override
-                    public void onChanged(@Nullable @org.jetbrains.annotations.Nullable PLVMediaPlayerBusinessError businessError) {
-                        currentBusinessError = businessError;
-                        onViewStateChanged();
-                    }
-                }
-        );
-    }
-
-    protected void onViewStateChanged() {
-        PLVRememberState.rememberStateOf(this, "updateBusinessError")
-                .compareLastAndSet(currentPlayingState, currentBusinessError)
-                .ifNotEquals(new PLVSugarUtil.Consumer<PLVRememberStateCompareResult>() {
-                    @Override
-                    public void accept(PLVRememberStateCompareResult result) {
-                        updateBusinessError();
+                        return null;
                     }
                 });
     }
 
-    protected void updateBusinessError() {
-        boolean isPlaying = currentPlayingState == PLVMediaPlayerPlayingState.PLAYING;
-        boolean toShow = currentBusinessError != null && !isPlaying;
-        setVisibility(toShow ? View.VISIBLE : View.GONE);
-        PLVMediaPlayerControlViewModel controlViewModel = PLVMediaPlayerLocalProvider.localControlViewModel.on(PLVMediaPlayerPlayErrorOverlayLayout.this).current();
-        if (controlViewModel != null) {
-            if (toShow) {
-                controlViewModel.requestControl(PLVMediaPlayerControlAction.lockMediaController(false));
-            }
-            controlViewModel.requestControl(PLVMediaPlayerControlAction.hintErrorOverlayLayoutVisible(toShow));
-        }
+    protected void onViewStateChanged() {
+        PLVRememberState.rememberStateOf(this, "onChangeVisibility")
+                .compareLastAndSet(isVisible)
+                .ifNotEquals(new Function1<PLVRememberStateCompareResult, Unit>() {
+                    @Override
+                    public Unit invoke(PLVRememberStateCompareResult result) {
+                        onChangeVisibility();
+                        return null;
+                    }
+                });
+    }
+
+    protected void onChangeVisibility() {
+        setVisibility(isVisible ? View.VISIBLE : View.GONE);
+
     }
 
     @Override
     public void onClick(View v) {
         int id = v.getId();
         if (id == errorRestartLayout.getId()) {
-            IPLVMediaPlayer mediaPlayer = PLVMediaPlayerLocalProvider.localMediaPlayer.on(v).current();
-            if (mediaPlayer != null) {
-                mediaPlayer.restart();
-            }
-            currentBusinessError = null;
-            onViewStateChanged();
+            requireNotNull(PLVMediaPlayerLocalProvider.localDependScope.on(this).current())
+                    .get(PLVMPMediaViewModel.class)
+                    .restart();
         }
     }
 

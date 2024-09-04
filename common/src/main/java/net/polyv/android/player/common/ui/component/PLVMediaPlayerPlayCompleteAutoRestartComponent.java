@@ -1,6 +1,6 @@
 package net.polyv.android.player.common.ui.component;
 
-import static com.plv.foundationsdk.component.event.PLVEventKt.observeUntilViewDetached;
+import static net.polyv.android.player.sdk.foundation.lang.PreconditionsKt.requireNotNull;
 
 import android.content.Context;
 import android.graphics.Canvas;
@@ -9,12 +9,12 @@ import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.view.View;
 
-import com.plv.foundationsdk.utils.PLVSugarUtil;
-
-import net.polyv.android.player.business.scene.common.player.IPLVMediaPlayer;
-import net.polyv.android.player.common.ui.component.floatwindow.PLVMediaPlayerFloatWindowManager;
-import net.polyv.android.player.common.ui.localprovider.PLVMediaPlayerLocalProvider;
+import net.polyv.android.player.common.di.PLVMediaPlayerLocalProvider;
+import net.polyv.android.player.common.modules.media.viewmodel.PLVMPMediaViewModel;
 import net.polyv.android.player.core.api.listener.event.PLVMediaPlayerOnCompletedEvent;
+
+import kotlin.Unit;
+import kotlin.jvm.functions.Function1;
 
 /**
  * @author Hoshiiro
@@ -43,29 +43,22 @@ public class PLVMediaPlayerPlayCompleteAutoRestartComponent extends View {
         super.onAttachedToWindow();
         if (isInEditMode()) return;
 
-        final IPLVMediaPlayer mediaPlayer = PLVMediaPlayerLocalProvider.localMediaPlayer.on(this).current();
-        if (mediaPlayer != null) {
-            observeUntilViewDetached(
-                    mediaPlayer.getEventListenerRegistry().getOnCompleted(),
-                    this,
-                    new PLVSugarUtil.Consumer<PLVMediaPlayerOnCompletedEvent>() {
-                        @Override
-                        public void accept(PLVMediaPlayerOnCompletedEvent onCompletedEvent) {
-                            if (onCompletedEvent != null) {
-                                onCompleteAutoRestart(onCompletedEvent);
-                            }
-                        }
+        requireNotNull(PLVMediaPlayerLocalProvider.localDependScope.on(this).current())
+                .get(PLVMPMediaViewModel.class)
+                .getOnCompleteEvent()
+                .observeUntilViewDetached(this, new Function1<PLVMediaPlayerOnCompletedEvent, Unit>() {
+                    @Override
+                    public Unit invoke(PLVMediaPlayerOnCompletedEvent onCompletedEvent) {
+                        onCompleteAutoRestart(onCompletedEvent);
+                        return null;
                     }
-            );
-        }
+                });
     }
 
     protected void onCompleteAutoRestart(PLVMediaPlayerOnCompletedEvent onCompletedEvent) {
-        final IPLVMediaPlayer mp = PLVMediaPlayerLocalProvider.localMediaPlayer.on(this).current();
-        final boolean shouldAutoRestart = !PLVMediaPlayerFloatWindowManager.getInstance().isFloatingWindowShowing();
-        if (mp != null && shouldAutoRestart) {
-            mp.restart();
-        }
+        requireNotNull(PLVMediaPlayerLocalProvider.localDependScope.on(this).current())
+                .get(PLVMPMediaViewModel.class)
+                .restart();
     }
 
 }

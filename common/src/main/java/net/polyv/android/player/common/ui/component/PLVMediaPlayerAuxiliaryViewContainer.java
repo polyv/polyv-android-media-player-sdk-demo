@@ -1,9 +1,7 @@
 package net.polyv.android.player.common.ui.component;
 
-import static com.plv.foundationsdk.component.livedata.PLVLiveDataExt.observeUntilViewDetached;
-import static com.plv.foundationsdk.utils.PLVSugarUtil.requireNotNull;
+import static net.polyv.android.player.sdk.foundation.lang.PreconditionsKt.requireNotNull;
 
-import android.arch.lifecycle.Observer;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -13,13 +11,15 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
-import com.plv.foundationsdk.component.remember.PLVRememberState;
-import com.plv.foundationsdk.component.remember.PLVRememberStateCompareResult;
-import com.plv.foundationsdk.utils.PLVSugarUtil;
-
-import net.polyv.android.player.business.scene.common.model.vo.PLVMediaPlayStage;
 import net.polyv.android.player.common.R;
-import net.polyv.android.player.common.ui.localprovider.PLVMediaPlayerLocalProvider;
+import net.polyv.android.player.common.di.PLVMediaPlayerLocalProvider;
+import net.polyv.android.player.common.modules.auxiliary.viewmodel.PLVMPAuxiliaryViewModel;
+import net.polyv.android.player.common.modules.auxiliary.viewmodel.viewstate.PLVMPAuxiliaryInfoViewState;
+import net.polyv.android.player.sdk.foundation.lang.PLVRememberState;
+import net.polyv.android.player.sdk.foundation.lang.PLVRememberStateCompareResult;
+
+import kotlin.Unit;
+import kotlin.jvm.functions.Function1;
 
 /**
  * @author Hoshiiro
@@ -58,6 +58,7 @@ public class PLVMediaPlayerAuxiliaryViewContainer extends FrameLayout {
                 // 点击事件拦截，防止点击到下层
             }
         });
+        onViewStateChanged();
     }
 
     public void setAuxiliaryVideoView(View auxiliaryVideoView) {
@@ -75,28 +76,27 @@ public class PLVMediaPlayerAuxiliaryViewContainer extends FrameLayout {
         super.onAttachedToWindow();
         if (isInEditMode()) return;
 
-        observeUntilViewDetached(
-                requireNotNull(PLVMediaPlayerLocalProvider.localMediaPlayer.on(this).current())
-                        .getBusinessListenerRegistry()
-                        .getCurrentPlayStage(),
-                this,
-                new Observer<PLVMediaPlayStage>() {
+        requireNotNull(PLVMediaPlayerLocalProvider.localDependScope.on(this).current())
+                .get(PLVMPAuxiliaryViewModel.class)
+                .getAuxiliaryInfoViewState()
+                .observeUntilViewDetached(this, new Function1<PLVMPAuxiliaryInfoViewState, Unit>() {
                     @Override
-                    public void onChanged(@Nullable @org.jetbrains.annotations.Nullable PLVMediaPlayStage playStage) {
-                        isAdvertShowing = playStage != null && playStage.isAuxiliaryStage();
+                    public Unit invoke(PLVMPAuxiliaryInfoViewState viewState) {
+                        isAdvertShowing = viewState != null && viewState.getStage().isAuxiliaryStage();
                         onViewStateChanged();
+                        return null;
                     }
-                }
-        );
+                });
     }
 
     protected void onViewStateChanged() {
         PLVRememberState.rememberStateOf(this, "onAdvertShowStateChanged")
                 .compareLastAndSet(isAdvertShowing)
-                .ifNotEquals(new PLVSugarUtil.Consumer<PLVRememberStateCompareResult>() {
+                .ifNotEquals(new Function1<PLVRememberStateCompareResult, Unit>() {
                     @Override
-                    public void accept(PLVRememberStateCompareResult plvRememberStateCompareResult) {
+                    public Unit invoke(PLVRememberStateCompareResult result) {
                         onAdvertShowStateChanged();
+                        return null;
                     }
                 });
     }

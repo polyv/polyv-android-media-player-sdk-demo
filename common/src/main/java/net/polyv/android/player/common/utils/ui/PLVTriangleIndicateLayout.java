@@ -1,5 +1,7 @@
 package net.polyv.android.player.common.utils.ui;
 
+import static net.polyv.android.player.sdk.foundation.graphics.DisplaysKt.dp;
+
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.TypedArray;
@@ -19,10 +21,8 @@ import android.view.Gravity;
 import android.view.View;
 import android.widget.FrameLayout;
 
-import com.plv.foundationsdk.log.PLVCommonLog;
-import com.plv.thirdpart.blankj.utilcode.util.ConvertUtils;
-
 import net.polyv.android.player.common.R;
+import net.polyv.android.player.sdk.foundation.log.PLVMediaPlayerLogger;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -106,9 +106,9 @@ public class PLVTriangleIndicateLayout extends FrameLayout {
     private void init() {
         TypedArray typedArray = getContext().obtainStyledAttributes(mAttrs, R.styleable.PLVTriangleIndicateLayout);
 
-        triangleWidth = typedArray.getDimension(R.styleable.PLVTriangleIndicateLayout_triangleWidth, ConvertUtils.dp2px(DEFAULT_TRIANGLE_WIDTH));
-        triangleHeight = typedArray.getDimension(R.styleable.PLVTriangleIndicateLayout_triangleHeight, ConvertUtils.dp2px(DEFAULT_TRIANGLE_HEIGHT));
-        triangleMargin = typedArray.getDimension(R.styleable.PLVTriangleIndicateLayout_triangleMargin, ConvertUtils.dp2px(DEFAULT_TRIANGLE_MARGIN));
+        triangleWidth = typedArray.getDimension(R.styleable.PLVTriangleIndicateLayout_triangleWidth, dp(DEFAULT_TRIANGLE_WIDTH).px());
+        triangleHeight = typedArray.getDimension(R.styleable.PLVTriangleIndicateLayout_triangleHeight, dp(DEFAULT_TRIANGLE_HEIGHT).px());
+        triangleMargin = typedArray.getDimension(R.styleable.PLVTriangleIndicateLayout_triangleMargin, dp(DEFAULT_TRIANGLE_MARGIN).px());
         trianglePosition = typedArray.getInteger(R.styleable.PLVTriangleIndicateLayout_trianglePosition, DEFAULT_TRIANGLE_POSITION);
         triangleMarginType = typedArray.getInteger(R.styleable.PLVTriangleIndicateLayout_triangleMarginType, DEFAULT_TRIANGLE_MARGIN_TYPE);
         indicateColor = typedArray.getColor(R.styleable.PLVTriangleIndicateLayout_indicateColor, DEFAULT_TRIANGLE_COLOR);
@@ -266,7 +266,7 @@ public class PLVTriangleIndicateLayout extends FrameLayout {
             try {
                 colorList.add(Color.parseColor(colorStr));
             } catch (Exception e) {
-                PLVCommonLog.e(TAG, e.getMessage());
+                PLVMediaPlayerLogger.error(TAG, e.getMessage());
             }
         }
         if (colorList.size() < 1) {

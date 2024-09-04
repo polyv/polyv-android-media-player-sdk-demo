@@ -1,9 +1,7 @@
 package net.polyv.android.player.common.ui.component;
 
-import static com.plv.foundationsdk.component.livedata.PLVLiveDataExt.observeUntilViewDetached;
-import static com.plv.foundationsdk.utils.PLVSugarUtil.requireNotNull;
+import static net.polyv.android.player.sdk.foundation.lang.PreconditionsKt.requireNotNull;
 
-import android.arch.lifecycle.Observer;
 import android.content.Context;
 import android.graphics.Color;
 import android.support.annotation.NonNull;
@@ -12,16 +10,18 @@ import android.util.AttributeSet;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
-import com.plv.foundationsdk.component.remember.PLVRememberState;
-import com.plv.foundationsdk.component.remember.PLVRememberStateCompareResult;
-import com.plv.foundationsdk.utils.PLVSugarUtil;
-
+import net.polyv.android.player.common.di.PLVMediaPlayerLocalProvider;
+import net.polyv.android.player.common.modules.media.viewmodel.PLVMPMediaViewModel;
+import net.polyv.android.player.common.modules.media.viewmodel.viewstate.PLVMPMediaPlayViewState;
 import net.polyv.android.player.common.ui.component.marquee.PLVMarqueeView;
 import net.polyv.android.player.common.ui.component.marquee.model.PLVMarqueeAnimationVO;
 import net.polyv.android.player.common.ui.component.marquee.model.PLVMarqueeModel;
-import net.polyv.android.player.common.ui.localprovider.PLVMediaPlayerLocalProvider;
 import net.polyv.android.player.common.utils.ui.PLVViewLifecycleObservable;
-import net.polyv.android.player.core.api.listener.state.PLVMediaPlayerPlayingState;
+import net.polyv.android.player.sdk.foundation.lang.PLVRememberState;
+import net.polyv.android.player.sdk.foundation.lang.PLVRememberStateCompareResult;
+
+import kotlin.Unit;
+import kotlin.jvm.functions.Function1;
 
 /**
  * @author Hoshiiro
@@ -83,31 +83,27 @@ public class PLVMediaPlayerMarqueeLayout extends FrameLayout {
         requireNotNull(PLVMediaPlayerLocalProvider.localLifecycleObservable.on(this).current())
                 .addObserver(viewLifecycleObserver);
 
-        observeUntilViewDetached(
-                requireNotNull(PLVMediaPlayerLocalProvider.localMediaPlayer.on(this).current())
-                        .getStateListenerRegistry()
-                        .getPlayingState(),
-                this,
-                new Observer<PLVMediaPlayerPlayingState>() {
+        requireNotNull(PLVMediaPlayerLocalProvider.localDependScope.on(this).current())
+                .get(PLVMPMediaViewModel.class)
+                .getMediaPlayViewState()
+                .observeUntilViewDetached(this, new Function1<PLVMPMediaPlayViewState, Unit>() {
                     @Override
-                    public void onChanged(@Nullable @org.jetbrains.annotations.Nullable PLVMediaPlayerPlayingState mediaPlayerPlayingState) {
-                        if (mediaPlayerPlayingState == null) {
-                            return;
-                        }
-                        isPlaying = mediaPlayerPlayingState == PLVMediaPlayerPlayingState.PLAYING;
+                    public Unit invoke(PLVMPMediaPlayViewState playViewState) {
+                        isPlaying = playViewState.isPlaying();
                         onViewStateChanged();
+                        return null;
                     }
-                }
-        );
+                });
     }
 
     protected void onViewStateChanged() {
         PLVRememberState.rememberStateOf(this, "onPlayingStateChanged")
                 .compareLastAndSet(isPlaying)
-                .ifNotEquals(new PLVSugarUtil.Consumer<PLVRememberStateCompareResult>() {
+                .ifNotEquals(new Function1<PLVRememberStateCompareResult, Unit>() {
                     @Override
-                    public void accept(PLVRememberStateCompareResult plvRememberStateCompareResult) {
+                    public Unit invoke(PLVRememberStateCompareResult result) {
                         onPlayingStateChanged();
+                        return null;
                     }
                 });
     }

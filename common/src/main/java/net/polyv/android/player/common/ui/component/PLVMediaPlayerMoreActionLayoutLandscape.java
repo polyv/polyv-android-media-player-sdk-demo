@@ -1,9 +1,7 @@
 package net.polyv.android.player.common.ui.component;
 
-import static com.plv.foundationsdk.component.livedata.PLVLiveDataExt.observeUntilViewDetached;
-import static com.plv.foundationsdk.utils.PLVSugarUtil.requireNotNull;
+import static net.polyv.android.player.sdk.foundation.lang.PreconditionsKt.requireNotNull;
 
-import android.arch.lifecycle.Observer;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -14,18 +12,21 @@ import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 
-import com.plv.foundationsdk.component.remember.PLVRememberState;
-import com.plv.foundationsdk.component.remember.PLVRememberStateCompareResult;
-import com.plv.foundationsdk.utils.PLVSugarUtil;
-
 import net.polyv.android.player.business.scene.common.model.vo.PLVMediaOutputMode;
 import net.polyv.android.player.common.R;
-import net.polyv.android.player.common.ui.localprovider.PLVMediaPlayerLocalProvider;
-import net.polyv.android.player.common.ui.viewmodel.PLVMediaPlayerControlViewModel;
-import net.polyv.android.player.common.ui.viewmodel.action.PLVMediaPlayerControlAction;
-import net.polyv.android.player.common.ui.viewmodel.viewstate.PLVMediaPlayerControlViewState;
+import net.polyv.android.player.common.di.PLVMediaPlayerLocalProvider;
+import net.polyv.android.player.common.modules.media.viewmodel.PLVMPMediaViewModel;
+import net.polyv.android.player.common.modules.media.viewmodel.viewstate.PLVMPMediaInfoViewState;
+import net.polyv.android.player.common.modules.mediacontroller.viewmodel.PLVMPMediaControllerViewModel;
+import net.polyv.android.player.common.modules.mediacontroller.viewmodel.viewstate.PLVMPMediaControllerFloatAction;
+import net.polyv.android.player.common.modules.mediacontroller.viewmodel.viewstate.PLVMPMediaControllerViewState;
+import net.polyv.android.player.sdk.foundation.lang.PLVRememberState;
+import net.polyv.android.player.sdk.foundation.lang.PLVRememberStateCompareResult;
 
 import java.util.List;
+
+import kotlin.Unit;
+import kotlin.jvm.functions.Function1;
 
 /**
  * @author Hoshiiro
@@ -37,7 +38,7 @@ public class PLVMediaPlayerMoreActionLayoutLandscape extends FrameLayout impleme
     private PLVMediaPlayerMoreLayoutAudioModeActionView moreAudioModeActionView;
 
     protected List<PLVMediaOutputMode> currentSupportMediaOutputModes = null;
-    protected PLVMediaPlayerControlViewState currentControlViewState = null;
+    protected boolean isVisible = false;
 
     public PLVMediaPlayerMoreActionLayoutLandscape(@NonNull Context context) {
         super(context);
@@ -66,50 +67,50 @@ public class PLVMediaPlayerMoreActionLayoutLandscape extends FrameLayout impleme
         super.onAttachedToWindow();
         if (isInEditMode()) return;
 
-        observeUntilViewDetached(
-                requireNotNull(PLVMediaPlayerLocalProvider.localMediaPlayer.on(this).current())
-                        .getBusinessListenerRegistry()
-                        .getSupportMediaOutputModes(),
-                this,
-                new Observer<List<PLVMediaOutputMode>>() {
+        requireNotNull(PLVMediaPlayerLocalProvider.localDependScope.on(this).current())
+                .get(PLVMPMediaViewModel.class)
+                .getMediaInfoViewState()
+                .observeUntilViewDetached(this, new Function1<PLVMPMediaInfoViewState, Unit>() {
                     @Override
-                    public void onChanged(@Nullable @org.jetbrains.annotations.Nullable List<PLVMediaOutputMode> mediaOutputModes) {
-                        currentSupportMediaOutputModes = mediaOutputModes;
+                    public Unit invoke(PLVMPMediaInfoViewState viewState) {
+                        currentSupportMediaOutputModes = viewState.getSupportOutputModes();
                         onViewStateChanged();
+                        return null;
                     }
-                }
-        );
+                });
 
-        observeUntilViewDetached(
-                requireNotNull(PLVMediaPlayerLocalProvider.localControlViewModel.on(this).current())
-                        .getControlViewStateLiveData(),
-                this,
-                new Observer<PLVMediaPlayerControlViewState>() {
+        requireNotNull(PLVMediaPlayerLocalProvider.localDependScope.on(this).current())
+                .get(PLVMPMediaControllerViewModel.class)
+                .getMediaControllerViewState()
+                .observeUntilViewDetached(this, new Function1<PLVMPMediaControllerViewState, Unit>() {
                     @Override
-                    public void onChanged(@Nullable @org.jetbrains.annotations.Nullable PLVMediaPlayerControlViewState viewState) {
-                        currentControlViewState = viewState;
+                    public Unit invoke(PLVMPMediaControllerViewState viewState) {
+                        isVisible = viewState.getLastFloatActionLayout() == PLVMPMediaControllerFloatAction.MORE
+                                && !viewState.isMediaStopOverlayVisible();
                         onViewStateChanged();
+                        return null;
                     }
-                }
-        );
+                });
     }
 
     protected void onViewStateChanged() {
         PLVRememberState.rememberStateOf(this, "onSupportMediaOutputModesChanged")
                 .compareLastAndSet(currentSupportMediaOutputModes)
-                .ifNotEquals(new PLVSugarUtil.Consumer<PLVRememberStateCompareResult>() {
+                .ifNotEquals(new Function1<PLVRememberStateCompareResult, Unit>() {
                     @Override
-                    public void accept(PLVRememberStateCompareResult result) {
+                    public Unit invoke(PLVRememberStateCompareResult result) {
                         onSupportMediaOutputModesChanged();
+                        return null;
                     }
                 });
 
         PLVRememberState.rememberStateOf(this, "onChangeVisibility")
-                .compareLastAndSet(currentControlViewState)
-                .ifNotEquals(new PLVSugarUtil.Consumer<PLVRememberStateCompareResult>() {
+                .compareLastAndSet(isVisible)
+                .ifNotEquals(new Function1<PLVRememberStateCompareResult, Unit>() {
                     @Override
-                    public void accept(PLVRememberStateCompareResult result) {
+                    public Unit invoke(PLVRememberStateCompareResult result) {
                         onChangeVisibility();
+                        return null;
                     }
                 });
     }
@@ -123,12 +124,7 @@ public class PLVMediaPlayerMoreActionLayoutLandscape extends FrameLayout impleme
     }
 
     protected void onChangeVisibility() {
-        if (currentControlViewState == null) {
-            return;
-        }
-        final boolean visible = currentControlViewState.moreActionLayoutVisible
-                && !currentControlViewState.isOverlayLayoutVisible();
-        setVisibility(visible ? View.VISIBLE : View.GONE);
+        setVisibility(isVisible ? View.VISIBLE : View.GONE);
     }
 
     @Override
@@ -142,11 +138,9 @@ public class PLVMediaPlayerMoreActionLayoutLandscape extends FrameLayout impleme
     }
 
     private void closeLayout() {
-        PLVMediaPlayerControlViewModel controlViewModel = PLVMediaPlayerLocalProvider.localControlViewModel.on(this).current();
-        if (controlViewModel == null) {
-            return;
-        }
-        controlViewModel.requestControl(PLVMediaPlayerControlAction.closeFloatMenuLayout());
+        requireNotNull(PLVMediaPlayerLocalProvider.localDependScope.on(this).current())
+                .get(PLVMPMediaControllerViewModel.class)
+                .popFloatActionLayout();
     }
 
 }

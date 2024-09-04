@@ -1,19 +1,20 @@
 package net.polyv.android.player.common.ui.component.floatwindow.layout;
 
-import static com.plv.foundationsdk.component.livedata.PLVLiveDataExt.observeForeverUntilViewDetached;
-import static com.plv.foundationsdk.utils.PLVSugarUtil.requireNotNull;
+import static net.polyv.android.player.sdk.foundation.lang.PreconditionsKt.requireNotNull;
 
-import android.arch.lifecycle.Observer;
 import android.content.Context;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.AppCompatImageView;
 import android.util.AttributeSet;
 import android.view.View;
 
-import net.polyv.android.player.business.scene.common.player.IPLVMediaPlayer;
 import net.polyv.android.player.common.R;
-import net.polyv.android.player.common.ui.localprovider.PLVMediaPlayerLocalProvider;
-import net.polyv.android.player.core.api.listener.state.PLVMediaPlayerPlayingState;
+import net.polyv.android.player.common.di.PLVMediaPlayerLocalProvider;
+import net.polyv.android.player.common.modules.media.viewmodel.PLVMPMediaViewModel;
+import net.polyv.android.player.common.modules.media.viewmodel.viewstate.PLVMPMediaPlayViewState;
+
+import kotlin.Unit;
+import kotlin.jvm.functions.Function1;
 
 /**
  * @author Hoshiiro
@@ -42,38 +43,30 @@ public class PLVMediaPlayerFloatWindowPlayButton extends AppCompatImageView impl
         super.onAttachedToWindow();
         if (isInEditMode()) return;
 
-        observeForeverUntilViewDetached(
-                requireNotNull(PLVMediaPlayerLocalProvider.localMediaPlayer.on(this).current())
-                        .getStateListenerRegistry()
-                        .getPlayingState(),
-                this,
-                new Observer<PLVMediaPlayerPlayingState>() {
+        requireNotNull(PLVMediaPlayerLocalProvider.localDependScope.on(this).current())
+                .get(PLVMPMediaViewModel.class)
+                .getMediaPlayViewState()
+                .observeUntilViewDetached(this, new Function1<PLVMPMediaPlayViewState, Unit>() {
                     @Override
-                    public void onChanged(@Nullable @org.jetbrains.annotations.Nullable PLVMediaPlayerPlayingState playingState) {
-                        if (playingState == null) {
-                            return;
-                        }
-                        if (playingState == PLVMediaPlayerPlayingState.PLAYING) {
+                    public Unit invoke(PLVMPMediaPlayViewState viewState) {
+                        if (viewState.isPlaying()) {
                             setImageResource(R.drawable.plv_media_player_float_window_play_button_to_pause);
                         } else {
                             setImageResource(R.drawable.plv_media_player_float_window_play_button_to_play);
                         }
+                        return null;
                     }
-                }
-        );
+                });
     }
 
     @Override
     public void onClick(View v) {
-        final IPLVMediaPlayer mediaPlayer = PLVMediaPlayerLocalProvider.localMediaPlayer.on(this).current();
-        if (mediaPlayer == null) {
-            return;
-        }
-        PLVMediaPlayerPlayingState playingState = mediaPlayer.getStateListenerRegistry().getPlayingState().getValue();
-        if (playingState == PLVMediaPlayerPlayingState.PLAYING) {
-            mediaPlayer.pause();
+        final PLVMPMediaViewModel mediaViewModel = requireNotNull(PLVMediaPlayerLocalProvider.localDependScope.on(this).current())
+                .get(PLVMPMediaViewModel.class);
+        if (mediaViewModel.getMediaPlayViewState().getValue().isPlaying()) {
+            mediaViewModel.pause();
         } else {
-            mediaPlayer.start();
+            mediaViewModel.start();
         }
     }
 

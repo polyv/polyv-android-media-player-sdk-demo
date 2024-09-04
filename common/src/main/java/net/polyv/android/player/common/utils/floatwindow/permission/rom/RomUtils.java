@@ -1,5 +1,7 @@
 package net.polyv.android.player.common.utils.floatwindow.permission.rom;
 
+import static net.polyv.android.player.sdk.foundation.lang.StringsKt.parseDouble;
+
 import android.os.Build;
 import android.text.TextUtils;
 import android.util.Log;
@@ -26,7 +28,7 @@ public class RomUtils {
             String emuiVersion = getSystemProperty("ro.build.version.emui");
             if (emuiVersion != null) {
                 String version = emuiVersion.substring(emuiVersion.indexOf("_") + 1);
-                return Double.parseDouble(version);
+                return parseDouble(version);
             }
         } catch (Exception e) {
             Log.e(TAG, e.getMessage(), e);

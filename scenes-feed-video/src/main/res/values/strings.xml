@@ -1,0 +1,5 @@
+<resources>
+    <string name="plv_media_player_feed_pull_to_refresh_hint_text">下拉刷新内容</string>
+    <string name="plv_media_player_feed_pull_no_more_content_hint_text">暂时没有更多了</string>
+    <string name="plv_media_player_load_new_media_resource_fail">加载失败</string>
+</resources>

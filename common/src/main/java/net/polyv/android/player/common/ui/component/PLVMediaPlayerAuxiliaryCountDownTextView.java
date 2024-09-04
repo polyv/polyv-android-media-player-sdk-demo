@@ -1,25 +1,23 @@
 package net.polyv.android.player.common.ui.component;
 
-import static com.plv.foundationsdk.component.event.PLVEventKt.observeUntilViewDetached;
-import static com.plv.foundationsdk.component.livedata.PLVLiveDataExt.observeUntilViewDetached;
-import static com.plv.foundationsdk.utils.PLVSugarUtil.format;
-import static com.plv.foundationsdk.utils.PLVSugarUtil.requireNotNull;
+import static net.polyv.android.player.sdk.foundation.lang.PreconditionsKt.requireNotNull;
+import static net.polyv.android.player.sdk.foundation.lang.StringsKt.format;
 
-import android.arch.lifecycle.Observer;
 import android.content.Context;
-import android.support.annotation.Nullable;
 import android.support.v7.widget.AppCompatTextView;
 import android.util.AttributeSet;
 
-import com.plv.foundationsdk.component.remember.PLVRememberState;
-import com.plv.foundationsdk.component.remember.PLVRememberStateCompareResult;
-import com.plv.foundationsdk.utils.PLVSugarUtil;
-
-import net.polyv.android.player.business.scene.auxiliary.listener.event.PLVAuxiliaryAdvertTimeLeftCountDownEvent;
-import net.polyv.android.player.business.scene.auxiliary.listener.event.PLVAuxiliaryOnShowAdvertEvent;
 import net.polyv.android.player.business.scene.common.model.vo.PLVMediaPlayStage;
 import net.polyv.android.player.common.R;
-import net.polyv.android.player.common.ui.localprovider.PLVMediaPlayerLocalProvider;
+import net.polyv.android.player.common.di.PLVMediaPlayerLocalProvider;
+import net.polyv.android.player.common.modules.auxiliary.viewmodel.PLVMPAuxiliaryViewModel;
+import net.polyv.android.player.common.modules.auxiliary.viewmodel.viewstate.PLVMPAuxiliaryInfoViewState;
+import net.polyv.android.player.common.modules.auxiliary.viewmodel.viewstate.PLVMPAuxiliaryPlayViewState;
+import net.polyv.android.player.sdk.foundation.lang.PLVRememberState;
+import net.polyv.android.player.sdk.foundation.lang.PLVRememberStateCompareResult;
+
+import kotlin.Unit;
+import kotlin.jvm.functions.Function1;
 
 /**
  * @author Hoshiiro
@@ -47,85 +45,54 @@ public class PLVMediaPlayerAuxiliaryCountDownTextView extends AppCompatTextView 
         super.onAttachedToWindow();
         if (isInEditMode()) return;
 
-        observeUntilViewDetached(
-                requireNotNull(PLVMediaPlayerLocalProvider.localAuxiliaryMediaPlayer.on(this).current())
-                        .getAuxiliaryListenerRegistry()
-                        .getAdvertShowingState(),
-                this,
-                new Observer<Boolean>() {
+        requireNotNull(PLVMediaPlayerLocalProvider.localDependScope.on(this).current())
+                .get(PLVMPAuxiliaryViewModel.class)
+                .getAuxiliaryInfoViewState()
+                .observeUntilViewDetached(this, new Function1<PLVMPAuxiliaryInfoViewState, Unit>() {
                     @Override
-                    public void onChanged(@Nullable @org.jetbrains.annotations.Nullable Boolean showing) {
-                        if (showing == null) {
-                            return;
+                    public Unit invoke(PLVMPAuxiliaryInfoViewState viewState) {
+                        if (viewState != null) {
+                            isAdvertShowing = viewState.getStage().isAuxiliaryStage();
+                            currentPlayStage = viewState.getStage();
+                        } else {
+                            isAdvertShowing = false;
                         }
-                        isAdvertShowing = showing;
                         onViewStateChanged();
+                        return null;
                     }
-                }
-        );
+                });
 
-        observeUntilViewDetached(
-                requireNotNull(PLVMediaPlayerLocalProvider.localMediaPlayer.on(this).current())
-                        .getBusinessListenerRegistry()
-                        .getCurrentPlayStage(),
-                this,
-                new Observer<PLVMediaPlayStage>() {
+        requireNotNull(PLVMediaPlayerLocalProvider.localDependScope.on(this).current())
+                .get(PLVMPAuxiliaryViewModel.class)
+                .getAuxiliaryPlayViewState()
+                .observeUntilViewDetached(this, new Function1<PLVMPAuxiliaryPlayViewState, Unit>() {
                     @Override
-                    public void onChanged(@Nullable @org.jetbrains.annotations.Nullable PLVMediaPlayStage playStage) {
-                        currentPlayStage = playStage;
+                    public Unit invoke(PLVMPAuxiliaryPlayViewState viewState) {
+                        countDownTimeLeft = viewState.getTimeLeftInSeconds();
                         onViewStateChanged();
+                        return null;
                     }
-                }
-        );
-
-        observeUntilViewDetached(
-                requireNotNull(PLVMediaPlayerLocalProvider.localAuxiliaryMediaPlayer.on(this).current())
-                        .getAuxiliaryListenerRegistry()
-                        .getOnShowAdvertEvent(),
-                this,
-                new PLVSugarUtil.Consumer<PLVAuxiliaryOnShowAdvertEvent>() {
-                    @Override
-                    public void accept(PLVAuxiliaryOnShowAdvertEvent onShowAdvertEvent) {
-                        countDownTimeLeft = (int) onShowAdvertEvent.getDataSource().getDuration().toSeconds();
-                        onViewStateChanged();
-                    }
-                }
-        );
-
-        observeUntilViewDetached(
-                requireNotNull(PLVMediaPlayerLocalProvider.localAuxiliaryMediaPlayer.on(this).current())
-                        .getAuxiliaryListenerRegistry()
-                        .getOnTimeLeftCountDownEvent(),
-                this,
-                new PLVSugarUtil.Consumer<PLVAuxiliaryAdvertTimeLeftCountDownEvent>() {
-                    @Override
-                    public void accept(PLVAuxiliaryAdvertTimeLeftCountDownEvent countDownEvent) {
-                        if (countDownEvent == null) {
-                            return;
-                        }
-                        countDownTimeLeft = countDownEvent.getTimeLeftInSeconds();
-                        onViewStateChanged();
-                    }
-                }
-        );
+                });
     }
 
     protected void onViewStateChanged() {
         PLVRememberState.rememberStateOf(this, "onChangeVisibility")
                 .compareLastAndSet(isAdvertShowing, currentPlayStage)
-                .ifNotEquals(new PLVSugarUtil.Consumer<PLVRememberStateCompareResult>() {
+                .ifNotEquals(new Function1<PLVRememberStateCompareResult, Unit>() {
                     @Override
-                    public void accept(PLVRememberStateCompareResult plvRememberStateCompareResult) {
+                    public Unit invoke(PLVRememberStateCompareResult result) {
                         onChangeVisibility();
+                        return null;
                     }
                 });
 
         PLVRememberState.rememberStateOf(this, "onChangeTimeLeft")
                 .compareLastAndSet(countDownTimeLeft)
-                .ifNotEquals(new PLVSugarUtil.Consumer<PLVRememberStateCompareResult>() {
+                .ifNotEquals(new Function1<PLVRememberStateCompareResult, Unit>() {
                     @Override
-                    public void accept(PLVRememberStateCompareResult plvRememberStateCompareResult) {
+                    public Unit invoke(PLVRememberStateCompareResult result) {
                         onChangeTimeLeft();
+                        return null;
                     }
                 });
     }

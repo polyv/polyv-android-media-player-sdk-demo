@@ -1,5 +1,7 @@
 package net.polyv.android.player.common.utils.ui;
 
+import static net.polyv.android.player.sdk.foundation.graphics.DisplaysKt.isPortrait;
+
 import android.content.Context;
 import android.content.res.Configuration;
 import android.content.res.TypedArray;
@@ -8,8 +10,6 @@ import android.graphics.Path;
 import android.graphics.RectF;
 import android.support.constraint.ConstraintLayout;
 import android.util.AttributeSet;
-
-import com.plv.thirdpart.blankj.utilcode.util.ScreenUtils;
 
 import net.polyv.android.player.common.R;
 
@@ -98,7 +98,7 @@ public class PLVRoundRectConstraintLayout extends ConstraintLayout {
      */
     public void setOnOrientationChangedListener(OnOrientationChangedListener li) {
         this.onOrientationChangedListener = li;
-        li.onChanged(ScreenUtils.isPortrait());
+        li.onChanged(isPortrait());
     }
 
     private void checkPathChanged() {

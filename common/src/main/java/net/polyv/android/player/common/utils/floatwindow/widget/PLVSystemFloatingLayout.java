@@ -17,9 +17,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 
-import com.plv.foundationsdk.log.PLVCommonLog;
-import com.plv.thirdpart.blankj.utilcode.util.AppUtils;
-import com.plv.thirdpart.blankj.utilcode.util.Utils;
+import net.polyv.android.player.sdk.foundation.app.PLVApplicationContext;
+import net.polyv.android.player.sdk.foundation.log.PLVMediaPlayerLogger;
 
 /**
  * 跨应用系统级别悬浮窗Layout
@@ -60,10 +59,10 @@ public class PLVSystemFloatingLayout extends PLVAbsFloatingLayout {
 
     // <editor-fold defaultstate="collapsed" desc="初始化">
     private void initWindowManager() {
-        windowManager = (WindowManager) Utils.getApp().getSystemService(Context.WINDOW_SERVICE);
+        windowManager = (WindowManager) PLVApplicationContext.getApplicationContext().getSystemService(Context.WINDOW_SERVICE);
         wmLayoutParams = new WindowManager.LayoutParams();
 
-        Utils.getApp().registerActivityLifecycleCallbacks(callbacks);
+        ((Application) PLVApplicationContext.getApplicationContext()).registerActivityLifecycleCallbacks(callbacks);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             wmLayoutParams.type = WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY;
@@ -171,7 +170,7 @@ public class PLVSystemFloatingLayout extends PLVAbsFloatingLayout {
     public void show(Activity activity) {
         isNeedShow = true;
         if (isShowing()) {
-            PLVCommonLog.d(TAG, "call show window but already show");
+            PLVMediaPlayerLogger.debug(TAG, "call show window but already show");
             return;
         }
         if (!currentFitShowType()) {
@@ -224,7 +223,7 @@ public class PLVSystemFloatingLayout extends PLVAbsFloatingLayout {
 
     @Override
     public void destroy() {
-        Utils.getApp().unregisterActivityLifecycleCallbacks(callbacks);
+        ((Application) PLVApplicationContext.getApplicationContext()).unregisterActivityLifecycleCallbacks(callbacks);
         originContentParentVG = null;
         contentView = null;
     }
@@ -253,9 +252,9 @@ public class PLVSystemFloatingLayout extends PLVAbsFloatingLayout {
             case SHOW_ALWAYS:
                 return true;
             case SHOW_ONLY_BACKGROUND:
-                return AppUtils.isAppBackground();
+                return PLVApplicationContext.isBackground();
             case SHOW_ONLY_FOREGROUND:
-                return AppUtils.isAppForeground();
+                return PLVApplicationContext.isForeground();
             default:
         }
         return false;

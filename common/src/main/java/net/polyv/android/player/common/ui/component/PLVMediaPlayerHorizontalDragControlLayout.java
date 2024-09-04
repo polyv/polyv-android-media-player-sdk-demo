@@ -1,11 +1,10 @@
 package net.polyv.android.player.common.ui.component;
 
-import static com.plv.foundationsdk.component.livedata.PLVLiveDataExt.observeUntilViewDetached;
-import static com.plv.foundationsdk.utils.PLVSugarUtil.clamp;
-import static com.plv.foundationsdk.utils.PLVSugarUtil.requireNotNull;
-import static com.plv.foundationsdk.utils.PLVTimeUnit.minutes;
+import static net.polyv.android.player.sdk.foundation.graphics.DisplaysKt.getScreenWidth;
+import static net.polyv.android.player.sdk.foundation.lang.Duration.minutes;
+import static net.polyv.android.player.sdk.foundation.lang.NumbersKt.clamp;
+import static net.polyv.android.player.sdk.foundation.lang.PreconditionsKt.requireNotNull;
 
-import android.arch.lifecycle.Observer;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -14,14 +13,15 @@ import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.widget.FrameLayout;
 
-import com.plv.thirdpart.blankj.utilcode.util.ScreenUtils;
+import net.polyv.android.player.common.di.PLVMediaPlayerLocalProvider;
+import net.polyv.android.player.common.modules.media.viewmodel.PLVMPMediaViewModel;
+import net.polyv.android.player.common.modules.media.viewmodel.viewstate.PLVMPMediaPlayViewState;
+import net.polyv.android.player.common.modules.mediacontroller.viewmodel.DragSeekBarAction;
+import net.polyv.android.player.common.modules.mediacontroller.viewmodel.PLVMPMediaControllerViewModel;
+import net.polyv.android.player.common.modules.mediacontroller.viewmodel.viewstate.PLVMPMediaControllerViewState;
 
-import net.polyv.android.player.business.scene.common.player.IPLVMediaPlayer;
-import net.polyv.android.player.common.ui.localprovider.PLVMediaPlayerLocalProvider;
-import net.polyv.android.player.common.ui.viewmodel.PLVMediaPlayerControlViewModel;
-import net.polyv.android.player.common.ui.viewmodel.action.PLVMediaPlayerControlAction;
-import net.polyv.android.player.common.ui.viewmodel.viewstate.PLVMediaPlayerControlViewState;
-import net.polyv.android.player.common.utils.extensions.PLVMediaPlayerExtensions;
+import kotlin.Unit;
+import kotlin.jvm.functions.Function1;
 
 /**
  * @author Hoshiiro
@@ -30,7 +30,7 @@ public class PLVMediaPlayerHorizontalDragControlLayout extends FrameLayout imple
 
     private final GestureDetector gestureDetector = new GestureDetector(getContext(), this);
 
-    private PLVMediaPlayerControlViewState currentViewState = null;
+    private PLVMPMediaControllerViewState controllerViewState = null;
 
     private boolean isScrolling = false;
     private boolean isScrollingHorizontal = false;
@@ -67,17 +67,16 @@ public class PLVMediaPlayerHorizontalDragControlLayout extends FrameLayout imple
         super.onAttachedToWindow();
         if (isInEditMode()) return;
 
-        observeUntilViewDetached(
-                requireNotNull(PLVMediaPlayerLocalProvider.localControlViewModel.on(this).current())
-                        .getControlViewStateLiveData(),
-                this,
-                new Observer<PLVMediaPlayerControlViewState>() {
+        requireNotNull(PLVMediaPlayerLocalProvider.localDependScope.on(this).current())
+                .get(PLVMPMediaControllerViewModel.class)
+                .getMediaControllerViewState()
+                .observeUntilViewDetached(this, new Function1<PLVMPMediaControllerViewState, Unit>() {
                     @Override
-                    public void onChanged(@Nullable @org.jetbrains.annotations.Nullable PLVMediaPlayerControlViewState viewState) {
-                        currentViewState = viewState;
+                    public Unit invoke(PLVMPMediaControllerViewState viewState) {
+                        controllerViewState = viewState;
+                        return null;
                     }
-                }
-        );
+                });
     }
 
     @Override
@@ -110,13 +109,14 @@ public class PLVMediaPlayerHorizontalDragControlLayout extends FrameLayout imple
 
     protected void onActionUp() {
         if (isScrollingHorizontal) {
-            handleSeek();
+            requireNotNull(PLVMediaPlayerLocalProvider.localDependScope.on(this).current())
+                    .get(PLVMPMediaControllerViewModel.class)
+                    .handleDragSeekBar(DragSeekBarAction.FINISH);
         }
         isScrolling = false;
         isScrollingHorizontal = false;
         position = -1;
         duration = -1;
-        hintDragging(0, false);
     }
 
     @Override
@@ -130,14 +130,15 @@ public class PLVMediaPlayerHorizontalDragControlLayout extends FrameLayout imple
     }
 
     private void saveCurrentProgress() {
-        IPLVMediaPlayer mediaPlayer = PLVMediaPlayerLocalProvider.localMediaPlayer.on(this).current();
-        if (mediaPlayer == null) {
+        PLVMPMediaPlayViewState viewState = requireNotNull(PLVMediaPlayerLocalProvider.localDependScope.on(this).current())
+                .get(PLVMPMediaViewModel.class)
+                .getMediaPlayViewState()
+                .getValue();
+        if (viewState == null) {
             return;
         }
-        Long position = mediaPlayer.getStateListenerRegistry().getProgressState().getValue();
-        Long duration = mediaPlayer.getStateListenerRegistry().getDurationState().getValue();
-        this.position = position == null ? -1 : position;
-        this.duration = duration == null ? -1 : duration;
+        this.position = viewState.getCurrentProgress();
+        this.duration = viewState.getDuration();
     }
 
     private void handleScrolling(@NonNull MotionEvent start, @NonNull MotionEvent current) {
@@ -145,29 +146,16 @@ public class PLVMediaPlayerHorizontalDragControlLayout extends FrameLayout imple
             return;
         }
         float dx = current.getX() - start.getX();
-        float percent = dx / ScreenUtils.getScreenOrientatedWidth();
+        float percent = dx / getScreenWidth().px();
         float dprogress = percent * minutes(3).toMillis();
         float targetProgress = clamp(position + dprogress, 0, duration);
-        hintDragging((long) targetProgress, true);
-    }
-
-    private void handleSeek() {
-        IPLVMediaPlayer mediaPlayer = PLVMediaPlayerLocalProvider.localMediaPlayer.on(this).current();
-        if (mediaPlayer == null || currentViewState == null || currentViewState.progressSeekBarDragPosition < 0) {
-            return;
-        }
-        PLVMediaPlayerExtensions.seekTo(mediaPlayer, currentViewState.progressSeekBarDragPosition);
-    }
-
-    private void hintDragging(long targetProgress, boolean isDragging) {
-        PLVMediaPlayerControlViewModel controlViewModel = PLVMediaPlayerLocalProvider.localControlViewModel.on(this).current();
-        if (controlViewModel != null) {
-            controlViewModel.requestControl(PLVMediaPlayerControlAction.progressSeekBarDrag(targetProgress, isDragging));
-        }
+        requireNotNull(PLVMediaPlayerLocalProvider.localDependScope.on(this).current())
+                .get(PLVMPMediaControllerViewModel.class)
+                .handleDragSeekBar(DragSeekBarAction.DRAG, (long) targetProgress);
     }
 
     protected boolean isAllowControl() {
-        return currentViewState != null && !currentViewState.controllerLocking;
+        return controllerViewState != null && !controllerViewState.getControllerLocking();
     }
 
 }

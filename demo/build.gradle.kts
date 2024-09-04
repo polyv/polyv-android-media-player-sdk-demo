@@ -32,6 +32,8 @@ dependencies {
     implementation("com.android.support.constraint:constraint-layout:$deps_constraint_layout_version")
     implementation("com.android.support:multidex:$deps_multidex_version")
 
+    implementation(project(":scenes-single-video"))
+    implementation(project(":scenes-feed-video"))
     implementation(project(":common"))
 
     annotationProcessor("com.github.bumptech.glide:compiler:$deps_glide_version")

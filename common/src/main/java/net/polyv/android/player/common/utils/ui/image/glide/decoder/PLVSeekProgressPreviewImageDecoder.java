@@ -1,6 +1,6 @@
 package net.polyv.android.player.common.utils.ui.image.glide.decoder;
 
-import static com.plv.foundationsdk.utils.PLVSugarUtil.requireNotNull;
+import static net.polyv.android.player.sdk.foundation.lang.PreconditionsKt.requireNotNull;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapRegionDecoder;
@@ -15,8 +15,7 @@ import com.bumptech.glide.load.engine.Resource;
 import com.bumptech.glide.load.engine.bitmap_recycle.BitmapPool;
 import com.bumptech.glide.load.resource.bitmap.BitmapResource;
 
-import net.polyv.android.player.business.scene.common.model.api.vo.PLVVodVideoJsonRequestResultVOKt;
-import net.polyv.android.player.business.scene.common.model.api.vo.PLVVodVideoJsonVO;
+import net.polyv.android.player.sdk.foundation.lang.Duration;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -41,9 +40,8 @@ public class PLVSeekProgressPreviewImageDecoder implements ResourceDecoder<ByteB
         this.bitmapPool = bitmapPool;
     }
 
-    public static int calculateIndex(long targetProgressSeconds, PLVVodVideoJsonVO videoJson) {
-        final long progressIntervalSeconds = PLVVodVideoJsonRequestResultVOKt.getProgressImageInterval(videoJson).toSeconds();
-        return (int) (targetProgressSeconds / progressIntervalSeconds);
+    public static int calculateIndex(long targetProgressSeconds, Duration interval) {
+        return (int) (targetProgressSeconds / interval.toSeconds());
     }
 
     @Override

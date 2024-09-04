@@ -7,6 +7,9 @@
     <string name="plv_media_player_ui_component_full_screen_hint_text">全屏观看</string>
     <string name="plv_media_player_ui_component_audio_mode_hint_desc_text">在锁屏和切到后台时也能播放音频</string>
     <string name="plv_media_player_ui_component_audio_mode_hint_text">音频模式</string>
+    <string name="plv_media_player_ui_component_subtitle_setting_text">字幕设置</string>
+    <string name="plv_media_player_ui_component_subtitle_setting_show_switch_label">显示字幕</string>
+    <string name="plv_media_player_ui_component_subtitle_setting_double_subtitle_prefix">显示双语：</string>
     <string name="plv_media_player_ui_component_float_window_hint_text">小窗播放</string>
     <string name="plv_media_player_ui_component_switch_video_hint_text">切回视频</string>
     <string name="plv_media_player_ui_component_error_hint_text">视频加载失败，请检查网络设置</string>

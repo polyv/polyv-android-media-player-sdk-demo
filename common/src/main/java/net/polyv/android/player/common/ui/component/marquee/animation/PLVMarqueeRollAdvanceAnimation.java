@@ -1,18 +1,19 @@
 package net.polyv.android.player.common.ui.component.marquee.animation;
 
-import static com.plv.foundationsdk.utils.PLVTimeUnit.seconds;
+import static net.polyv.android.player.sdk.foundation.lang.Duration.seconds;
+import static net.polyv.android.player.sdk.foundation.lang.PLVTimerKt.timer;
 
 import android.support.annotation.Nullable;
 import android.view.View;
 import android.view.ViewGroup.MarginLayoutParams;
 import android.view.ViewTreeObserver;
 
-import com.plv.foundationsdk.rx.PLVRxTimer;
+import net.polyv.android.player.sdk.foundation.lang.PLVTimer;
 
 import java.util.HashMap;
 
-import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Consumer;
+import kotlin.Unit;
+import kotlin.jvm.functions.Function1;
 
 /**
  * 跑马灯 滚动 增强的动画类
@@ -23,7 +24,7 @@ public class PLVMarqueeRollAdvanceAnimation extends PLVMarqueeRollAnimation {
     @Nullable
     private View secondView;
 
-    private Disposable viewPositionChangeDisposable;
+    private PLVTimer viewPositionChangeTimer;
     private volatile boolean isStarted = false;
 
     // </editor-fold>
@@ -48,18 +49,18 @@ public class PLVMarqueeRollAdvanceAnimation extends PLVMarqueeRollAnimation {
         if (secondView != null) {
             secondView.setAlpha(1);
         }
-        if (viewPositionChangeDisposable != null) {
-            viewPositionChangeDisposable.dispose();
+        if (viewPositionChangeTimer != null) {
+            viewPositionChangeTimer.cancel();
         }
-        viewPositionChangeDisposable = PLVRxTimer.timer((int) seconds(5).toMillis(),
-                new Consumer<Long>() {
-                    @Override
-                    public void accept(Long aLong) throws Exception {
-                        if (isStarted) {
-                            setSecondActiveRect();
-                        }
-                    }
-                });
+        viewPositionChangeTimer = timer(seconds(5), new Function1<Long, Unit>() {
+            @Override
+            public Unit invoke(Long aLong) {
+                if (isStarted) {
+                    setSecondActiveRect();
+                }
+                return null;
+            }
+        });
     }
 
     @Override
@@ -78,9 +79,9 @@ public class PLVMarqueeRollAdvanceAnimation extends PLVMarqueeRollAnimation {
         if (secondView != null) {
             secondView.setAlpha(0);
         }
-        if (viewPositionChangeDisposable != null) {
-            viewPositionChangeDisposable.dispose();
-            viewPositionChangeDisposable = null;
+        if (viewPositionChangeTimer != null) {
+            viewPositionChangeTimer.cancel();
+            viewPositionChangeTimer = null;
         }
     }
 

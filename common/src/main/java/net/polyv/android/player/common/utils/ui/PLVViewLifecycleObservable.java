@@ -1,6 +1,6 @@
 package net.polyv.android.player.common.utils.ui;
 
-import com.plv.foundationsdk.utils.PLVSugarUtil;
+import net.polyv.android.player.sdk.foundation.lang.Consumer;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -24,7 +24,7 @@ public class PLVViewLifecycleObservable {
         observers.clear();
     }
 
-    public void callObserver(PLVSugarUtil.Consumer<IViewLifecycleObserver> consumer) {
+    public void callObserver(Consumer<IViewLifecycleObserver> consumer) {
         for (IViewLifecycleObserver observer : new HashSet<>(observers)) {
             consumer.accept(observer);
         }

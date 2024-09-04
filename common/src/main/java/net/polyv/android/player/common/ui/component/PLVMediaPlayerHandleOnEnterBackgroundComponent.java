@@ -1,7 +1,8 @@
 package net.polyv.android.player.common.ui.component;
 
-import static com.plv.foundationsdk.utils.PLVAppUtils.postToMainThread;
-import static com.plv.foundationsdk.utils.PLVSugarUtil.requireNotNull;
+import static net.polyv.android.player.sdk.foundation.lang.NullablesKt.nullable;
+import static net.polyv.android.player.sdk.foundation.lang.PreconditionsKt.requireNotNull;
+import static net.polyv.android.player.sdk.foundation.lang.ThreadsKt.postToMainThread;
 
 import android.app.Activity;
 import android.arch.lifecycle.GenericLifecycleObserver;
@@ -14,18 +15,20 @@ import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.view.View;
 
-import com.plv.thirdpart.blankj.utilcode.util.Utils;
-
 import net.polyv.android.player.business.scene.common.model.vo.PLVMediaOutputMode;
-import net.polyv.android.player.business.scene.common.player.IPLVMediaPlayer;
+import net.polyv.android.player.common.di.PLVMediaPlayerLocalProvider;
+import net.polyv.android.player.common.modules.media.viewmodel.PLVMPMediaViewModel;
+import net.polyv.android.player.common.modules.mediacontroller.viewmodel.PLVMPMediaControllerViewModel;
 import net.polyv.android.player.common.ui.component.floatwindow.PLVMediaPlayerFloatWindowManager;
-import net.polyv.android.player.common.ui.localprovider.PLVMediaPlayerLocalProvider;
-import net.polyv.android.player.common.ui.viewmodel.PLVMediaPlayerControlViewModel;
-import net.polyv.android.player.common.ui.viewmodel.action.PLVMediaPlayerControlAction;
+import net.polyv.android.player.common.utils.floatwindow.enums.PLVFloatWindowLaunchReason;
 import net.polyv.android.player.common.utils.floatwindow.permission.PLVFloatPermissionUtils;
 import net.polyv.android.player.common.utils.ui.PLVViewLifecycleObservable;
-import net.polyv.android.player.core.api.listener.state.PLVMediaPlayerPlayingState;
 import net.polyv.android.player.core.api.listener.state.PLVMediaPlayerState;
+import net.polyv.android.player.sdk.foundation.app.PLVApplicationContext;
+import net.polyv.android.player.sdk.foundation.di.DependScope;
+
+import kotlin.Unit;
+import kotlin.jvm.functions.Function0;
 
 /**
  * App进入后台时自动处理逻辑
@@ -70,12 +73,13 @@ public class PLVMediaPlayerHandleOnEnterBackgroundComponent extends View impleme
     @Override
     public void onStateChanged(LifecycleOwner source, Lifecycle.Event event) {
         if (event == Lifecycle.Event.ON_STOP) {
-            postToMainThread(new Runnable() {
+            postToMainThread(new Function0<Unit>() {
                 @Override
-                public void run() {
-                    if (Utils.getStartedActivityCount() <= 0) {
+                public Unit invoke() {
+                    if (PLVApplicationContext.getStartedActivitiesCount() <= 0) {
                         onEnterBackground();
                     }
+                    return null;
                 }
             });
         } else if (event == Lifecycle.Event.ON_START) {
@@ -142,17 +146,28 @@ public class PLVMediaPlayerHandleOnEnterBackgroundComponent extends View impleme
     }
 
     private void launchFloatWindow() {
-        final PLVMediaPlayerControlViewModel controlViewModel = PLVMediaPlayerLocalProvider.localControlViewModel.on(this).current();
-        final IPLVMediaPlayer mediaPlayer = PLVMediaPlayerLocalProvider.localMediaPlayer.on(this).current();
-        if (controlViewModel == null || mediaPlayer == null) {
+        final DependScope dependScope = PLVMediaPlayerLocalProvider.localDependScope.on(this).current();
+        if (dependScope == null) {
             return;
         }
-        final PLVMediaPlayerState playerState = mediaPlayer.getStateListenerRegistry().getPlayerState().getValue();
-        final PLVMediaOutputMode mediaOutputMode = mediaPlayer.getBusinessListenerRegistry().getCurrentMediaOutputMode().getValue();
+        final PLVMPMediaViewModel mediaViewModel = dependScope.get(PLVMPMediaViewModel.class);
+        final PLVMPMediaControllerViewModel controllerViewModel = dependScope.get(PLVMPMediaControllerViewModel.class);
+        final PLVMediaPlayerState playerState = nullable(new Function0<PLVMediaPlayerState>() {
+            @Override
+            public PLVMediaPlayerState invoke() {
+                return mediaViewModel.getMediaPlayViewState().getValue().getPlayerState();
+            }
+        });
+        final PLVMediaOutputMode mediaOutputMode = nullable(new Function0<PLVMediaOutputMode>() {
+            @Override
+            public PLVMediaOutputMode invoke() {
+                return mediaViewModel.getMediaInfoViewState().getValue().getOutputMode();
+            }
+        });
         if (playerState != PLVMediaPlayerState.STATE_PLAYING || mediaOutputMode != PLVMediaOutputMode.AUDIO_VIDEO) {
             return;
         }
-        controlViewModel.requestControl(PLVMediaPlayerControlAction.launchFloatWindow(PLVMediaPlayerFloatWindowManager.SHOW_REASON_ENTER_BACKGROUND));
+        controllerViewModel.launchFloatWindow(PLVFloatWindowLaunchReason.BACKGROUND_STATE_CHANGED);
     }
 
     private void hideFloatWindow() {
@@ -166,13 +181,19 @@ public class PLVMediaPlayerHandleOnEnterBackgroundComponent extends View impleme
     }
 
     private void autoPauseOnEnterBackground() {
-        final IPLVMediaPlayer mediaPlayer = PLVMediaPlayerLocalProvider.localMediaPlayer.on(this).current();
-        if (mediaPlayer == null) {
+        final DependScope dependScope = PLVMediaPlayerLocalProvider.localDependScope.on(this).current();
+        if (dependScope == null) {
             return;
         }
-        final boolean isPlaying = mediaPlayer.getStateListenerRegistry().getPlayingState().getValue() == PLVMediaPlayerPlayingState.PLAYING;
+        final PLVMPMediaViewModel mediaViewModel = dependScope.get(PLVMPMediaViewModel.class);
+        final boolean isPlaying = nullable(new Function0<Boolean>() {
+            @Override
+            public Boolean invoke() {
+                return mediaViewModel.getMediaPlayViewState().getValue().isPlaying();
+            }
+        });
         if (isPlaying) {
-            mediaPlayer.pause();
+            mediaViewModel.pause();
             isAutoPausedOnEnterBackground = true;
         }
     }
@@ -182,10 +203,12 @@ public class PLVMediaPlayerHandleOnEnterBackgroundComponent extends View impleme
             return;
         }
         isAutoPausedOnEnterBackground = false;
-        final IPLVMediaPlayer mediaPlayer = PLVMediaPlayerLocalProvider.localMediaPlayer.on(this).current();
-        if (mediaPlayer != null) {
-            mediaPlayer.start();
+        final DependScope dependScope = PLVMediaPlayerLocalProvider.localDependScope.on(this).current();
+        if (dependScope == null) {
+            return;
         }
+        final PLVMPMediaViewModel mediaViewModel = dependScope.get(PLVMPMediaViewModel.class);
+        mediaViewModel.start();
     }
 
 }

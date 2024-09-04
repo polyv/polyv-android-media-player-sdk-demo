@@ -1,10 +1,8 @@
 package net.polyv.android.player.common.ui.component;
 
-import static com.plv.foundationsdk.component.event.PLVEventKt.observeUntilViewDetached;
-import static com.plv.foundationsdk.component.livedata.PLVLiveDataExt.observeUntilViewDetached;
-import static com.plv.foundationsdk.utils.PLVSugarUtil.requireNotNull;
+import static net.polyv.android.player.sdk.foundation.graphics.DisplaysKt.isLandscape;
+import static net.polyv.android.player.sdk.foundation.lang.PreconditionsKt.requireNotNull;
 
-import android.arch.lifecycle.Observer;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Canvas;
@@ -16,19 +14,18 @@ import android.util.AttributeSet;
 import android.view.View;
 import android.widget.SeekBar;
 
-import com.plv.foundationsdk.component.remember.PLVRememberState;
-import com.plv.foundationsdk.component.remember.PLVRememberStateCompareResult;
-import com.plv.foundationsdk.utils.PLVSugarUtil;
-import com.plv.thirdpart.blankj.utilcode.util.ScreenUtils;
-
-import net.polyv.android.player.business.scene.common.player.IPLVMediaPlayer;
 import net.polyv.android.player.common.R;
-import net.polyv.android.player.common.ui.localprovider.PLVMediaPlayerLocalProvider;
-import net.polyv.android.player.common.ui.viewmodel.PLVMediaPlayerControlViewModel;
-import net.polyv.android.player.common.ui.viewmodel.action.PLVMediaPlayerControlAction;
-import net.polyv.android.player.common.ui.viewmodel.viewstate.PLVMediaPlayerControlViewState;
-import net.polyv.android.player.common.utils.extensions.PLVMediaPlayerExtensions;
-import net.polyv.android.player.core.api.listener.event.PLVMediaPlayerOnInfoEvent;
+import net.polyv.android.player.common.di.PLVMediaPlayerLocalProvider;
+import net.polyv.android.player.common.modules.media.viewmodel.PLVMPMediaViewModel;
+import net.polyv.android.player.common.modules.media.viewmodel.viewstate.PLVMPMediaPlayViewState;
+import net.polyv.android.player.common.modules.mediacontroller.viewmodel.DragSeekBarAction;
+import net.polyv.android.player.common.modules.mediacontroller.viewmodel.PLVMPMediaControllerViewModel;
+import net.polyv.android.player.common.modules.mediacontroller.viewmodel.viewstate.PLVMPMediaControllerViewState;
+import net.polyv.android.player.sdk.foundation.lang.PLVRememberState;
+import net.polyv.android.player.sdk.foundation.lang.PLVRememberStateCompareResult;
+
+import kotlin.Unit;
+import kotlin.jvm.functions.Function1;
 
 /**
  * @author Hoshiiro
@@ -42,12 +39,12 @@ public class PLVMediaPlayerProgressSeekBar extends AppCompatSeekBar implements S
     private Drawable thumbDrawable;
     private Drawable thumbDrawableOnDrag;
 
-    protected boolean isSeekBarDragging = false;
-    protected boolean waitSeekFinish = false;
-    protected int progressOnDrag = 0;
-    protected long currentPosition = 0;
-    protected long currentDuration = 0;
-    protected PLVMediaPlayerControlViewState currentControlViewState = null;
+    protected long videoProgress = 0;
+    protected long dragProgress = 0;
+    protected long videoDuration = 0;
+    protected boolean isDragging = false;
+    protected boolean dragWaitSeekFinish = false;
+    protected boolean isVisible = false;
 
     public PLVMediaPlayerProgressSeekBar(Context context) {
         super(context);
@@ -85,176 +82,96 @@ public class PLVMediaPlayerProgressSeekBar extends AppCompatSeekBar implements S
         super.onAttachedToWindow();
         if (isInEditMode()) return;
 
-        observeUntilViewDetached(
-                requireNotNull(PLVMediaPlayerLocalProvider.localMediaPlayer.on(this).current())
-                        .getStateListenerRegistry()
-                        .getProgressState(),
-                this,
-                new Observer<Long>() {
+        requireNotNull(PLVMediaPlayerLocalProvider.localDependScope.on(this).current())
+                .get(PLVMPMediaViewModel.class)
+                .getMediaPlayViewState()
+                .observeUntilViewDetached(this, new Function1<PLVMPMediaPlayViewState, Unit>() {
                     @Override
-                    public void onChanged(@Nullable @org.jetbrains.annotations.Nullable Long progress) {
-                        currentPosition = progress == null ? 0 : progress;
+                    public Unit invoke(PLVMPMediaPlayViewState viewState) {
+                        videoProgress = viewState.getCurrentProgress();
+                        videoDuration = viewState.getDuration();
                         onViewStateChanged();
+                        return null;
                     }
-                }
-        );
+                });
 
-        observeUntilViewDetached(
-                requireNotNull(PLVMediaPlayerLocalProvider.localMediaPlayer.on(this).current())
-                        .getStateListenerRegistry()
-                        .getDurationState(),
-                this,
-                new Observer<Long>() {
+        requireNotNull(PLVMediaPlayerLocalProvider.localDependScope.on(this).current())
+                .get(PLVMPMediaControllerViewModel.class)
+                .getMediaControllerViewState()
+                .observeUntilViewDetached(this, new Function1<PLVMPMediaControllerViewState, Unit>() {
                     @Override
-                    public void onChanged(@Nullable @org.jetbrains.annotations.Nullable Long duration) {
-                        currentDuration = duration == null ? 0 : duration;
+                    public Unit invoke(PLVMPMediaControllerViewState viewState) {
+                        dragProgress = viewState.getProgressSeekBarDragPosition();
+                        isDragging = viewState.getProgressSeekBarDragging();
+                        dragWaitSeekFinish = viewState.getProgressSeekBarWaitSeekFinish();
+                        isVisible = viewState.getControllerVisible()
+                                && !viewState.isMediaStopOverlayVisible()
+                                && !viewState.getControllerLocking()
+                                && !(viewState.isFloatActionLayoutVisible() && isLandscape());
                         onViewStateChanged();
+                        return null;
                     }
-                }
-        );
-
-        observeUntilViewDetached(
-                requireNotNull(PLVMediaPlayerLocalProvider.localControlViewModel.on(this).current())
-                        .getControlViewStateLiveData(),
-                this,
-                new Observer<PLVMediaPlayerControlViewState>() {
-                    @Override
-                    public void onChanged(@Nullable @org.jetbrains.annotations.Nullable PLVMediaPlayerControlViewState viewState) {
-                        currentControlViewState = viewState;
-                        onViewStateChanged();
-                    }
-                }
-        );
-
-        observeUntilViewDetached(
-                requireNotNull(PLVMediaPlayerLocalProvider.localMediaPlayer.on(this).current())
-                        .getEventListenerRegistry()
-                        .getOnInfo(),
-                this,
-                new PLVSugarUtil.Consumer<PLVMediaPlayerOnInfoEvent>() {
-                    @Override
-                    public void accept(PLVMediaPlayerOnInfoEvent onInfoEvent) {
-                        if (onInfoEvent != null) {
-                            if (onInfoEvent.getWhat() == PLVMediaPlayerOnInfoEvent.MEDIA_INFO_AUDIO_SEEK_RENDERING_START
-                                    || onInfoEvent.getWhat() == PLVMediaPlayerOnInfoEvent.MEDIA_INFO_VIDEO_SEEK_RENDERING_START
-                                    || onInfoEvent.getWhat() == PLVMediaPlayerOnInfoEvent.MEDIA_INFO_AUDIO_RENDERING_START
-                                    || onInfoEvent.getWhat() == PLVMediaPlayerOnInfoEvent.MEDIA_INFO_VIDEO_RENDERING_START) {
-                                waitSeekFinish = false;
-                                onViewStateChanged();
-                            }
-                        }
-                    }
-                }
-        );
+                });
     }
 
     protected void onViewStateChanged() {
-        PLVRememberState.rememberStateOf(this, "onProgressUpdated")
-                .compareLastAndSet(currentPosition, currentDuration, currentControlViewState, waitSeekFinish)
-                .ifNotEquals(new PLVSugarUtil.Consumer<PLVRememberStateCompareResult>() {
+        PLVRememberState.rememberStateOf(this, "updateProgress")
+                .compareLastAndSet(videoProgress, videoDuration, dragProgress, isDragging, dragWaitSeekFinish)
+                .ifNotEquals(new Function1<PLVRememberStateCompareResult, Unit>() {
                     @Override
-                    public void accept(PLVRememberStateCompareResult result) {
-                        onProgressUpdated();
+                    public Unit invoke(PLVRememberStateCompareResult result) {
+                        updateProgress();
+                        return null;
                     }
                 });
 
-        PLVRememberState.rememberStateOf(this, "onChangeVisibility")
-                .compareLastAndSet(currentControlViewState)
-                .ifNotEquals(new PLVSugarUtil.Consumer<PLVRememberStateCompareResult>() {
+        PLVRememberState.rememberStateOf(this, "updateVisible")
+                .compareLastAndSet(isVisible)
+                .ifNotEquals(new Function1<PLVRememberStateCompareResult, Unit>() {
                     @Override
-                    public void accept(PLVRememberStateCompareResult result) {
-                        onChangeVisibility();
-                    }
-                });
-
-        PLVRememberState.rememberStateOf(this, "updateWaitBufferEndAfterSeek")
-                .compareLastAndSet(currentControlViewState)
-                .ifNotEquals(new PLVSugarUtil.Consumer<PLVRememberStateCompareResult>() {
-                    @Override
-                    public void accept(PLVRememberStateCompareResult result) {
-                        updateWaitSeekFinishAfterSeek();
+                    public Unit invoke(PLVRememberStateCompareResult result) {
+                        updateVisible();
+                        return null;
                     }
                 });
     }
 
-    protected void onProgressUpdated() {
-        if (currentControlViewState == null) {
-            return;
-        }
-        if (!currentControlViewState.progressSeekBarDragging && waitSeekFinish) {
-            invalidate();
-            return;
-        }
-        if (currentPosition <= 0 || currentDuration <= 0) {
-            return;
-        }
-
-        long position = currentPosition;
-        if (currentControlViewState.progressSeekBarDragging) {
-            position = currentControlViewState.progressSeekBarDragPosition;
-        }
-        int max = getMax();
-        int progress = (int) (((double) position) / currentDuration * max);
-        setProgress(progress);
-        invalidate();
+    protected void updateProgress() {
+        long showProgress = isDragging || dragWaitSeekFinish ? dragProgress : videoProgress;
+        setMax((int) videoDuration);
+        setProgress((int) showProgress);
     }
 
-    protected void onChangeVisibility() {
-        if (currentControlViewState == null) {
-            return;
-        }
-        final boolean visible = currentControlViewState.controllerVisible
-                && !currentControlViewState.isOverlayLayoutVisible()
-                && !currentControlViewState.controllerLocking
-                && !(currentControlViewState.isFloatActionPanelVisible() && ScreenUtils.isLandscape());
-        setVisibility(visible ? View.VISIBLE : View.GONE);
-    }
-
-    protected void updateWaitSeekFinishAfterSeek() {
-        if (currentControlViewState == null) {
-            return;
-        }
-        if (currentControlViewState.progressSeekBarDragging) {
-            waitSeekFinish = true;
-        }
+    protected void updateVisible() {
+        setVisibility(isVisible ? View.VISIBLE : View.GONE);
     }
 
     // <editor-fold defaultstate="collapsed" desc="OnSeekBarChangeListener">
 
     @Override
     public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-        if (isSeekBarDragging && fromUser) {
-            progressOnDrag = progress;
-            postDraggingAction();
+        if (isDragging && fromUser) {
+            requireNotNull(PLVMediaPlayerLocalProvider.localDependScope.on(this).current())
+                    .get(PLVMPMediaControllerViewModel.class)
+                    .handleDragSeekBar(DragSeekBarAction.DRAG, progress);
         }
     }
 
     @Override
     public void onStartTrackingTouch(SeekBar seekBar) {
-        isSeekBarDragging = true;
-        progressOnDrag = getProgress();
-        waitSeekFinish = true;
-        postDraggingAction();
+        requireNotNull(PLVMediaPlayerLocalProvider.localDependScope.on(this).current())
+                .get(PLVMPMediaControllerViewModel.class)
+                .handleDragSeekBar(DragSeekBarAction.DRAG, videoProgress);
     }
 
     @Override
     public void onStopTrackingTouch(SeekBar seekBar) {
-        isSeekBarDragging = false;
-        postDraggingAction();
-        seekOnStopDrag();
-    }
+        requireNotNull(PLVMediaPlayerLocalProvider.localDependScope.on(this).current())
+                .get(PLVMPMediaControllerViewModel.class)
+                .handleDragSeekBar(DragSeekBarAction.FINISH);
 
-    protected void postDraggingAction() {
-        PLVMediaPlayerControlViewModel viewModel = PLVMediaPlayerLocalProvider.localControlViewModel.on(PLVMediaPlayerProgressSeekBar.this).current();
-        if (viewModel != null) {
-            viewModel.requestControl(PLVMediaPlayerControlAction.progressSeekBarDrag((long) (((double) progressOnDrag) / getMax() * currentDuration), isSeekBarDragging));
-        }
-    }
-
-    protected void seekOnStopDrag() {
-        IPLVMediaPlayer mediaPlayer = PLVMediaPlayerLocalProvider.localMediaPlayer.on(PLVMediaPlayerProgressSeekBar.this).current();
-        if (mediaPlayer != null) {
-            PLVMediaPlayerExtensions.seekTo(mediaPlayer, (long) (((double) progressOnDrag) / getMax() * currentDuration));
+        if (getParent() != null) {
+            getParent().requestDisallowInterceptTouchEvent(false);
         }
     }
 
@@ -311,7 +228,7 @@ public class PLVMediaPlayerProgressSeekBar extends AppCompatSeekBar implements S
     @Nullable
     private Drawable getProgressDrawableById(int id) {
         Drawable drawable;
-        if (!isSeekBarOrScreenDragging()) {
+        if (!isDragging) {
             drawable = progressDrawable;
         } else {
             drawable = progressDrawableOnDrag;
@@ -327,7 +244,7 @@ public class PLVMediaPlayerProgressSeekBar extends AppCompatSeekBar implements S
 
     @Nullable
     private Drawable getThumbDrawable() {
-        if (!isSeekBarOrScreenDragging()) {
+        if (!isDragging) {
             return thumbDrawable;
         } else {
             return thumbDrawableOnDrag;
@@ -339,7 +256,7 @@ public class PLVMediaPlayerProgressSeekBar extends AppCompatSeekBar implements S
     }
 
     private int getSeekBarHeight() {
-        if (!isSeekBarOrScreenDragging()) {
+        if (!isDragging) {
             return (int) seekBarHeight;
         } else {
             return (int) seekBarHeightOnDrag;
@@ -348,16 +265,6 @@ public class PLVMediaPlayerProgressSeekBar extends AppCompatSeekBar implements S
 
     private double progressPercent() {
         return (double) getProgress() / getMax();
-    }
-
-    private boolean isSeekBarOrScreenDragging() {
-        if (isSeekBarDragging) {
-            return true;
-        }
-        if (currentControlViewState != null && currentControlViewState.progressSeekBarDragging) {
-            return true;
-        }
-        return false;
     }
 
     // </editor-fold>

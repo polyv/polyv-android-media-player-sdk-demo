@@ -9,8 +9,6 @@ import android.view.View;
 import android.view.ViewTreeObserver;
 import android.widget.RelativeLayout;
 
-import com.plv.foundationsdk.log.PLVCommonLog;
-
 import net.polyv.android.player.common.ui.component.marquee.animation.PLVMarqueeAnimation;
 import net.polyv.android.player.common.ui.component.marquee.animation.PLVMarqueeFlick15PercentAnimation;
 import net.polyv.android.player.common.ui.component.marquee.animation.PLVMarqueeFlickAdvanceAnimation;
@@ -22,6 +20,7 @@ import net.polyv.android.player.common.ui.component.marquee.animation.PLVMarquee
 import net.polyv.android.player.common.ui.component.marquee.model.PLVMarqueeAnimationVO;
 import net.polyv.android.player.common.ui.component.marquee.model.PLVMarqueeModel;
 import net.polyv.android.player.common.ui.component.marquee.model.PLVMarqueeTextVO;
+import net.polyv.android.player.sdk.foundation.log.PLVMediaPlayerLogger;
 
 import java.util.HashMap;
 
@@ -84,7 +83,7 @@ public class PLVMarqueeView extends RelativeLayout implements IPLVMarqueeView {
             if (marqueeAnimation != null) {
                 marqueeAnimation.start();
             } else {
-                PLVCommonLog.d(TAG, "need to excute setPLVMarqueeModel before start");
+                PLVMediaPlayerLogger.debug(TAG, "need to excute setPLVMarqueeModel before start");
             }
         }
     }

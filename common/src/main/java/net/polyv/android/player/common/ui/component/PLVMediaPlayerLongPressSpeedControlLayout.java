@@ -1,9 +1,7 @@
 package net.polyv.android.player.common.ui.component;
 
-import static com.plv.foundationsdk.component.livedata.PLVLiveDataExt.observeUntilViewDetached;
-import static com.plv.foundationsdk.utils.PLVSugarUtil.requireNotNull;
+import static net.polyv.android.player.sdk.foundation.lang.PreconditionsKt.requireNotNull;
 
-import android.arch.lifecycle.Observer;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -12,30 +10,27 @@ import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.widget.FrameLayout;
 
-import com.plv.foundationsdk.component.exts.Nullables;
-import com.plv.foundationsdk.utils.PLVSugarUtil;
+import net.polyv.android.player.common.di.PLVMediaPlayerLocalProvider;
+import net.polyv.android.player.common.modules.media.viewmodel.PLVMPMediaViewModel;
+import net.polyv.android.player.common.modules.media.viewmodel.viewstate.PLVMPMediaPlayViewState;
+import net.polyv.android.player.common.modules.mediacontroller.viewmodel.LongPressSpeedingAction;
+import net.polyv.android.player.common.modules.mediacontroller.viewmodel.PLVMPMediaControllerViewModel;
+import net.polyv.android.player.common.modules.mediacontroller.viewmodel.viewstate.PLVMPMediaControllerViewState;
 
-import net.polyv.android.player.business.scene.common.player.IPLVMediaPlayer;
-import net.polyv.android.player.common.ui.localprovider.PLVMediaPlayerLocalProvider;
-import net.polyv.android.player.common.ui.viewmodel.PLVMediaPlayerControlViewModel;
-import net.polyv.android.player.common.ui.viewmodel.action.PLVMediaPlayerControlAction;
-import net.polyv.android.player.common.ui.viewmodel.viewstate.PLVMediaPlayerControlViewState;
-import net.polyv.android.player.core.api.listener.state.PLVMediaPlayerPlayingState;
+import kotlin.Unit;
+import kotlin.jvm.functions.Function1;
 
 /**
  * @author Hoshiiro
  */
 public class PLVMediaPlayerLongPressSpeedControlLayout extends FrameLayout implements GestureDetector.OnGestureListener {
 
-    private static final float SPEED_ON_LONG_PRESS = 2F;
-
     private final GestureDetector gestureDetector = new GestureDetector(getContext(), this);
 
-    protected PLVMediaPlayerPlayingState currentPlayingState = null;
-    protected PLVMediaPlayerControlViewState currentViewState = null;
+    protected PLVMPMediaControllerViewState controllerViewState = null;
+    protected boolean isPlaying = false;
 
     private boolean isLongPressing = false;
-    private float speedBeforeLongPressControl = 1F;
 
     public PLVMediaPlayerLongPressSpeedControlLayout(@NonNull Context context) {
         super(context);
@@ -69,30 +64,27 @@ public class PLVMediaPlayerLongPressSpeedControlLayout extends FrameLayout imple
         super.onAttachedToWindow();
         if (isInEditMode()) return;
 
-        observeUntilViewDetached(
-                requireNotNull(PLVMediaPlayerLocalProvider.localMediaPlayer.on(this).current())
-                        .getStateListenerRegistry()
-                        .getPlayingState(),
-                this,
-                new Observer<PLVMediaPlayerPlayingState>() {
+        requireNotNull(PLVMediaPlayerLocalProvider.localDependScope.on(this).current())
+                .get(PLVMPMediaViewModel.class)
+                .getMediaPlayViewState()
+                .observeUntilViewDetached(this, new Function1<PLVMPMediaPlayViewState, Unit>() {
                     @Override
-                    public void onChanged(@Nullable @org.jetbrains.annotations.Nullable PLVMediaPlayerPlayingState playingState) {
-                        currentPlayingState = playingState;
+                    public Unit invoke(PLVMPMediaPlayViewState playViewState) {
+                        isPlaying = playViewState.isPlaying();
+                        return null;
                     }
-                }
-        );
+                });
 
-        observeUntilViewDetached(
-                requireNotNull(PLVMediaPlayerLocalProvider.localControlViewModel.on(this).current())
-                        .getControlViewStateLiveData(),
-                this,
-                new Observer<PLVMediaPlayerControlViewState>() {
+        requireNotNull(PLVMediaPlayerLocalProvider.localDependScope.on(this).current())
+                .get(PLVMPMediaControllerViewModel.class)
+                .getMediaControllerViewState()
+                .observeUntilViewDetached(this, new Function1<PLVMPMediaControllerViewState, Unit>() {
                     @Override
-                    public void onChanged(@Nullable @org.jetbrains.annotations.Nullable PLVMediaPlayerControlViewState viewState) {
-                        currentViewState = viewState;
+                    public Unit invoke(PLVMPMediaControllerViewState viewState) {
+                        controllerViewState = viewState;
+                        return null;
                     }
-                }
-        );
+                });
     }
 
     @Override
@@ -127,40 +119,15 @@ public class PLVMediaPlayerLongPressSpeedControlLayout extends FrameLayout imple
     }
 
     private void handleOnLongPress(boolean isLongPressing) {
-        IPLVMediaPlayer mediaPlayer = PLVMediaPlayerLocalProvider.localMediaPlayer.on(this).current();
-        if (mediaPlayer == null) {
-            return;
-        }
-        if (isLongPressing) {
-            Float speed = mediaPlayer.getStateListenerRegistry().getSpeed().getValue();
-            if (speed != null) {
-                speedBeforeLongPressControl = speed;
-            }
-            mediaPlayer.setSpeed(SPEED_ON_LONG_PRESS);
-            hintLongPress(SPEED_ON_LONG_PRESS, true);
-        } else {
-            mediaPlayer.setSpeed(speedBeforeLongPressControl);
-            hintLongPress(speedBeforeLongPressControl, false);
-        }
-    }
-
-    private void hintLongPress(float speed, boolean isLongPressing) {
-        final PLVMediaPlayerControlViewModel controlViewModel = PLVMediaPlayerLocalProvider.localControlViewModel.on(this).current();
-        boolean locking = Nullables.of(new PLVSugarUtil.Supplier<Boolean>() {
-            @Override
-            public Boolean get() {
-                return controlViewModel.getControlViewStateLiveData().getValue().controllerLocking;
-            }
-        }).getOrDefault(false);
-        if (!locking && controlViewModel != null) {
-            controlViewModel.requestControl(PLVMediaPlayerControlAction.hintLongPressControl(speed, isLongPressing));
-        }
+        requireNotNull(PLVMediaPlayerLocalProvider.localDependScope.on(this).current())
+                .get(PLVMPMediaControllerViewModel.class)
+                .handleLongPressSpeeding(isLongPressing ? LongPressSpeedingAction.START : LongPressSpeedingAction.FINISH);
     }
 
     protected boolean isAllowControl() {
-        return currentViewState != null
-                && !currentViewState.controllerLocking
-                && currentPlayingState == PLVMediaPlayerPlayingState.PLAYING;
+        return controllerViewState != null
+                && !controllerViewState.getControllerLocking()
+                && isPlaying;
     }
 
 }

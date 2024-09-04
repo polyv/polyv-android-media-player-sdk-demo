@@ -1,14 +1,12 @@
 package net.polyv.android.player.demo.mock;
 
 
-import static com.plv.foundationsdk.component.event.PLVEventKt.mutableEvent;
-
 import android.arch.lifecycle.ViewModel;
-import com.plv.foundationsdk.component.event.PLVEvent;
-import com.plv.foundationsdk.component.event.PLVMutableEvent;
+
 import net.polyv.android.player.business.scene.common.model.vo.PLVMediaResource;
 import net.polyv.android.player.common.utils.data.PLVStatefulData;
-import net.polyv.android.player.demo.scene.feed.viewmodel.IPLVMediaPlayerFeedVideoDataViewModel;
+import net.polyv.android.player.scenes.feed.viewmodel.IPLVMediaPlayerFeedVideoDataViewModel;
+import net.polyv.android.player.sdk.foundation.lang.MutableEvent;
 
 import java.util.List;
 
@@ -16,7 +14,7 @@ public class PLVMockFeedVideoDataViewModel extends ViewModel implements IPLVMedi
 
     private final PLVMockFeedVideoDataRepo repo = new PLVMockFeedVideoDataRepo();
 
-    private final PLVMutableEvent<PLVStatefulData<List<PLVMediaResource>>> onReceiveMediaResource = mutableEvent();
+    private final MutableEvent<PLVStatefulData<List<PLVMediaResource>>> onReceiveMediaResource = new MutableEvent<>();
 
     @Override
     public void requireMoreMediaResource(final int fromIndex) {
@@ -26,16 +24,16 @@ public class PLVMockFeedVideoDataViewModel extends ViewModel implements IPLVMedi
             public void run() {
                 try {
                     List<PLVMediaResource> mediaResourceList = repo.getNewMediaResource(fromIndex, 10);
-                    onReceiveMediaResource.post(PLVStatefulData.success(mediaResourceList));
+                    onReceiveMediaResource.setValue(PLVStatefulData.success(mediaResourceList));
                 } catch (Exception e) {
-                    onReceiveMediaResource.post(PLVStatefulData.<List<PLVMediaResource>>error(e.getMessage(), e));
+                    onReceiveMediaResource.setValue(PLVStatefulData.<List<PLVMediaResource>>error(e.getMessage(), e));
                 }
             }
         }).start();
     }
 
     @Override
-    public PLVEvent<PLVStatefulData<List<PLVMediaResource>>> getOnReceiveMediaResourceEvent() {
+    public MutableEvent<PLVStatefulData<List<PLVMediaResource>>> getOnReceiveMediaResourceEvent() {
         return onReceiveMediaResource;
     }
 

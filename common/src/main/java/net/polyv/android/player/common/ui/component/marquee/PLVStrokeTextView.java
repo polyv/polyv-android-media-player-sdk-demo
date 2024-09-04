@@ -1,5 +1,7 @@
 package net.polyv.android.player.common.ui.component.marquee;
 
+import static net.polyv.android.player.sdk.foundation.graphics.DisplaysKt.dp;
+
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.ColorStateList;
@@ -13,8 +15,6 @@ import android.text.style.ScaleXSpan;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.TextView;
-
-import com.plv.foundationsdk.utils.PLVScreenUtils;
 
 /**
  * 增强显示 的 文字类
@@ -121,16 +121,13 @@ public class PLVStrokeTextView extends TextView {
             // first get because strokeColor will set.
             ColorStateList states = getTextColors();
             getPaint().setStyle(Paint.Style.STROKE);
-            getPaint().setStrokeWidth(/*strokeWidth*/PLVScreenUtils.dip2px(getContext(), strokeWidth));
+            getPaint().setStrokeWidth(dp(strokeWidth).px());
             // BlurMaskFilter.Blur.INNER textColor red "e" has a problem.and all is has...if "e" textSize is small.
             if (strokeBlurX > 0 && strokeBlurY > 0) {
                 int strokeBlur = Math.max(strokeBlurX, strokeBlurY);
                 // if no set,it mask can cover other textView same text.
 //                disableHardwareRendering(this);
-                getPaint().setMaskFilter(
-                        new BlurMaskFilter(/*strokeWidth*/PLVScreenUtils.dip2px(getContext(),
-                                strokeBlur),
-                                BlurMaskFilter.Blur.SOLID));
+                getPaint().setMaskFilter(new BlurMaskFilter(dp(strokeBlur).px(), BlurMaskFilter.Blur.SOLID));
             }
             setTextColor(strokeColor);
             super.onDraw(canvas);

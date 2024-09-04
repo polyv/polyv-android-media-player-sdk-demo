@@ -26,12 +26,13 @@
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:orientation="vertical"
-            app:layout_constraintGuide_percent="0.56" />
+            app:layout_constraintGuide_percent="0.52" />
 
         <net.polyv.android.player.common.ui.component.PLVMediaPlayerMoreLayoutAudioModeActionView
             android:id="@+id/plv_media_player_more_audio_mode_action_view"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginHorizontal="14dp"
             android:layout_marginTop="48dp"
             app:layout_constraintStart_toStartOf="@+id/more_action_start_guide_line"
             app:layout_constraintTop_toTopOf="parent" />
@@ -40,9 +41,18 @@
             android:id="@+id/plv_media_player_more_float_window_action_view"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="28dp"
+            android:layout_marginHorizontal="14dp"
             android:layout_marginTop="48dp"
             app:layout_constraintStart_toEndOf="@+id/plv_media_player_more_audio_mode_action_view"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <net.polyv.android.player.common.ui.component.PLVMediaPlayerMoreLayoutSubtitleActionViewLand
+            android:id="@+id/plv_media_player_more_subtitle_action_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="14dp"
+            android:layout_marginTop="48dp"
+            app:layout_constraintStart_toEndOf="@+id/plv_media_player_more_float_window_action_view"
             app:layout_constraintTop_toTopOf="parent" />
 
     </android.support.constraint.ConstraintLayout>

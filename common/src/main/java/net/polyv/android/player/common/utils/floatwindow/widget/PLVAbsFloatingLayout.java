@@ -1,6 +1,8 @@
 package net.polyv.android.player.common.utils.floatwindow.widget;
 
-import static com.plv.foundationsdk.utils.PLVSugarUtil.clamp;
+import static net.polyv.android.player.sdk.foundation.graphics.DisplaysKt.getScreenHeight;
+import static net.polyv.android.player.sdk.foundation.graphics.DisplaysKt.getScreenWidth;
+import static net.polyv.android.player.sdk.foundation.lang.NumbersKt.clamp;
 
 import android.animation.ValueAnimator;
 import android.content.Context;
@@ -9,8 +11,6 @@ import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.widget.FrameLayout;
-
-import com.plv.thirdpart.blankj.utilcode.util.ScreenUtils;
 
 import net.polyv.android.player.common.utils.floatwindow.enums.PLVFloatingEnums;
 
@@ -84,10 +84,10 @@ public abstract class PLVAbsFloatingLayout extends FrameLayout implements IPLVFl
                 targetLeft = autoEdgeMargin;
                 break;
             case AUTO_MOVE_TO_RIGHT:
-                targetLeft = ScreenUtils.getScreenWidth() - floatWindowWidth - autoEdgeMargin;
+                targetLeft = getScreenWidth().px() - floatWindowWidth - autoEdgeMargin;
                 break;
             case AUTO_MOVE_TO_NEAREST_EDGE:
-                targetLeft = floatingLocationX + floatWindowWidth / 2 < ScreenUtils.getScreenWidth() / 2 ? autoEdgeMargin : ScreenUtils.getScreenWidth() - floatWindowWidth - autoEdgeMargin;
+                targetLeft = floatingLocationX + floatWindowWidth / 2 < getScreenWidth().px() / 2 ? autoEdgeMargin : getScreenWidth().px() - floatWindowWidth - autoEdgeMargin;
                 break;
             default:
                 targetLeft = floatingLocationX;
@@ -180,11 +180,11 @@ public abstract class PLVAbsFloatingLayout extends FrameLayout implements IPLVFl
     }
 
     protected int fitInsideScreenX(int x) {
-        return clamp(x, 0, ScreenUtils.getScreenWidth() - floatWindowWidth);
+        return clamp(x, 0, getScreenWidth().px() - floatWindowWidth);
     }
 
     protected int fitInsideScreenY(int y) {
-        return clamp(y, 0, ScreenUtils.getScreenHeight() - floatWindowHeight);
+        return clamp(y, 0, getScreenHeight().px() - floatWindowHeight);
     }
 
     // </editor-fold>

@@ -1,13 +1,8 @@
 package net.polyv.android.player.common.ui.component;
 
-import static com.plv.foundationsdk.component.event.PLVEventKt.observeUntilViewDetached;
-import static com.plv.foundationsdk.component.livedata.PLVLiveDataExt.observeUntilViewDetached;
-import static com.plv.foundationsdk.utils.PLVSugarUtil.nullable;
-import static com.plv.foundationsdk.utils.PLVSugarUtil.requireNotNull;
+import static net.polyv.android.player.sdk.foundation.lang.PreconditionsKt.requireNotNull;
 
-import android.arch.lifecycle.Observer;
 import android.content.Context;
-import android.support.annotation.Nullable;
 import android.support.v7.widget.AppCompatImageView;
 import android.text.TextUtils;
 import android.util.AttributeSet;
@@ -15,22 +10,24 @@ import android.view.View;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
-import com.plv.foundationsdk.component.remember.PLVRememberState;
-import com.plv.foundationsdk.component.remember.PLVRememberStateCompareResult;
-import com.plv.foundationsdk.utils.PLVSugarUtil;
 
-import net.polyv.android.player.business.scene.common.model.api.vo.PLVVodVideoJsonVO;
-import net.polyv.android.player.common.ui.localprovider.PLVMediaPlayerLocalProvider;
+import net.polyv.android.player.common.di.PLVMediaPlayerLocalProvider;
+import net.polyv.android.player.common.modules.media.viewmodel.PLVMPMediaViewModel;
+import net.polyv.android.player.common.modules.media.viewmodel.viewstate.PLVMPMediaInfoViewState;
 import net.polyv.android.player.common.utils.ui.image.glide.transform.BlurTransformation;
 import net.polyv.android.player.core.api.listener.event.PLVMediaPlayerOnInfoEvent;
-import net.polyv.android.player.core.api.listener.state.PLVMediaPlayerState;
+import net.polyv.android.player.sdk.foundation.lang.PLVRememberState;
+import net.polyv.android.player.sdk.foundation.lang.PLVRememberStateCompareResult;
+
+import kotlin.Unit;
+import kotlin.jvm.functions.Function1;
 
 /**
  * @author Hoshiiro
  */
 public class PLVMediaPlayerVideoFirstImageView extends AppCompatImageView {
 
-    protected PLVVodVideoJsonVO currentVodVideoJson = null;
+    protected String firstImageUrl = null;
     protected boolean isFirstFrameRendered = false;
 
     public PLVMediaPlayerVideoFirstImageView(Context context) {
@@ -50,79 +47,54 @@ public class PLVMediaPlayerVideoFirstImageView extends AppCompatImageView {
         super.onAttachedToWindow();
         if (isInEditMode()) return;
 
-        observeUntilViewDetached(
-                requireNotNull(PLVMediaPlayerLocalProvider.localMediaPlayer.on(this).current())
-                        .getBusinessListenerRegistry()
-                        .getVodVideoJson(),
-                this,
-                new Observer<PLVVodVideoJsonVO>() {
+        requireNotNull(PLVMediaPlayerLocalProvider.localDependScope.on(this).current())
+                .get(PLVMPMediaViewModel.class)
+                .getMediaInfoViewState()
+                .observeUntilViewDetached(this, new Function1<PLVMPMediaInfoViewState, Unit>() {
                     @Override
-                    public void onChanged(@Nullable @org.jetbrains.annotations.Nullable PLVVodVideoJsonVO vodVideoJson) {
-                        currentVodVideoJson = vodVideoJson;
+                    public Unit invoke(PLVMPMediaInfoViewState viewState) {
+                        firstImageUrl = viewState.getAudioModeCoverImage();
                         onViewStateChanged();
+                        return null;
                     }
-                }
-        );
+                });
 
-        observeUntilViewDetached(
-                requireNotNull(PLVMediaPlayerLocalProvider.localMediaPlayer.on(this).current())
-                        .getStateListenerRegistry()
-                        .getPlayerState(),
-                this,
-                new Observer<PLVMediaPlayerState>() {
+        requireNotNull(PLVMediaPlayerLocalProvider.localDependScope.on(this).current())
+                .get(PLVMPMediaViewModel.class)
+                .getOnInfoEvent()
+                .observeUntilViewDetached(this, new Function1<PLVMediaPlayerOnInfoEvent, Unit>() {
                     @Override
-                    public void onChanged(@Nullable @org.jetbrains.annotations.Nullable PLVMediaPlayerState playerState) {
-                        if (playerState == PLVMediaPlayerState.STATE_PREPARING) {
-                            isFirstFrameRendered = false;
-                        }
-                        onViewStateChanged();
-                    }
-                }
-        );
-
-        observeUntilViewDetached(
-                requireNotNull(PLVMediaPlayerLocalProvider.localMediaPlayer.on(this).current())
-                        .getEventListenerRegistry()
-                        .getOnInfo(),
-                this,
-                new PLVSugarUtil.Consumer<PLVMediaPlayerOnInfoEvent>() {
-                    @Override
-                    public void accept(PLVMediaPlayerOnInfoEvent onInfoEvent) {
-                        if (onInfoEvent != null && onInfoEvent.getWhat() == PLVMediaPlayerOnInfoEvent.MEDIA_INFO_VIDEO_RENDERING_START) {
+                    public Unit invoke(PLVMediaPlayerOnInfoEvent onInfoEvent) {
+                        if (onInfoEvent.getWhat() == PLVMediaPlayerOnInfoEvent.MEDIA_INFO_VIDEO_RENDERING_START) {
                             isFirstFrameRendered = true;
                             onViewStateChanged();
                         }
+                        return null;
                     }
-                }
-        );
+                });
     }
 
     protected void onViewStateChanged() {
         PLVRememberState.rememberStateOf(this, "onChangeFirstImage")
-                .compareLastAndSet(currentVodVideoJson, isFirstFrameRendered)
-                .ifNotEquals(new PLVSugarUtil.Consumer<PLVRememberStateCompareResult>() {
+                .compareLastAndSet(firstImageUrl, isFirstFrameRendered)
+                .ifNotEquals(new Function1<PLVRememberStateCompareResult, Unit>() {
                     @Override
-                    public void accept(PLVRememberStateCompareResult result) {
+                    public Unit invoke(PLVRememberStateCompareResult result) {
                         onChangeFirstImage();
+                        return null;
                     }
                 });
     }
 
     protected void onChangeFirstImage() {
-        String url = nullable(new PLVSugarUtil.Supplier<String>() {
-            @Override
-            public String get() {
-                return currentVodVideoJson.getFirst_image();
-            }
-        });
-        if (isFirstFrameRendered || TextUtils.isEmpty(url)) {
+        if (isFirstFrameRendered || TextUtils.isEmpty(firstImageUrl)) {
             setVisibility(View.GONE);
             return;
         }
         setImageDrawable(null);
         setVisibility(View.VISIBLE);
         Glide.with(this)
-                .load(url)
+                .load(firstImageUrl)
                 .apply(
                         new RequestOptions()
                                 .transform(new BlurTransformation(40))

@@ -1,23 +1,22 @@
 package net.polyv.android.player.common.ui.component.floatwindow;
 
-import static com.plv.foundationsdk.component.livedata.PLVLiveDataExt.mutableStateLiveData;
+import static net.polyv.android.player.sdk.foundation.graphics.DisplaysKt.dp;
 
 import android.app.Activity;
-import android.arch.lifecycle.LiveData;
-import android.arch.lifecycle.MutableLiveData;
 import android.graphics.Point;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.view.View;
 
-import com.plv.foundationsdk.utils.PLVSugarUtil;
-import com.plv.thirdpart.blankj.utilcode.util.ConvertUtils;
-
 import net.polyv.android.player.common.ui.component.floatwindow.layout.PLVMediaPlayerFloatWindowContentLayout;
 import net.polyv.android.player.common.utils.floatwindow.PLVFloatingWindowManager;
+import net.polyv.android.player.common.utils.floatwindow.enums.PLVFloatWindowLaunchReason;
 import net.polyv.android.player.common.utils.floatwindow.enums.PLVFloatingEnums;
 import net.polyv.android.player.common.utils.floatwindow.permission.PLVFloatPermissionUtils;
+import net.polyv.android.player.sdk.foundation.lang.Consumer;
+import net.polyv.android.player.sdk.foundation.lang.MutableState;
+import net.polyv.android.player.sdk.foundation.lang.State;
 
 import java.util.ArrayDeque;
 import java.util.Queue;
@@ -43,15 +42,15 @@ public class PLVMediaPlayerFloatWindowManager {
 
     // <editor-fold defaultstate="collapsed" desc="变量">
 
-    public static final int SHOW_REASON_MANUAL = 100;
-    public static final int SHOW_REASON_ENTER_BACKGROUND = 200;
+    public static final int SHOW_REASON_MANUAL = PLVFloatWindowLaunchReason.MANUAL.code;
+    public static final int SHOW_REASON_ENTER_BACKGROUND = PLVFloatWindowLaunchReason.BACKGROUND_STATE_CHANGED.code;
 
     // 保存小窗视频播放数据 PLVMediaResource
     public static final String KEY_SAVE_MEDIA_RESOURCE = "key_save_media_resource";
 
     private final Queue<Runnable> onClosedTaskQueue = new ArrayDeque<>();
 
-    private final MutableLiveData<Boolean> floatingViewShowState = mutableStateLiveData(false);
+    private final MutableState<Boolean> floatingViewShowState = new MutableState<>(false);
 
     private final Bundle saveDataBundle = new Bundle();
     @Nullable
@@ -75,7 +74,7 @@ public class PLVMediaPlayerFloatWindowManager {
         return this;
     }
 
-    public PLVMediaPlayerFloatWindowManager saveData(@NonNull PLVSugarUtil.Consumer<Bundle> consumer) {
+    public PLVMediaPlayerFloatWindowManager saveData(@NonNull Consumer<Bundle> consumer) {
         consumer.accept(saveDataBundle);
         return this;
     }
@@ -159,7 +158,7 @@ public class PLVMediaPlayerFloatWindowManager {
         return Boolean.TRUE.equals(floatingViewShowState.getValue());
     }
 
-    public LiveData<Boolean> getFloatingViewShowState() {
+    public State<Boolean> getFloatingViewShowState() {
         return floatingViewShowState;
     }
 
@@ -179,7 +178,7 @@ public class PLVMediaPlayerFloatWindowManager {
                 .setFloatLocation(left, top)
                 .setShowType(showType)
                 .setAutoMoveToEdge(PLVFloatingEnums.AutoEdgeType.AUTO_MOVE_TO_NEAREST_EDGE)
-                .setAutoEdgeMargin(ConvertUtils.dp2px(6))
+                .setAutoEdgeMargin(dp(6).px())
                 .build()
                 .show((Activity) contentLayout.getContext());
         if (controlActionListener != null) {

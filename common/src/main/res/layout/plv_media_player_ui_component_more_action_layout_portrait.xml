@@ -28,7 +28,6 @@
             android:id="@+id/plv_media_player_more_layout_action_container"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="24dp"
             android:layout_marginTop="48dp"
             android:paddingBottom="8dp"
             app:layout_constraintStart_toStartOf="parent"
@@ -38,6 +37,7 @@
                 android:id="@+id/plv_media_player_more_audio_mode_action_view"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginHorizontal="24dp"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 app:plvIconTintNormal="#333333"
@@ -49,14 +49,21 @@
                 android:id="@+id/plv_media_player_more_float_window_action_view"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="28dp"
+                android:layout_marginHorizontal="24dp"
                 app:layout_constraintStart_toEndOf="@+id/plv_media_player_more_audio_mode_action_view"
                 app:layout_constraintTop_toTopOf="parent"
-                app:layout_goneMarginStart="0dp"
                 app:plvIconTintNormal="#333333"
                 app:plvIconTintSelected="#3F76FC"
                 app:plvTextColorNormal="#CC333333"
                 app:plvTextColorSelected="#CC3F76FC" />
+
+            <net.polyv.android.player.common.ui.component.PLVMediaPlayerMoreLayoutSubtitleActionViewPort
+                android:id="@+id/plv_media_player_more_subtitle_action_view"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="24dp"
+                app:layout_constraintStart_toEndOf="@id/plv_media_player_more_float_window_action_view"
+                app:layout_constraintTop_toTopOf="parent" />
 
         </android.support.constraint.ConstraintLayout>
 
