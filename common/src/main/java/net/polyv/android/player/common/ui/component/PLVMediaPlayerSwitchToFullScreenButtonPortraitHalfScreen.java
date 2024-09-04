@@ -1,9 +1,7 @@
 package net.polyv.android.player.common.ui.component;
 
-import static com.plv.foundationsdk.component.livedata.PLVLiveDataExt.observeUntilViewDetached;
-import static com.plv.foundationsdk.utils.PLVSugarUtil.requireNotNull;
+import static net.polyv.android.player.sdk.foundation.lang.PreconditionsKt.requireNotNull;
 
-import androidx.lifecycle.Observer;
 import android.content.Context;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -12,20 +10,22 @@ import androidx.appcompat.widget.AppCompatImageView;
 import android.util.AttributeSet;
 import android.view.View;
 
-import com.plv.foundationsdk.component.remember.PLVRememberState;
-import com.plv.foundationsdk.component.remember.PLVRememberStateCompareResult;
-import com.plv.foundationsdk.utils.PLVSugarUtil;
-
-import net.polyv.android.player.common.ui.localprovider.PLVMediaPlayerLocalProvider;
-import net.polyv.android.player.common.ui.viewmodel.viewstate.PLVMediaPlayerControlViewState;
+import net.polyv.android.player.common.di.PLVMediaPlayerLocalProvider;
+import net.polyv.android.player.common.modules.mediacontroller.viewmodel.PLVMPMediaControllerViewModel;
+import net.polyv.android.player.common.modules.mediacontroller.viewmodel.viewstate.PLVMPMediaControllerViewState;
 import net.polyv.android.player.common.utils.orientation.PLVActivityOrientationManager;
+import net.polyv.android.player.sdk.foundation.lang.PLVRememberState;
+import net.polyv.android.player.sdk.foundation.lang.PLVRememberStateCompareResult;
+
+import kotlin.Unit;
+import kotlin.jvm.functions.Function1;
 
 /**
  * @author Hoshiiro
  */
 public class PLVMediaPlayerSwitchToFullScreenButtonPortraitHalfScreen extends AppCompatImageView implements View.OnClickListener {
 
-    protected PLVMediaPlayerControlViewState currentControlViewState = null;
+    protected boolean isVisible = false;
 
     public PLVMediaPlayerSwitchToFullScreenButtonPortraitHalfScreen(@NonNull Context context) {
         super(context);
@@ -48,37 +48,34 @@ public class PLVMediaPlayerSwitchToFullScreenButtonPortraitHalfScreen extends Ap
         super.onAttachedToWindow();
         if (isInEditMode()) return;
 
-        observeUntilViewDetached(
-                requireNotNull(PLVMediaPlayerLocalProvider.localControlViewModel.on(this).current())
-                        .getControlViewStateLiveData(),
-                this,
-                new Observer<PLVMediaPlayerControlViewState>() {
+        requireNotNull(PLVMediaPlayerLocalProvider.localDependScope.on(this).current())
+                .get(PLVMPMediaControllerViewModel.class)
+                .getMediaControllerViewState()
+                .observeUntilViewDetached(this, new Function1<PLVMPMediaControllerViewState, Unit>() {
                     @Override
-                    public void onChanged(@Nullable @org.jetbrains.annotations.Nullable PLVMediaPlayerControlViewState viewState) {
-                        currentControlViewState = viewState;
+                    public Unit invoke(PLVMPMediaControllerViewState viewState) {
+                        isVisible = viewState.getControllerVisible()
+                                && !viewState.isMediaStopOverlayVisible();
                         onViewStateChanged();
+                        return null;
                     }
-                }
-        );
+                });
     }
 
     protected void onViewStateChanged() {
         PLVRememberState.rememberStateOf(this, "onChangeVisibility")
-                .compareLastAndSet(currentControlViewState)
-                .ifNotEquals(new PLVSugarUtil.Consumer<PLVRememberStateCompareResult>() {
+                .compareLastAndSet(isVisible)
+                .ifNotEquals(new Function1<PLVRememberStateCompareResult, Unit>() {
                     @Override
-                    public void accept(PLVRememberStateCompareResult result) {
+                    public Unit invoke(PLVRememberStateCompareResult result) {
                         onChangeVisibility();
+                        return null;
                     }
                 });
     }
 
     protected void onChangeVisibility() {
-        if (currentControlViewState == null) {
-            return;
-        }
-        boolean visible = currentControlViewState.controllerVisible && !currentControlViewState.isOverlayLayoutVisible();
-        setVisibility(visible ? View.VISIBLE : View.GONE);
+        setVisibility(isVisible ? View.VISIBLE : View.GONE);
     }
 
     @Override

@@ -1,9 +1,9 @@
 package net.polyv.android.player.common.ui.component;
 
-import static com.plv.foundationsdk.component.livedata.PLVLiveDataExt.observeUntilViewDetached;
-import static com.plv.foundationsdk.utils.PLVSugarUtil.requireNotNull;
+import static net.polyv.android.player.sdk.foundation.graphics.DisplaysKt.dp;
+import static net.polyv.android.player.sdk.foundation.graphics.DisplaysKt.isLandscape;
+import static net.polyv.android.player.sdk.foundation.lang.PreconditionsKt.requireNotNull;
 
-import androidx.lifecycle.Observer;
 import android.content.Context;
 import android.content.res.TypedArray;
 import androidx.annotation.NonNull;
@@ -14,28 +14,28 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
-import com.plv.foundationsdk.component.remember.PLVRememberState;
-import com.plv.foundationsdk.component.remember.PLVRememberStateCompareResult;
-import com.plv.foundationsdk.utils.PLVSugarUtil;
-import com.plv.thirdpart.blankj.utilcode.util.ConvertUtils;
-import com.plv.thirdpart.blankj.utilcode.util.ScreenUtils;
-
 import net.polyv.android.player.common.R;
-import net.polyv.android.player.common.ui.localprovider.PLVMediaPlayerLocalProvider;
-import net.polyv.android.player.common.ui.viewmodel.viewstate.PLVMediaPlayerControlViewState;
+import net.polyv.android.player.common.di.PLVMediaPlayerLocalProvider;
+import net.polyv.android.player.common.modules.mediacontroller.viewmodel.PLVMPMediaControllerViewModel;
+import net.polyv.android.player.common.modules.mediacontroller.viewmodel.viewstate.PLVMPMediaControllerViewState;
+import net.polyv.android.player.sdk.foundation.lang.PLVRememberState;
+import net.polyv.android.player.sdk.foundation.lang.PLVRememberStateCompareResult;
+
+import kotlin.Unit;
+import kotlin.jvm.functions.Function1;
 
 /**
  * @author Hoshiiro
  */
 public class PLVMediaPlayerControllerGradientMaskLayout extends FrameLayout {
 
-    private float topMaskHeight = ConvertUtils.dp2px(100);
-    private float bottomMaskHeight = ConvertUtils.dp2px(100);
+    private float topMaskHeight = dp(100).px();
+    private float bottomMaskHeight = dp(100).px();
 
     private View controllerGradientMaskTop;
     private View controllerGradientMaskBottom;
 
-    protected PLVMediaPlayerControlViewState currentControlViewState = null;
+    protected boolean isVisible = false;
 
     public PLVMediaPlayerControllerGradientMaskLayout(@NonNull Context context) {
         super(context);
@@ -80,40 +80,36 @@ public class PLVMediaPlayerControllerGradientMaskLayout extends FrameLayout {
         super.onAttachedToWindow();
         if (isInEditMode()) return;
 
-        observeUntilViewDetached(
-                requireNotNull(PLVMediaPlayerLocalProvider.localControlViewModel.on(this).current())
-                        .getControlViewStateLiveData(),
-                this,
-                new Observer<PLVMediaPlayerControlViewState>() {
+        requireNotNull(PLVMediaPlayerLocalProvider.localDependScope.on(this).current())
+                .get(PLVMPMediaControllerViewModel.class)
+                .getMediaControllerViewState()
+                .observeUntilViewDetached(this, new Function1<PLVMPMediaControllerViewState, Unit>() {
                     @Override
-                    public void onChanged(@Nullable @org.jetbrains.annotations.Nullable PLVMediaPlayerControlViewState viewState) {
-                        currentControlViewState = viewState;
+                    public Unit invoke(PLVMPMediaControllerViewState viewState) {
+                        isVisible = viewState.getControllerVisible()
+                                && !viewState.isMediaStopOverlayVisible()
+                                && !viewState.getControllerLocking()
+                                && !(viewState.isFloatActionLayoutVisible() && isLandscape());
                         onViewStateChanged();
+                        return null;
                     }
-                }
-        );
+                });
     }
 
     protected void onViewStateChanged() {
         PLVRememberState.rememberStateOf(this, "onChangeVisibility")
-                .compareLastAndSet(currentControlViewState)
-                .ifNotEquals(new PLVSugarUtil.Consumer<PLVRememberStateCompareResult>() {
+                .compareLastAndSet(isVisible)
+                .ifNotEquals(new Function1<PLVRememberStateCompareResult, Unit>() {
                     @Override
-                    public void accept(PLVRememberStateCompareResult result) {
+                    public Unit invoke(PLVRememberStateCompareResult result) {
                         onChangeVisibility();
+                        return null;
                     }
                 });
     }
 
     protected void onChangeVisibility() {
-        if (currentControlViewState == null) {
-            return;
-        }
-        boolean visible = currentControlViewState.controllerVisible
-                && !currentControlViewState.isOverlayLayoutVisible()
-                && !currentControlViewState.controllerLocking
-                && !(currentControlViewState.isFloatActionPanelVisible() && ScreenUtils.isLandscape());
-        setVisibility(visible ? VISIBLE : GONE);
+        setVisibility(isVisible ? VISIBLE : GONE);
     }
 
 }

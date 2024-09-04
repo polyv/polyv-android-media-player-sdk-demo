@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/plv_media_player_float_menu_bg_landscape">
+
+    <ImageView
+        android:id="@+id/plv_media_player_more_action_close_iv"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:padding="12dp"
+        android:src="@drawable/plv_media_player_float_menu_close_icon"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/plv_media_player_more_action_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <androidx.constraintlayout.widget.Guideline
+            android:id="@+id/more_action_start_guide_line"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent="0.6" />
+
+        <TextView
+            android:id="@+id/plv_media_player_more_subtitle_setting_show_switch_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="74dp"
+            android:text="@string/plv_media_player_ui_component_subtitle_setting_show_switch_label"
+            android:textColor="#FFFFFF"
+            android:textSize="14sp"
+            app:layout_constraintStart_toStartOf="@+id/more_action_start_guide_line"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <Switch
+            android:id="@+id/plv_media_player_more_subtitle_setting_show_switch"
+            android:layout_width="48dp"
+            android:layout_height="34dp"
+            android:layout_marginStart="15dp"
+            android:padding="5dp"
+            android:thumb="@drawable/plv_media_player_more_subtitle_switch_thumb_land"
+            android:track="@drawable/plv_media_player_more_subtitle_switch_track_land"
+            app:layout_constraintBottom_toBottomOf="@+id/plv_media_player_more_subtitle_setting_show_switch_label"
+            app:layout_constraintStart_toEndOf="@+id/plv_media_player_more_subtitle_setting_show_switch_label"
+            app:layout_constraintTop_toTopOf="@+id/plv_media_player_more_subtitle_setting_show_switch_label" />
+
+        <ScrollView
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginTop="24dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="@id/plv_media_player_more_subtitle_setting_show_switch_label"
+            app:layout_constraintTop_toBottomOf="@+id/plv_media_player_more_subtitle_setting_show_switch_label">
+
+            <LinearLayout
+                android:id="@+id/plv_media_player_more_subtitle_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical" />
+
+        </ScrollView>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

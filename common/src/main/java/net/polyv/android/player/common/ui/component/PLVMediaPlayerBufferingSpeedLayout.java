@@ -1,9 +1,7 @@
 package net.polyv.android.player.common.ui.component;
 
-import static com.plv.foundationsdk.component.livedata.PLVLiveDataExt.observeUntilViewDetached;
-import static com.plv.foundationsdk.utils.PLVSugarUtil.requireNotNull;
+import static net.polyv.android.player.sdk.foundation.lang.PreconditionsKt.requireNotNull;
 
-import androidx.lifecycle.Observer;
 import android.content.Context;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -12,20 +10,18 @@ import android.view.LayoutInflater;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
-import com.plv.foundationsdk.component.remember.PLVRememberState;
-import com.plv.foundationsdk.component.remember.PLVRememberStateCompareResult;
-import com.plv.foundationsdk.rx.PLVRxTimer;
-import com.plv.foundationsdk.utils.PLVSugarUtil;
-
-import net.polyv.android.player.business.scene.common.player.IPLVMediaPlayer;
 import net.polyv.android.player.common.R;
-import net.polyv.android.player.common.ui.localprovider.PLVMediaPlayerLocalProvider;
+import net.polyv.android.player.common.di.PLVMediaPlayerLocalProvider;
+import net.polyv.android.player.common.modules.media.viewmodel.PLVMPMediaViewModel;
+import net.polyv.android.player.common.modules.media.viewmodel.viewstate.PLVMPMediaPlayViewState;
 import net.polyv.android.player.core.api.listener.state.PLVMediaPlayerState;
+import net.polyv.android.player.sdk.foundation.lang.PLVRememberState;
+import net.polyv.android.player.sdk.foundation.lang.PLVRememberStateCompareResult;
 
 import java.util.Locale;
 
-import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Consumer;
+import kotlin.Unit;
+import kotlin.jvm.functions.Function1;
 
 /**
  * @author Hoshiiro
@@ -34,16 +30,9 @@ public class PLVMediaPlayerBufferingSpeedLayout extends FrameLayout {
 
     private TextView bufferingSpeedTv;
 
-    @Nullable
-    private Disposable networkTrafficDisposable = null;
-
     protected boolean currentIsPreparing = false;
     protected boolean currentIsBuffering = false;
-
-    private long lastTrafficByteCount = -1;
-    private long lastTrafficTimestamp = -1;
-    private long trafficSpeedByteCount = -1;
-    private long trafficSpeedDuration = -1;
+    protected long trafficBytesPerSecond = 0;
 
     public PLVMediaPlayerBufferingSpeedLayout(@NonNull Context context) {
         super(context);
@@ -68,33 +57,20 @@ public class PLVMediaPlayerBufferingSpeedLayout extends FrameLayout {
         super.onAttachedToWindow();
         if (isInEditMode()) return;
 
-        observeUntilViewDetached(
-                requireNotNull(PLVMediaPlayerLocalProvider.localMediaPlayer.on(this).current())
-                        .getStateListenerRegistry()
-                        .isBuffering(),
-                this,
-                new Observer<Boolean>() {
+        requireNotNull(PLVMediaPlayerLocalProvider.localDependScope.on(this).current())
+                .get(PLVMPMediaViewModel.class)
+                .getMediaPlayViewState()
+                .observeUntilViewDetached(this, new Function1<PLVMPMediaPlayViewState, Unit>() {
                     @Override
-                    public void onChanged(@Nullable @org.jetbrains.annotations.Nullable Boolean isBuffering) {
-                        currentIsBuffering = Boolean.TRUE.equals(isBuffering);
+                    public Unit invoke(PLVMPMediaPlayViewState viewState) {
+                        currentIsBuffering = viewState.isBuffering();
+                        currentIsPreparing = viewState.getPlayerState() == PLVMediaPlayerState.STATE_PREPARING
+                                || viewState.getPlayerState() == PLVMediaPlayerState.STATE_PREPARED;
+                        trafficBytesPerSecond = viewState.getBufferingSpeed();
                         onViewStateChanged();
+                        return null;
                     }
-                }
-        );
-
-        observeUntilViewDetached(
-                requireNotNull(PLVMediaPlayerLocalProvider.localMediaPlayer.on(this).current())
-                        .getStateListenerRegistry()
-                        .getPlayerState(),
-                this,
-                new Observer<PLVMediaPlayerState>() {
-                    @Override
-                    public void onChanged(@Nullable @org.jetbrains.annotations.Nullable PLVMediaPlayerState playerState) {
-                        currentIsPreparing = playerState == PLVMediaPlayerState.STATE_PREPARING || playerState == PLVMediaPlayerState.STATE_PREPARED;
-                        onViewStateChanged();
-                    }
-                }
-        );
+                });
     }
 
     @Override
@@ -106,72 +82,20 @@ public class PLVMediaPlayerBufferingSpeedLayout extends FrameLayout {
     }
 
     protected void onViewStateChanged() {
-        PLVRememberState.rememberStateOf(this, "onLoadingStateChanged")
-                .compareLastAndSet(currentIsBuffering, currentIsPreparing)
-                .ifNotEquals(new PLVSugarUtil.Consumer<PLVRememberStateCompareResult>() {
-                    @Override
-                    public void accept(PLVRememberStateCompareResult plvRememberStateCompareResult) {
-                        onLoadingStateChanged();
-                    }
-                });
-
         PLVRememberState.rememberStateOf(this, "onTrafficSpeedChanged")
-                .compareLastAndSet(currentIsBuffering, currentIsPreparing, trafficSpeedByteCount, trafficSpeedDuration)
-                .ifNotEquals(new PLVSugarUtil.Consumer<PLVRememberStateCompareResult>() {
+                .compareLastAndSet(currentIsBuffering, currentIsPreparing, trafficBytesPerSecond)
+                .ifNotEquals(new Function1<PLVRememberStateCompareResult, Unit>() {
                     @Override
-                    public void accept(PLVRememberStateCompareResult plvRememberStateCompareResult) {
+                    public Unit invoke(PLVRememberStateCompareResult result) {
                         onTrafficSpeedChanged();
+                        return null;
                     }
                 });
-    }
-
-    protected void onLoadingStateChanged() {
-        final boolean isLoading = currentIsBuffering || currentIsPreparing;
-        if (isLoading) {
-            startObserveNetworkTraffic();
-        } else {
-            stopObserveNetworkTraffic();
-        }
-    }
-
-    private void startObserveNetworkTraffic() {
-        if (networkTrafficDisposable != null) {
-            return;
-        }
-        networkTrafficDisposable = PLVRxTimer.timer(500, new Consumer<Long>() {
-            @Override
-            public void accept(Long aLong) throws Exception {
-                final IPLVMediaPlayer mediaPlayer = PLVMediaPlayerLocalProvider.localMediaPlayer.on(PLVMediaPlayerBufferingSpeedLayout.this).current();
-                if (mediaPlayer == null) {
-                    return;
-                }
-                final long trafficByteCount = mediaPlayer.getTrafficStatisticByteCount();
-                if (lastTrafficByteCount > 0) {
-                    trafficSpeedByteCount = trafficByteCount - lastTrafficByteCount;
-                    trafficSpeedDuration = System.currentTimeMillis() - lastTrafficTimestamp;
-                }
-                lastTrafficByteCount = trafficByteCount;
-                lastTrafficTimestamp = System.currentTimeMillis();
-                onViewStateChanged();
-            }
-        });
-    }
-
-    private void stopObserveNetworkTraffic() {
-        if (networkTrafficDisposable != null) {
-            networkTrafficDisposable.dispose();
-            networkTrafficDisposable = null;
-        }
-        lastTrafficByteCount = -1;
-        lastTrafficTimestamp = -1;
-        trafficSpeedByteCount = -1;
-        trafficSpeedDuration = -1;
-        onViewStateChanged();
     }
 
     protected void onTrafficSpeedChanged() {
         final boolean isLoading = currentIsBuffering || currentIsPreparing;
-        final boolean showBufferingSpeed = isLoading && trafficSpeedByteCount >= 0 && trafficSpeedDuration >= 0;
+        final boolean showBufferingSpeed = isLoading && trafficBytesPerSecond >= 0;
         if (!showBufferingSpeed) {
             setVisibility(GONE);
             return;
@@ -181,7 +105,7 @@ public class PLVMediaPlayerBufferingSpeedLayout extends FrameLayout {
     }
 
     private String getSpeedText() {
-        final double bytesPerSecond = (double) trafficSpeedByteCount / trafficSpeedDuration * 1000;
+        final double bytesPerSecond = (double) trafficBytesPerSecond;
         if (bytesPerSecond < 1 << 10) {
             return String.format(Locale.getDefault(), "%.0fB/S", bytesPerSecond);
         } else if (bytesPerSecond < 1 << 20) {

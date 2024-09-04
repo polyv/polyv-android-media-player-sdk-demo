@@ -1,14 +1,17 @@
 package net.polyv.android.player.common.utils.audiofocus;
 
-import androidx.lifecycle.Observer;
 import android.content.Context;
 import android.media.AudioManager;
 import androidx.annotation.NonNull;
 
-import net.polyv.android.player.business.scene.common.player.IPLVMediaPlayer;
-import net.polyv.android.player.core.api.listener.state.PLVMediaPlayerPlayingState;
+import net.polyv.android.player.common.modules.media.viewmodel.PLVMPMediaViewModel;
+import net.polyv.android.player.common.modules.media.viewmodel.viewstate.PLVMPMediaPlayViewState;
+import net.polyv.android.player.sdk.foundation.lang.MutableObserver;
 
 import javax.annotation.Nullable;
+
+import kotlin.Unit;
+import kotlin.jvm.functions.Function1;
 
 /**
  * @author Hoshiiro
@@ -20,9 +23,9 @@ public class PLVMediaPlayerAudioFocusManager implements AudioManager.OnAudioFocu
     private final AudioManager audioManager;
 
     @Nullable
-    private IPLVMediaPlayer mediaPlayer;
+    private PLVMPMediaViewModel mediaViewModel;
     @Nullable
-    private Observer<PLVMediaPlayerPlayingState> playingStateObserver;
+    private MutableObserver<PLVMPMediaPlayViewState> playingStateObserver;
 
     private AudioFocusState lastAudioFocusState = AudioFocusState.NO_AUDIO_FOCUS;
     private AudioFocusState audioFocusState = AudioFocusState.NO_AUDIO_FOCUS;
@@ -31,45 +34,41 @@ public class PLVMediaPlayerAudioFocusManager implements AudioManager.OnAudioFocu
         this.audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
     }
 
-    public void startFocus(IPLVMediaPlayer mediaPlayer) {
+    public void startFocus(PLVMPMediaViewModel mediaViewModel) {
         stopFocus();
-        this.mediaPlayer = mediaPlayer;
+        this.mediaViewModel = mediaViewModel;
         startObserveMediaState();
     }
 
     public void stopFocus() {
         stopObserveMediaState();
-        this.mediaPlayer = null;
+        this.mediaViewModel = null;
         this.lastAudioFocusState = AudioFocusState.NO_AUDIO_FOCUS;
         this.audioFocusState = AudioFocusState.NO_AUDIO_FOCUS;
     }
 
     private void startObserveMediaState() {
-        if (mediaPlayer == null) {
+        if (mediaViewModel == null) {
             return;
         }
-        mediaPlayer.getStateListenerRegistry().getPlayingState()
-                .observeForever(
-                        playingStateObserver = new Observer<PLVMediaPlayerPlayingState>() {
-                            @Override
-                            public void onChanged(@androidx.annotation.Nullable @org.jetbrains.annotations.Nullable PLVMediaPlayerPlayingState mediaPlayerPlayingState) {
-                                boolean isPlaying = mediaPlayerPlayingState == PLVMediaPlayerPlayingState.PLAYING;
-                                if (isPlaying) {
-                                    audioFocusState = audioFocusState.onStartPlaying();
-                                } else {
-                                    audioFocusState = audioFocusState.onPausePlaying();
-                                }
-                                updateAudioFocusRequest();
-                            }
-                        });
+        playingStateObserver = mediaViewModel.getMediaPlayViewState()
+                .observe(new Function1<PLVMPMediaPlayViewState, Unit>() {
+                    @Override
+                    public Unit invoke(PLVMPMediaPlayViewState playViewState) {
+                        if (playViewState.isPlaying()) {
+                            audioFocusState = audioFocusState.onStartPlaying();
+                        } else {
+                            audioFocusState = audioFocusState.onPausePlaying();
+                        }
+                        updateAudioFocusRequest();
+                        return null;
+                    }
+                });
     }
 
     private void stopObserveMediaState() {
-        if (mediaPlayer == null) {
-            return;
-        }
         if (playingStateObserver != null) {
-            mediaPlayer.getStateListenerRegistry().getPlayingState().removeObserver(playingStateObserver);
+            playingStateObserver.dispose();
             playingStateObserver = null;
         }
     }
@@ -99,14 +98,14 @@ public class PLVMediaPlayerAudioFocusManager implements AudioManager.OnAudioFocu
                 audioManager.abandonAudioFocus(this);
                 break;
             case PLAYING:
-                if (mediaPlayer != null) {
-                    mediaPlayer.start();
+                if (mediaViewModel != null) {
+                    mediaViewModel.start();
                 }
                 audioManager.requestAudioFocus(this, AudioManager.STREAM_MUSIC, MEDIA_PLAYER_AUDIO_FOCUS_LEVEL);
                 break;
             case LOSS_AUDIO_FOCUS:
-                if (mediaPlayer != null) {
-                    mediaPlayer.pause();
+                if (mediaViewModel != null) {
+                    mediaViewModel.pause();
                 }
                 break;
             default:

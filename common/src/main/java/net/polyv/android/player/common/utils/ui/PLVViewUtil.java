@@ -1,12 +1,17 @@
 package net.polyv.android.player.common.utils.ui;
 
-import static com.plv.foundationsdk.utils.PLVAppUtils.postToMainThread;
+
+import static net.polyv.android.player.sdk.foundation.lang.Duration.millis;
+import static net.polyv.android.player.sdk.foundation.lang.ThreadsKt.postToMainThread;
 
 import android.view.View;
 
 import net.polyv.android.player.common.R;
 
 import java.lang.ref.WeakReference;
+
+import kotlin.Unit;
+import kotlin.jvm.functions.Function0;
 
 /**
  * @author Hoshiiro
@@ -22,18 +27,19 @@ public class PLVViewUtil {
         view.setVisibility(View.VISIBLE);
         view.setTag(TAG_VIEW_UTIL_SHOW_DURATION, System.currentTimeMillis() + durationInMillis - 100);
         final WeakReference<View> ref = new WeakReference<>(view);
-        postToMainThread(durationInMillis, new Runnable() {
+        postToMainThread(millis(durationInMillis), new Function0<Unit>() {
             @Override
-            public void run() {
+            public Unit invoke() {
                 final View view = ref.get();
                 if (view == null) {
-                    return;
+                    return null;
                 }
                 final Object timestamp = view.getTag(TAG_VIEW_UTIL_SHOW_DURATION);
                 final boolean shouldHide = !(timestamp instanceof Long) || ((Long) timestamp) <= System.currentTimeMillis();
                 if (shouldHide) {
                     view.setVisibility(View.GONE);
                 }
+                return null;
             }
         });
     }

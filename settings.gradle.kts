@@ -27,4 +27,6 @@ dependencyResolutionManagement {
 
 rootProject.name = "polyv-android-media-player-sdk-demo"
 include(":demo")
+include(":scenes-single-video")
+include(":scenes-feed-video")
 include(":common")

@@ -1,11 +1,11 @@
 package net.polyv.android.player.common.ui.component;
 
-import static com.plv.foundationsdk.component.livedata.PLVLiveDataExt.observeUntilViewDetached;
-import static com.plv.foundationsdk.ext.PLVViewGroupExt.children;
-import static com.plv.foundationsdk.utils.PLVSugarUtil.listOf;
-import static com.plv.foundationsdk.utils.PLVSugarUtil.requireNotNull;
+import static net.polyv.android.player.sdk.foundation.collections.CollectionsKt.listOf;
+import static net.polyv.android.player.sdk.foundation.graphics.ColorsKt.parseColor;
+import static net.polyv.android.player.sdk.foundation.graphics.DisplaysKt.dp;
+import static net.polyv.android.player.sdk.foundation.lang.PreconditionsKt.requireNotNull;
+import static net.polyv.android.player.sdk.foundation.ui.ViewGroupsKt.children;
 
-import androidx.lifecycle.Observer;
 import android.content.Context;
 import androidx.annotation.Nullable;
 import android.util.AttributeSet;
@@ -13,21 +13,18 @@ import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.plv.foundationsdk.component.collection.PLVSequenceWrapper;
-import com.plv.foundationsdk.component.remember.PLVRememberState;
-import com.plv.foundationsdk.component.remember.PLVRememberStateCompareResult;
-import com.plv.foundationsdk.utils.PLVFormatUtils;
-import com.plv.foundationsdk.utils.PLVSugarUtil;
-import com.plv.thirdpart.blankj.utilcode.util.ConvertUtils;
-
-import net.polyv.android.player.business.scene.common.player.IPLVMediaPlayer;
-import net.polyv.android.player.common.ui.localprovider.PLVMediaPlayerLocalProvider;
-import net.polyv.android.player.common.ui.viewmodel.PLVMediaPlayerControlViewModel;
-import net.polyv.android.player.common.ui.viewmodel.action.PLVMediaPlayerControlAction;
+import net.polyv.android.player.common.di.PLVMediaPlayerLocalProvider;
+import net.polyv.android.player.common.modules.media.viewmodel.PLVMPMediaViewModel;
+import net.polyv.android.player.common.modules.media.viewmodel.viewstate.PLVMPMediaPlayViewState;
+import net.polyv.android.player.common.modules.mediacontroller.viewmodel.PLVMPMediaControllerViewModel;
+import net.polyv.android.player.sdk.foundation.collections.PLVSequences;
+import net.polyv.android.player.sdk.foundation.lang.PLVRememberState;
+import net.polyv.android.player.sdk.foundation.lang.PLVRememberStateCompareResult;
 
 import java.util.List;
 import java.util.Locale;
 
+import kotlin.Unit;
 import kotlin.jvm.functions.Function1;
 
 /**
@@ -36,8 +33,8 @@ import kotlin.jvm.functions.Function1;
 public class PLVMediaPlayerSpeedSelectLayoutPortrait extends LinearLayout {
 
     private static final List<Float> SUPPORT_SPEED_LIST = listOf(0.5F, 1.0F, 1.5F, 2.0F);
-    private static final int TEXT_COLOR_SELECTED = PLVFormatUtils.parseColor("#3F76FC");
-    private static final int TEXT_COLOR_NORMAL = PLVFormatUtils.parseColor("#333333");
+    private static final int TEXT_COLOR_SELECTED = parseColor("#3F76FC");
+    private static final int TEXT_COLOR_NORMAL = parseColor("#333333");
 
     protected Float currentSpeed = null;
 
@@ -59,7 +56,7 @@ public class PLVMediaPlayerSpeedSelectLayoutPortrait extends LinearLayout {
     }
 
     private void initSpeedTextView() {
-        PLVSequenceWrapper.wrap(SUPPORT_SPEED_LIST)
+        PLVSequences.wrap(SUPPORT_SPEED_LIST)
                 .map(new Function1<Float, TextView>() {
                     @Override
                     public TextView invoke(final Float speed) {
@@ -71,25 +68,19 @@ public class PLVMediaPlayerSpeedSelectLayoutPortrait extends LinearLayout {
                         tv.setOnClickListener(new OnClickListener() {
                             @Override
                             public void onClick(View v) {
-                                IPLVMediaPlayer mediaPlayer = PLVMediaPlayerLocalProvider.localMediaPlayer.on(v).current();
-                                PLVMediaPlayerControlViewModel viewModel = PLVMediaPlayerLocalProvider.localControlViewModel.on(v).current();
-                                if (mediaPlayer != null) {
-                                    mediaPlayer.setSpeed(speed);
-                                }
-                                if (viewModel != null) {
-                                    viewModel.requestControl(PLVMediaPlayerControlAction.closeFloatMenuLayout());
-                                }
+                                onSelectSpeed(speed);
                             }
                         });
                         return tv;
                     }
                 })
-                .forEach(new PLVSugarUtil.Consumer<TextView>() {
+                .forEach(new Function1<TextView, Unit>() {
                     @Override
-                    public void accept(TextView textView) {
-                        MarginLayoutParams layoutParams = new MarginLayoutParams(ConvertUtils.dp2px(40), ConvertUtils.dp2px(17));
-                        layoutParams.setMarginEnd(ConvertUtils.dp2px(28));
+                    public Unit invoke(TextView textView) {
+                        MarginLayoutParams layoutParams = new MarginLayoutParams(dp(40).px(), dp(17).px());
+                        layoutParams.setMarginEnd(dp(28).px());
                         addView(textView, layoutParams);
+                        return null;
                     }
                 });
     }
@@ -99,28 +90,27 @@ public class PLVMediaPlayerSpeedSelectLayoutPortrait extends LinearLayout {
         super.onAttachedToWindow();
         if (isInEditMode()) return;
 
-        observeUntilViewDetached(
-                requireNotNull(PLVMediaPlayerLocalProvider.localMediaPlayer.on(this).current())
-                        .getStateListenerRegistry()
-                        .getSpeed(),
-                this,
-                new Observer<Float>() {
+        requireNotNull(PLVMediaPlayerLocalProvider.localDependScope.on(this).current())
+                .get(PLVMPMediaViewModel.class)
+                .getMediaPlayViewState()
+                .observeUntilViewDetached(this, new Function1<PLVMPMediaPlayViewState, Unit>() {
                     @Override
-                    public void onChanged(@Nullable @org.jetbrains.annotations.Nullable Float speed) {
-                        currentSpeed = speed;
+                    public Unit invoke(PLVMPMediaPlayViewState viewState) {
+                        currentSpeed = viewState.getSpeed();
                         onViewStateChanged();
+                        return null;
                     }
-                }
-        );
+                });
     }
 
     protected void onViewStateChanged() {
         PLVRememberState.rememberStateOf(this, "onUpdateCurrentSelectedSpeed")
                 .compareLastAndSet(currentSpeed)
-                .ifNotEquals(new PLVSugarUtil.Consumer<PLVRememberStateCompareResult>() {
+                .ifNotEquals(new Function1<PLVRememberStateCompareResult, Unit>() {
                     @Override
-                    public void accept(PLVRememberStateCompareResult result) {
+                    public Unit invoke(PLVRememberStateCompareResult result) {
                         onUpdateCurrentSelectedSpeed();
+                        return null;
                     }
                 });
     }
@@ -140,6 +130,15 @@ public class PLVMediaPlayerSpeedSelectLayoutPortrait extends LinearLayout {
                 tv.setTextColor(TEXT_COLOR_NORMAL);
             }
         }
+    }
+
+    private void onSelectSpeed(float speed) {
+        requireNotNull(PLVMediaPlayerLocalProvider.localDependScope.on(this).current())
+                .get(PLVMPMediaViewModel.class)
+                .setSpeed(speed);
+        requireNotNull(PLVMediaPlayerLocalProvider.localDependScope.on(this).current())
+                .get(PLVMPMediaControllerViewModel.class)
+                .popFloatActionLayout();
     }
 
 }

@@ -1,11 +1,8 @@
 package net.polyv.android.player.demo.mock;
 
-import static com.plv.foundationsdk.utils.PLVSugarUtil.listOf;
+import static net.polyv.android.player.sdk.foundation.collections.CollectionsKt.listOf;
 
 import androidx.annotation.Nullable;
-
-import com.plv.foundationsdk.component.collection.PLVSequenceWrapper;
-import com.plv.foundationsdk.log.PLVCommonLog;
 
 import net.polyv.android.player.business.scene.common.model.api.vo.PLVVodVideoListResponseVO;
 import net.polyv.android.player.business.scene.common.model.datasource.PLVGeneralRxApiManager;
@@ -13,6 +10,8 @@ import net.polyv.android.player.business.scene.common.model.vo.PLVMediaResource;
 import net.polyv.android.player.business.scene.common.model.vo.PLVViewerParam;
 import net.polyv.android.player.business.scene.common.model.vo.PLVVodAuthentication;
 import net.polyv.android.player.business.scene.common.model.vo.PLVVodMainAccountAuthentication;
+import net.polyv.android.player.sdk.foundation.collections.PLVSequences;
+import net.polyv.android.player.sdk.foundation.log.PLVMediaPlayerLogger;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -96,7 +95,7 @@ public class PLVMockMediaResourceData {
                 .map(new Function<PLVVodVideoListResponseVO, List<PLVMediaResource>>() {
                     @Override
                     public List<PLVMediaResource> apply(@NotNull PLVVodVideoListResponseVO responseVO) throws Exception {
-                        return PLVSequenceWrapper.wrap(responseVO.getData())
+                        return PLVSequences.wrap(responseVO.getData())
                                 .map(new Function1<PLVVodVideoListResponseVO.VodVideo, PLVMediaResource>() {
                                     @Override
                                     public PLVMediaResource invoke(PLVVodVideoListResponseVO.VodVideo vodVideo) {
@@ -119,7 +118,7 @@ public class PLVMockMediaResourceData {
                 }, new Consumer<Throwable>() {
                     @Override
                     public void accept(Throwable throwable) throws Exception {
-                        PLVCommonLog.exception(throwable);
+                        PLVMediaPlayerLogger.exception(throwable);
                     }
                 });
     }

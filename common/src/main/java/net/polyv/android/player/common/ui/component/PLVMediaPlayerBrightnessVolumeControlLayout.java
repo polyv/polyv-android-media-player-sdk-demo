@@ -1,11 +1,9 @@
 package net.polyv.android.player.common.ui.component;
 
-import static com.plv.foundationsdk.component.livedata.PLVLiveDataExt.observeUntilViewDetached;
-import static com.plv.foundationsdk.utils.PLVSugarUtil.clamp;
-import static com.plv.foundationsdk.utils.PLVSugarUtil.requireNotNull;
+import static net.polyv.android.player.sdk.foundation.graphics.DisplaysKt.getScreenHeight;
+import static net.polyv.android.player.sdk.foundation.lang.PreconditionsKt.requireNotNull;
 
 import android.app.Activity;
-import androidx.lifecycle.Observer;
 import android.content.Context;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -14,15 +12,13 @@ import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.widget.FrameLayout;
 
-import com.plv.foundationsdk.component.exts.Nullables;
-import com.plv.foundationsdk.utils.PLVSugarUtil;
-import com.plv.thirdpart.blankj.utilcode.util.ScreenUtils;
+import net.polyv.android.player.common.di.PLVMediaPlayerLocalProvider;
+import net.polyv.android.player.common.modules.mediacontroller.viewmodel.ChangeDirection;
+import net.polyv.android.player.common.modules.mediacontroller.viewmodel.PLVMPMediaControllerViewModel;
+import net.polyv.android.player.common.modules.mediacontroller.viewmodel.viewstate.PLVMPMediaControllerViewState;
 
-import net.polyv.android.player.common.ui.localprovider.PLVMediaPlayerLocalProvider;
-import net.polyv.android.player.common.ui.viewmodel.PLVMediaPlayerControlViewModel;
-import net.polyv.android.player.common.ui.viewmodel.action.PLVMediaPlayerControlAction;
-import net.polyv.android.player.common.ui.viewmodel.viewstate.PLVMediaPlayerControlViewState;
-import net.polyv.android.player.sdk.PLVDeviceManager;
+import kotlin.Unit;
+import kotlin.jvm.functions.Function1;
 
 /**
  * @author Hoshiiro
@@ -31,7 +27,7 @@ public class PLVMediaPlayerBrightnessVolumeControlLayout extends FrameLayout imp
 
     private final GestureDetector gestureDetector = new GestureDetector(getContext(), this);
 
-    protected PLVMediaPlayerControlViewState currentViewState = null;
+    protected PLVMPMediaControllerViewState controlViewState = null;
 
     private boolean isScrolling = false;
     private boolean isScrollingVertical = false;
@@ -72,17 +68,16 @@ public class PLVMediaPlayerBrightnessVolumeControlLayout extends FrameLayout imp
         super.onAttachedToWindow();
         if (isInEditMode()) return;
 
-        observeUntilViewDetached(
-                requireNotNull(PLVMediaPlayerLocalProvider.localControlViewModel.on(this).current())
-                        .getControlViewStateLiveData(),
-                this,
-                new Observer<PLVMediaPlayerControlViewState>() {
+        requireNotNull(PLVMediaPlayerLocalProvider.localDependScope.on(this).current())
+                .get(PLVMPMediaControllerViewModel.class)
+                .getMediaControllerViewState()
+                .observeUntilViewDetached(this, new Function1<PLVMPMediaControllerViewState, Unit>() {
                     @Override
-                    public void onChanged(@Nullable @org.jetbrains.annotations.Nullable PLVMediaPlayerControlViewState viewState) {
-                        currentViewState = viewState;
+                    public Unit invoke(PLVMPMediaControllerViewState viewState) {
+                        controlViewState = viewState;
+                        return null;
                     }
-                }
-        );
+                });
     }
 
     @Override
@@ -124,53 +119,24 @@ public class PLVMediaPlayerBrightnessVolumeControlLayout extends FrameLayout imp
     }
 
     private void handleOnScrolling(boolean left, float distanceY) {
-        final int diff = accumulateAdjustDiff + (int) (distanceY / (0.4F * ScreenUtils.getScreenOrientatedHeight()) * 100);
+        final int diff = accumulateAdjustDiff + (int) (distanceY / (0.4F * getScreenHeight().px()) * 100);
         if (Math.abs(diff) < 8) {
             accumulateAdjustDiff = diff;
             return;
         }
+        PLVMPMediaControllerViewModel controllerViewModel = requireNotNull(PLVMediaPlayerLocalProvider.localDependScope.on(this).current())
+                .get(PLVMPMediaControllerViewModel.class);
+        ChangeDirection direction = diff > 0 ? ChangeDirection.UP : ChangeDirection.DOWN;
         if (left) {
-            int brightness = PLVDeviceManager.getBrightness((Activity) getContext());
-            brightness = clamp(brightness + diff, 0, 100);
-            PLVDeviceManager.setBrightness((Activity) getContext(), brightness);
-            hintBrightnessChanged(brightness);
+            controllerViewModel.changeBrightness(direction, (Activity) getContext());
         } else {
-            int volume = PLVDeviceManager.getVolume(getContext());
-            volume = clamp(volume + diff, 0, 100);
-            PLVDeviceManager.setVolume(getContext(), volume);
-            hintVolumeChanged(volume);
+            controllerViewModel.changeVolume(direction, getContext());
         }
         accumulateAdjustDiff = 0;
     }
 
-    private void hintBrightnessChanged(int brightness) {
-        final PLVMediaPlayerControlViewModel controlViewModel = PLVMediaPlayerLocalProvider.localControlViewModel.on(this).current();
-        boolean locking = Nullables.of(new PLVSugarUtil.Supplier<Boolean>() {
-            @Override
-            public Boolean get() {
-                return controlViewModel.getControlViewStateLiveData().getValue().controllerLocking;
-            }
-        }).getOrDefault(false);
-        if (!locking && controlViewModel != null) {
-            controlViewModel.requestControl(PLVMediaPlayerControlAction.hintBrightnessChanged(brightness));
-        }
-    }
-
-    private void hintVolumeChanged(int volume) {
-        final PLVMediaPlayerControlViewModel controlViewModel = PLVMediaPlayerLocalProvider.localControlViewModel.on(this).current();
-        boolean locking = Nullables.of(new PLVSugarUtil.Supplier<Boolean>() {
-            @Override
-            public Boolean get() {
-                return controlViewModel.getControlViewStateLiveData().getValue().controllerLocking;
-            }
-        }).getOrDefault(false);
-        if (!locking && controlViewModel != null) {
-            controlViewModel.requestControl(PLVMediaPlayerControlAction.hintVolumeChanged(volume));
-        }
-    }
-
     protected boolean isAllowControl() {
-        return currentViewState != null && !currentViewState.controllerLocking;
+        return controlViewState != null && !controlViewState.getControllerLocking();
     }
 
 }

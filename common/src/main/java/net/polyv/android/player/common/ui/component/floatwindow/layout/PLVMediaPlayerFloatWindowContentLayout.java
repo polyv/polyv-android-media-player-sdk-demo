@@ -1,9 +1,8 @@
 package net.polyv.android.player.common.ui.component.floatwindow.layout;
 
-import static com.plv.foundationsdk.component.livedata.PLVLiveDataExt.observeForeverUntilViewDetached;
-import static com.plv.foundationsdk.utils.PLVSugarUtil.requireNotNull;
+import static net.polyv.android.player.sdk.foundation.lang.Duration.seconds;
+import static net.polyv.android.player.sdk.foundation.lang.PreconditionsKt.requireNotNull;
 
-import androidx.lifecycle.Observer;
 import android.content.Context;
 import android.graphics.Rect;
 import androidx.annotation.NonNull;
@@ -14,14 +13,18 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 
-import com.plv.foundationsdk.utils.PLVTimeUnit;
-
-import net.polyv.android.player.business.scene.common.player.IPLVMediaPlayer;
 import net.polyv.android.player.common.R;
+import net.polyv.android.player.common.di.PLVMediaPlayerLocalProvider;
+import net.polyv.android.player.common.modules.media.viewmodel.PLVMPMediaViewModel;
+import net.polyv.android.player.common.modules.media.viewmodel.viewstate.PLVMPMediaInfoViewState;
 import net.polyv.android.player.common.ui.component.floatwindow.PLVMediaPlayerFloatWindowHelper;
 import net.polyv.android.player.common.ui.component.floatwindow.PLVMediaPlayerFloatWindowManager;
-import net.polyv.android.player.common.ui.localprovider.PLVMediaPlayerLocalProvider;
-import net.polyv.android.player.common.utils.extensions.PLVMediaPlayerExtensions;
+import net.polyv.android.player.sdk.foundation.di.DependScope;
+import net.polyv.android.player.sdk.foundation.lang.Nullables;
+
+import kotlin.Unit;
+import kotlin.jvm.functions.Function0;
+import kotlin.jvm.functions.Function1;
 
 /**
  * @author Hoshiiro
@@ -69,28 +72,22 @@ public class PLVMediaPlayerFloatWindowContentLayout extends FrameLayout implemen
         super.onAttachedToWindow();
         if (isInEditMode()) return;
 
-        observeForeverUntilViewDetached(
-                requireNotNull(PLVMediaPlayerLocalProvider.localMediaPlayer.on(this).current())
-                        .getStateListenerRegistry()
-                        .getVideoSize(),
-                this,
-                new Observer<Rect>() {
+        requireNotNull(PLVMediaPlayerLocalProvider.localDependScope.on(this).current())
+                .get(PLVMPMediaViewModel.class)
+                .getMediaInfoViewState()
+                .observeUntilViewDetached(this, new Function1<PLVMPMediaInfoViewState, Unit>() {
                     @Override
-                    public void onChanged(@Nullable @org.jetbrains.annotations.Nullable Rect rect) {
-                        if (rect == null) {
-                            return;
-                        }
-                        IPLVMediaPlayer mediaPlayer = PLVMediaPlayerLocalProvider.localMediaPlayer.on(PLVMediaPlayerFloatWindowContentLayout.this).current();
-                        Rect floatWindowPosition = PLVMediaPlayerFloatWindowHelper.calculateFloatWindowPosition(mediaPlayer);
+                    public Unit invoke(PLVMPMediaInfoViewState viewState) {
+                        Rect floatWindowPosition = PLVMediaPlayerFloatWindowHelper.calculateFloatWindowPosition(viewState.getVideoSize());
                         if (floatWindowPosition != null) {
                             PLVMediaPlayerFloatWindowManager
                                     .getInstance()
                                     .setFloatingSize(floatWindowPosition.width(), floatWindowPosition.height())
                                     .setFloatingPosition(floatWindowPosition.left, floatWindowPosition.top);
                         }
+                        return null;
                     }
-                }
-        );
+                });
     }
 
     public ViewGroup getContainer() {
@@ -121,18 +118,25 @@ public class PLVMediaPlayerFloatWindowContentLayout extends FrameLayout implemen
                 onClickGoBackListener.onClick(v);
             }
         } else if (id == floatWindowSeekForwardIv.getId()) {
-            seekOffset(PLVTimeUnit.seconds(10).toMillis());
+            seekOffset(seconds(10).toMillis());
         } else if (id == floatWindowSeekBackwardIv.getId()) {
-            seekOffset(PLVTimeUnit.seconds(-10).toMillis());
+            seekOffset(seconds(-10).toMillis());
         }
     }
 
     private void seekOffset(long offset) {
-        final IPLVMediaPlayer mediaPlayer = PLVMediaPlayerLocalProvider.localMediaPlayer.on(this).current();
-        if (mediaPlayer == null) {
+        final DependScope dependScope = PLVMediaPlayerLocalProvider.localDependScope.on(this).current();
+        if (dependScope == null) {
             return;
         }
-        PLVMediaPlayerExtensions.seekTo(mediaPlayer, mediaPlayer.getCurrentPosition() + offset);
+        final PLVMPMediaViewModel mediaViewModel = dependScope.get(PLVMPMediaViewModel.class);
+        final long currentProgress = Nullables.of(new Function0<Long>() {
+            @Override
+            public Long invoke() {
+                return mediaViewModel.getMediaPlayViewState().getValue().getCurrentProgress();
+            }
+        }).getOrDefault(0L);
+        mediaViewModel.seekTo(currentProgress + offset);
     }
 
     private void switchVisibility() {

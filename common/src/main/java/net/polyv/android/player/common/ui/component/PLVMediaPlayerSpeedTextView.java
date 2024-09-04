@@ -1,27 +1,27 @@
 package net.polyv.android.player.common.ui.component;
 
-import static com.plv.foundationsdk.component.livedata.PLVLiveDataExt.observeUntilViewDetached;
-import static com.plv.foundationsdk.utils.PLVSugarUtil.requireNotNull;
+import static net.polyv.android.player.sdk.foundation.graphics.DisplaysKt.isLandscape;
+import static net.polyv.android.player.sdk.foundation.lang.PreconditionsKt.requireNotNull;
 
-import androidx.lifecycle.Observer;
 import android.content.Context;
-import androidx.annotation.Nullable;
 import androidx.appcompat.widget.AppCompatTextView;
 import android.util.AttributeSet;
 import android.view.View;
 
-import com.plv.foundationsdk.component.remember.PLVRememberState;
-import com.plv.foundationsdk.component.remember.PLVRememberStateCompareResult;
-import com.plv.foundationsdk.utils.PLVSugarUtil;
-import com.plv.thirdpart.blankj.utilcode.util.ScreenUtils;
-
 import net.polyv.android.player.common.R;
-import net.polyv.android.player.common.ui.localprovider.PLVMediaPlayerLocalProvider;
-import net.polyv.android.player.common.ui.viewmodel.PLVMediaPlayerControlViewModel;
-import net.polyv.android.player.common.ui.viewmodel.action.PLVMediaPlayerControlAction;
-import net.polyv.android.player.common.ui.viewmodel.viewstate.PLVMediaPlayerControlViewState;
+import net.polyv.android.player.common.di.PLVMediaPlayerLocalProvider;
+import net.polyv.android.player.common.modules.media.viewmodel.PLVMPMediaViewModel;
+import net.polyv.android.player.common.modules.media.viewmodel.viewstate.PLVMPMediaPlayViewState;
+import net.polyv.android.player.common.modules.mediacontroller.viewmodel.PLVMPMediaControllerViewModel;
+import net.polyv.android.player.common.modules.mediacontroller.viewmodel.viewstate.PLVMPMediaControllerFloatAction;
+import net.polyv.android.player.common.modules.mediacontroller.viewmodel.viewstate.PLVMPMediaControllerViewState;
+import net.polyv.android.player.sdk.foundation.lang.PLVRememberState;
+import net.polyv.android.player.sdk.foundation.lang.PLVRememberStateCompareResult;
 
 import java.util.Locale;
+
+import kotlin.Unit;
+import kotlin.jvm.functions.Function1;
 
 /**
  * @author Hoshiiro
@@ -29,7 +29,7 @@ import java.util.Locale;
 public class PLVMediaPlayerSpeedTextView extends AppCompatTextView implements View.OnClickListener {
 
     protected Float currentSpeed = null;
-    protected PLVMediaPlayerControlViewState currentControlViewState = null;
+    protected boolean isVisible = false;
 
     public PLVMediaPlayerSpeedTextView(Context context) {
         super(context);
@@ -53,50 +53,53 @@ public class PLVMediaPlayerSpeedTextView extends AppCompatTextView implements Vi
         super.onAttachedToWindow();
         if (isInEditMode()) return;
 
-        observeUntilViewDetached(
-                requireNotNull(PLVMediaPlayerLocalProvider.localMediaPlayer.on(this).current())
-                        .getStateListenerRegistry()
-                        .getSpeed(),
-                this,
-                new Observer<Float>() {
+        requireNotNull(PLVMediaPlayerLocalProvider.localDependScope.on(this).current())
+                .get(PLVMPMediaViewModel.class)
+                .getMediaPlayViewState()
+                .observeUntilViewDetached(this, new Function1<PLVMPMediaPlayViewState, Unit>() {
                     @Override
-                    public void onChanged(@Nullable @org.jetbrains.annotations.Nullable Float speed) {
-                        currentSpeed = speed;
+                    public Unit invoke(PLVMPMediaPlayViewState viewState) {
+                        currentSpeed = viewState.getSpeed();
                         onViewStateChanged();
+                        return null;
                     }
-                }
-        );
+                });
 
-        observeUntilViewDetached(
-                requireNotNull(PLVMediaPlayerLocalProvider.localControlViewModel.on(this).current())
-                        .getControlViewStateLiveData(),
-                this,
-                new Observer<PLVMediaPlayerControlViewState>() {
+        requireNotNull(PLVMediaPlayerLocalProvider.localDependScope.on(this).current())
+                .get(PLVMPMediaControllerViewModel.class)
+                .getMediaControllerViewState()
+                .observeUntilViewDetached(this, new Function1<PLVMPMediaControllerViewState, Unit>() {
                     @Override
-                    public void onChanged(@Nullable @org.jetbrains.annotations.Nullable PLVMediaPlayerControlViewState viewState) {
-                        currentControlViewState = viewState;
+                    public Unit invoke(PLVMPMediaControllerViewState viewState) {
+                        isVisible = viewState.getControllerVisible()
+                                && !viewState.isMediaStopOverlayVisible()
+                                && !viewState.getProgressSeekBarDragging()
+                                && !viewState.getControllerLocking()
+                                && !(viewState.isFloatActionLayoutVisible() && isLandscape());
                         onViewStateChanged();
+                        return null;
                     }
-                }
-        );
+                });
     }
 
     protected void onViewStateChanged() {
         PLVRememberState.rememberStateOf(this, "onChangeText")
                 .compareLastAndSet(currentSpeed)
-                .ifNotEquals(new PLVSugarUtil.Consumer<PLVRememberStateCompareResult>() {
+                .ifNotEquals(new Function1<PLVRememberStateCompareResult, Unit>() {
                     @Override
-                    public void accept(PLVRememberStateCompareResult result) {
+                    public Unit invoke(PLVRememberStateCompareResult result) {
                         onChangeText();
+                        return null;
                     }
                 });
 
         PLVRememberState.rememberStateOf(this, "onChangeVisibility")
-                .compareLastAndSet(currentControlViewState)
-                .ifNotEquals(new PLVSugarUtil.Consumer<PLVRememberStateCompareResult>() {
+                .compareLastAndSet(isVisible)
+                .ifNotEquals(new Function1<PLVRememberStateCompareResult, Unit>() {
                     @Override
-                    public void accept(PLVRememberStateCompareResult result) {
+                    public Unit invoke(PLVRememberStateCompareResult result) {
                         onChangeVisibility();
+                        return null;
                     }
                 });
     }
@@ -110,24 +113,14 @@ public class PLVMediaPlayerSpeedTextView extends AppCompatTextView implements Vi
     }
 
     protected void onChangeVisibility() {
-        if (currentControlViewState == null) {
-            return;
-        }
-        final boolean visible = currentControlViewState.controllerVisible
-                && !currentControlViewState.isOverlayLayoutVisible()
-                && !currentControlViewState.progressSeekBarDragging
-                && !currentControlViewState.controllerLocking
-                && !(currentControlViewState.isFloatActionPanelVisible() && ScreenUtils.isLandscape());
-        setVisibility(visible ? View.VISIBLE : View.GONE);
+        setVisibility(isVisible ? View.VISIBLE : View.GONE);
     }
 
     @Override
     public void onClick(View v) {
-        PLVMediaPlayerControlViewModel controlViewModel = PLVMediaPlayerLocalProvider.localControlViewModel.on(PLVMediaPlayerSpeedTextView.this).current();
-        if (controlViewModel == null) {
-            return;
-        }
-        controlViewModel.requestControl(PLVMediaPlayerControlAction.showSpeedSelectLayout());
+        requireNotNull(PLVMediaPlayerLocalProvider.localDependScope.on(this).current())
+                .get(PLVMPMediaControllerViewModel.class)
+                .pushFloatActionLayout(PLVMPMediaControllerFloatAction.SPEED);
     }
 
 }

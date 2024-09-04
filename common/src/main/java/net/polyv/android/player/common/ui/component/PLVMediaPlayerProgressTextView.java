@@ -1,26 +1,27 @@
 package net.polyv.android.player.common.ui.component;
 
-import static com.plv.foundationsdk.component.livedata.PLVLiveDataExt.observeUntilViewDetached;
-import static com.plv.foundationsdk.utils.PLVSugarUtil.requireNotNull;
+import static net.polyv.android.player.sdk.foundation.graphics.DisplaysKt.isLandscape;
+import static net.polyv.android.player.sdk.foundation.lang.PreconditionsKt.requireNotNull;
 
-import androidx.lifecycle.Observer;
 import android.content.Context;
-import androidx.annotation.Nullable;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
-import com.plv.foundationsdk.component.remember.PLVRememberState;
-import com.plv.foundationsdk.component.remember.PLVRememberStateCompareResult;
-import com.plv.foundationsdk.utils.PLVSugarUtil;
-import com.plv.foundationsdk.utils.PLVTimeUtils;
-import com.plv.thirdpart.blankj.utilcode.util.ScreenUtils;
-
 import net.polyv.android.player.common.R;
-import net.polyv.android.player.common.ui.localprovider.PLVMediaPlayerLocalProvider;
-import net.polyv.android.player.common.ui.viewmodel.viewstate.PLVMediaPlayerControlViewState;
+import net.polyv.android.player.common.di.PLVMediaPlayerLocalProvider;
+import net.polyv.android.player.common.modules.media.viewmodel.PLVMPMediaViewModel;
+import net.polyv.android.player.common.modules.media.viewmodel.viewstate.PLVMPMediaPlayViewState;
+import net.polyv.android.player.common.modules.mediacontroller.viewmodel.PLVMPMediaControllerViewModel;
+import net.polyv.android.player.common.modules.mediacontroller.viewmodel.viewstate.PLVMPMediaControllerViewState;
+import net.polyv.android.player.common.utils.data.PLVTimeUtils;
+import net.polyv.android.player.sdk.foundation.lang.PLVRememberState;
+import net.polyv.android.player.sdk.foundation.lang.PLVRememberStateCompareResult;
+
+import kotlin.Unit;
+import kotlin.jvm.functions.Function1;
 
 /**
  * @author Hoshiiro
@@ -32,7 +33,7 @@ public class PLVMediaPlayerProgressTextView extends FrameLayout {
 
     protected long currentProgress = 0;
     protected long currentDuration = 0;
-    protected PLVMediaPlayerControlViewState currentControlViewState = null;
+    protected boolean isVisible = false;
 
     public PLVMediaPlayerProgressTextView(Context context) {
         super(context);
@@ -57,73 +58,63 @@ public class PLVMediaPlayerProgressTextView extends FrameLayout {
         super.onAttachedToWindow();
         if (isInEditMode()) return;
 
-        observeUntilViewDetached(
-                requireNotNull(PLVMediaPlayerLocalProvider.localMediaPlayer.on(this).current())
-                        .getStateListenerRegistry()
-                        .getProgressState(),
-                this,
-                new Observer<Long>() {
+        requireNotNull(PLVMediaPlayerLocalProvider.localDependScope.on(this).current())
+                .get(PLVMPMediaViewModel.class)
+                .getMediaPlayViewState()
+                .observeUntilViewDetached(this, new Function1<PLVMPMediaPlayViewState, Unit>() {
                     @Override
-                    public void onChanged(@Nullable @org.jetbrains.annotations.Nullable Long progress) {
-                        currentProgress = progress == null ? 0 : progress;
+                    public Unit invoke(PLVMPMediaPlayViewState viewState) {
+                        currentProgress = viewState.getCurrentProgress();
+                        currentDuration = viewState.getDuration();
                         onViewStateChanged();
+                        return null;
                     }
-                }
-        );
+                });
 
-        observeUntilViewDetached(
-                requireNotNull(PLVMediaPlayerLocalProvider.localMediaPlayer.on(this).current())
-                        .getStateListenerRegistry()
-                        .getDurationState(),
-                this,
-                new Observer<Long>() {
+        requireNotNull(PLVMediaPlayerLocalProvider.localDependScope.on(this).current())
+                .get(PLVMPMediaControllerViewModel.class)
+                .getMediaControllerViewState()
+                .observeUntilViewDetached(this, new Function1<PLVMPMediaControllerViewState, Unit>() {
                     @Override
-                    public void onChanged(@Nullable @org.jetbrains.annotations.Nullable Long duration) {
-                        currentDuration = duration == null ? 0 : duration;
+                    public Unit invoke(PLVMPMediaControllerViewState viewState) {
+                        isVisible = viewState.getControllerVisible()
+                                && !viewState.isMediaStopOverlayVisible()
+                                && !viewState.getControllerLocking()
+                                && !(viewState.isFloatActionLayoutVisible() && isLandscape());
                         onViewStateChanged();
+                        return null;
                     }
-                }
-        );
-
-        observeUntilViewDetached(
-                requireNotNull(PLVMediaPlayerLocalProvider.localControlViewModel.on(this).current())
-                        .getControlViewStateLiveData(),
-                this,
-                new Observer<PLVMediaPlayerControlViewState>() {
-                    @Override
-                    public void onChanged(@Nullable @org.jetbrains.annotations.Nullable PLVMediaPlayerControlViewState viewState) {
-                        currentControlViewState = viewState;
-                        onViewStateChanged();
-                    }
-                }
-        );
+                });
     }
 
     protected void onViewStateChanged() {
         PLVRememberState.rememberStateOf(this, "onChangeProgress")
                 .compareLastAndSet(currentProgress)
-                .ifNotEquals(new PLVSugarUtil.Consumer<PLVRememberStateCompareResult>() {
+                .ifNotEquals(new Function1<PLVRememberStateCompareResult, Unit>() {
                     @Override
-                    public void accept(PLVRememberStateCompareResult result) {
+                    public Unit invoke(PLVRememberStateCompareResult result) {
                         onChangeProgress();
+                        return null;
                     }
                 });
 
         PLVRememberState.rememberStateOf(this, "onChangeDuration")
                 .compareLastAndSet(currentDuration)
-                .ifNotEquals(new PLVSugarUtil.Consumer<PLVRememberStateCompareResult>() {
+                .ifNotEquals(new Function1<PLVRememberStateCompareResult, Unit>() {
                     @Override
-                    public void accept(PLVRememberStateCompareResult result) {
+                    public Unit invoke(PLVRememberStateCompareResult result) {
                         onChangeDuration();
+                        return null;
                     }
                 });
 
         PLVRememberState.rememberStateOf(this, "onChangeVisibility")
-                .compareLastAndSet(currentControlViewState)
-                .ifNotEquals(new PLVSugarUtil.Consumer<PLVRememberStateCompareResult>() {
+                .compareLastAndSet(isVisible)
+                .ifNotEquals(new Function1<PLVRememberStateCompareResult, Unit>() {
                     @Override
-                    public void accept(PLVRememberStateCompareResult result) {
+                    public Unit invoke(PLVRememberStateCompareResult result) {
                         onChangeVisibility();
+                        return null;
                     }
                 });
     }
@@ -132,25 +123,18 @@ public class PLVMediaPlayerProgressTextView extends FrameLayout {
         if (currentProgress <= 0) {
             return;
         }
-        progressTv.setText(PLVTimeUtils.generateTime(currentProgress));
+        progressTv.setText(PLVTimeUtils.formatTime(currentProgress));
     }
 
     protected void onChangeDuration() {
         if (currentDuration <= 0) {
             return;
         }
-        durationTv.setText(PLVTimeUtils.generateTime(currentDuration));
+        durationTv.setText(PLVTimeUtils.formatTime(currentDuration));
     }
 
     protected void onChangeVisibility() {
-        if (currentControlViewState == null) {
-            return;
-        }
-        final boolean visible = currentControlViewState.controllerVisible
-                && !currentControlViewState.isOverlayLayoutVisible()
-                && !currentControlViewState.controllerLocking
-                && !(currentControlViewState.isFloatActionPanelVisible() && ScreenUtils.isLandscape());
-        setVisibility(visible ? View.VISIBLE : View.GONE);
+        setVisibility(isVisible ? View.VISIBLE : View.GONE);
     }
 
 }

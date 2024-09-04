@@ -1,5 +1,10 @@
 package net.polyv.android.player.common.utils.orientation;
 
+import static net.polyv.android.player.sdk.foundation.graphics.DisplaysKt.isLandscape;
+import static net.polyv.android.player.sdk.foundation.graphics.DisplaysKt.isPortrait;
+import static net.polyv.android.player.sdk.foundation.graphics.DisplaysKt.setLandscape;
+import static net.polyv.android.player.sdk.foundation.graphics.DisplaysKt.setPortrait;
+
 import android.app.Activity;
 import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
@@ -8,9 +13,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import android.view.OrientationEventListener;
-
-import com.plv.foundationsdk.component.viewmodel.PLVViewModels;
-import com.plv.thirdpart.blankj.utilcode.util.ScreenUtils;
 
 import net.polyv.android.player.sdk.PLVDeviceManager;
 
@@ -32,15 +34,16 @@ public class PLVActivityOrientationManager extends ViewModel {
     private boolean lockOrientation = false;
 
     public static PLVActivityOrientationManager on(@NonNull final AppCompatActivity activity) {
-        return PLVViewModels.on(activity.getViewModelStore())
-                .setFactory(new ViewModelProvider.Factory() {
+        return new ViewModelProvider(
+                activity.getViewModelStore(),
+                new ViewModelProvider.Factory() {
                     @NonNull
                     @Override
                     public <T extends ViewModel> T create(@NonNull Class<T> modelClass) {
                         return (T) new PLVActivityOrientationManager(activity);
                     }
-                })
-                .get(PLVActivityOrientationManager.class);
+                }
+        ).get(PLVActivityOrientationManager.class);
     }
 
     private PLVActivityOrientationManager(Activity activity) {
@@ -62,9 +65,9 @@ public class PLVActivityOrientationManager extends ViewModel {
         Activity activity = activityRef.get();
         if (activity != null) {
             if (isPortrait) {
-                ScreenUtils.setPortrait(activity);
+                setPortrait(activity);
             } else {
-                ScreenUtils.setLandscape(activity);
+                setLandscape(activity);
             }
         }
         return this;
@@ -98,22 +101,22 @@ public class PLVActivityOrientationManager extends ViewModel {
             }
 
             private void onOrientationPortrait() {
-                if (ScreenUtils.isPortrait() || lockOrientation || !followSystemAutoRotate || !isSystemAutoRotateEnable()) {
+                if (isPortrait() || lockOrientation || !followSystemAutoRotate || !isSystemAutoRotateEnable()) {
                     return;
                 }
                 Activity activity1 = activityRef.get();
                 if (activity1 != null) {
-                    ScreenUtils.setPortrait(activity1);
+                    setPortrait(activity1);
                 }
             }
 
             private void onOrientationLandscape() {
-                if (ScreenUtils.isLandscape() || lockOrientation || !followSystemAutoRotate || !isSystemAutoRotateEnable()) {
+                if (isLandscape() || lockOrientation || !followSystemAutoRotate || !isSystemAutoRotateEnable()) {
                     return;
                 }
                 Activity activity1 = activityRef.get();
                 if (activity1 != null) {
-                    ScreenUtils.setLandscape(activity1);
+                    setLandscape(activity1);
                 }
             }
 
@@ -143,10 +146,10 @@ public class PLVActivityOrientationManager extends ViewModel {
     private void disableSystemAutoRotate() {
         Activity activity = activityRef.get();
         if (activity != null) {
-            if (ScreenUtils.isPortrait()) {
-                ScreenUtils.setPortrait(activity);
+            if (isPortrait()) {
+                setPortrait(activity);
             } else {
-                ScreenUtils.setLandscape(activity);
+                setLandscape(activity);
             }
         }
     }

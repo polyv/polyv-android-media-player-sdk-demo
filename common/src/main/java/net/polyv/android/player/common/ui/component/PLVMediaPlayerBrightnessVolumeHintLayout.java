@@ -1,7 +1,6 @@
 package net.polyv.android.player.common.ui.component;
 
-import static com.plv.foundationsdk.component.event.PLVEventKt.observeUntilViewDetached;
-import static com.plv.foundationsdk.utils.PLVSugarUtil.requireNotNull;
+import static net.polyv.android.player.sdk.foundation.lang.PreconditionsKt.requireNotNull;
 
 import android.content.Context;
 import androidx.annotation.NonNull;
@@ -12,12 +11,13 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 
-import com.plv.foundationsdk.utils.PLVSugarUtil;
-
 import net.polyv.android.player.common.R;
-import net.polyv.android.player.common.ui.localprovider.PLVMediaPlayerLocalProvider;
-import net.polyv.android.player.common.ui.viewmodel.action.PLVMediaPlayerControlAction;
+import net.polyv.android.player.common.di.PLVMediaPlayerLocalProvider;
+import net.polyv.android.player.common.modules.mediacontroller.viewmodel.PLVMPMediaControllerViewModel;
 import net.polyv.android.player.common.utils.ui.PLVViewUtil;
+
+import kotlin.Unit;
+import kotlin.jvm.functions.Function1;
 
 /**
  * @author Hoshiiro
@@ -50,21 +50,27 @@ public class PLVMediaPlayerBrightnessVolumeHintLayout extends FrameLayout {
         super.onAttachedToWindow();
         if (isInEditMode()) return;
 
-        observeUntilViewDetached(
-                requireNotNull(PLVMediaPlayerLocalProvider.localControlViewModel.on(this).current())
-                        .getControlActionEvent(),
-                this,
-                new PLVSugarUtil.Consumer<PLVMediaPlayerControlAction>() {
+        requireNotNull(PLVMediaPlayerLocalProvider.localDependScope.on(this).current())
+                .get(PLVMPMediaControllerViewModel.class)
+                .getBrightnessUpdateEvent()
+                .observeUntilViewDetached(this, new Function1<Integer, Unit>() {
                     @Override
-                    public void accept(PLVMediaPlayerControlAction action) {
-                        if (action instanceof PLVMediaPlayerControlAction.HintBrightnessChanged) {
-                            showBrightnessChanged(((PLVMediaPlayerControlAction.HintBrightnessChanged) action).brightness);
-                        } else if (action instanceof PLVMediaPlayerControlAction.HintVolumeChanged) {
-                            showVolumeChanged(((PLVMediaPlayerControlAction.HintVolumeChanged) action).volume);
-                        }
+                    public Unit invoke(Integer brightness) {
+                        showBrightnessChanged(brightness);
+                        return null;
                     }
-                }
-        );
+                });
+
+        requireNotNull(PLVMediaPlayerLocalProvider.localDependScope.on(this).current())
+                .get(PLVMPMediaControllerViewModel.class)
+                .getVolumeUpdateEvent()
+                .observeUntilViewDetached(this, new Function1<Integer, Unit>() {
+                    @Override
+                    public Unit invoke(Integer volume) {
+                        showVolumeChanged(volume);
+                        return null;
+                    }
+                });
     }
 
     protected void showBrightnessChanged(int brightness) {

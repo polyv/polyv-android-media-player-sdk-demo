@@ -1,10 +1,8 @@
 package net.polyv.android.player.common.ui.component;
 
-import static com.plv.foundationsdk.component.livedata.PLVLiveDataExt.observeUntilViewDetached;
-import static com.plv.foundationsdk.utils.PLVAppUtils.postToMainThread;
-import static com.plv.foundationsdk.utils.PLVSugarUtil.requireNotNull;
+import static net.polyv.android.player.sdk.foundation.lang.PreconditionsKt.requireNotNull;
+import static net.polyv.android.player.sdk.foundation.lang.ThreadsKt.postToMainThread;
 
-import androidx.lifecycle.Observer;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import androidx.annotation.NonNull;
@@ -22,18 +20,24 @@ import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.SimpleTarget;
 import com.bumptech.glide.request.target.Target;
 import com.bumptech.glide.request.transition.Transition;
-import com.plv.foundationsdk.component.remember.PLVRememberState;
-import com.plv.foundationsdk.component.remember.PLVRememberStateCompareResult;
-import com.plv.foundationsdk.utils.PLVSugarUtil;
 
-import net.polyv.android.player.business.scene.common.model.api.vo.PLVVodVideoJsonVO;
 import net.polyv.android.player.common.R;
-import net.polyv.android.player.common.ui.localprovider.PLVMediaPlayerLocalProvider;
-import net.polyv.android.player.common.ui.viewmodel.viewstate.PLVMediaPlayerControlViewState;
+import net.polyv.android.player.common.di.PLVMediaPlayerLocalProvider;
+import net.polyv.android.player.common.modules.media.viewmodel.PLVMPMediaViewModel;
+import net.polyv.android.player.common.modules.media.viewmodel.viewstate.PLVMPMediaInfoViewState;
+import net.polyv.android.player.common.modules.mediacontroller.viewmodel.PLVMPMediaControllerViewModel;
+import net.polyv.android.player.common.modules.mediacontroller.viewmodel.viewstate.PLVMPMediaControllerViewState;
 import net.polyv.android.player.common.utils.ui.PLVRoundRectConstraintLayout;
 import net.polyv.android.player.common.utils.ui.image.glide.decoder.PLVSeekProgressPreviewImageDecoder;
+import net.polyv.android.player.sdk.foundation.lang.Duration;
+import net.polyv.android.player.sdk.foundation.lang.PLVRememberState;
+import net.polyv.android.player.sdk.foundation.lang.PLVRememberStateCompareResult;
 
 import org.jetbrains.annotations.NotNull;
+
+import kotlin.Unit;
+import kotlin.jvm.functions.Function0;
+import kotlin.jvm.functions.Function1;
 
 /**
  * @author Hoshiiro
@@ -46,7 +50,8 @@ public class PLVMediaPlayerSeekProgressPreviewLayout extends FrameLayout {
 
     protected boolean isProgressSeekBarDragging = false;
     protected long progressSeekBarPosition = 0;
-    protected PLVVodVideoJsonVO videoJson = null;
+    protected String previewImageUrl = null;
+    protected Duration previewImageInterval = null;
 
     private boolean isLastLoadImageFinish = true;
     private boolean needUpdateImageOnLoadImageFinish = false;
@@ -79,53 +84,49 @@ public class PLVMediaPlayerSeekProgressPreviewLayout extends FrameLayout {
         super.onAttachedToWindow();
         if (isInEditMode()) return;
 
-        observeUntilViewDetached(
-                requireNotNull(PLVMediaPlayerLocalProvider.localControlViewModel.on(this).current())
-                        .getControlViewStateLiveData(),
-                this,
-                new Observer<PLVMediaPlayerControlViewState>() {
+        requireNotNull(PLVMediaPlayerLocalProvider.localDependScope.on(this).current())
+                .get(PLVMPMediaControllerViewModel.class)
+                .getMediaControllerViewState()
+                .observeUntilViewDetached(this, new Function1<PLVMPMediaControllerViewState, Unit>() {
                     @Override
-                    public void onChanged(@Nullable @org.jetbrains.annotations.Nullable PLVMediaPlayerControlViewState viewState) {
-                        if (viewState == null) {
-                            return;
-                        }
-                        isProgressSeekBarDragging = viewState.progressSeekBarDragging;
-                        progressSeekBarPosition = viewState.progressSeekBarDragPosition;
+                    public Unit invoke(PLVMPMediaControllerViewState viewState) {
+                        isProgressSeekBarDragging = viewState.getProgressSeekBarDragging();
+                        progressSeekBarPosition = viewState.getProgressSeekBarDragPosition();
                         onViewStateChanged();
+                        return null;
                     }
-                }
-        );
+                });
 
-        observeUntilViewDetached(
-                requireNotNull(PLVMediaPlayerLocalProvider.localMediaPlayer.on(this).current())
-                        .getBusinessListenerRegistry()
-                        .getVodVideoJson(),
-                this,
-                new Observer<PLVVodVideoJsonVO>() {
+        requireNotNull(PLVMediaPlayerLocalProvider.localDependScope.on(this).current())
+                .get(PLVMPMediaViewModel.class)
+                .getMediaInfoViewState()
+                .observeUntilViewDetached(this, new Function1<PLVMPMediaInfoViewState, Unit>() {
                     @Override
-                    public void onChanged(@Nullable @org.jetbrains.annotations.Nullable PLVVodVideoJsonVO videoJsonVO) {
-                        videoJson = videoJsonVO;
+                    public Unit invoke(PLVMPMediaInfoViewState viewState) {
+                        previewImageUrl = viewState.getProgressPreviewImage();
+                        previewImageInterval = viewState.getProgressPreviewImageInterval();
                         onViewStateChanged();
+                        return null;
                     }
-                }
-        );
+                });
     }
 
     protected void onViewStateChanged() {
         PLVRememberState.rememberStateOf(this, "updatePreviewImage")
-                .compareLastAndSet(isProgressSeekBarDragging, progressSeekBarPosition, videoJson)
-                .ifNotEquals(new PLVSugarUtil.Consumer<PLVRememberStateCompareResult>() {
+                .compareLastAndSet(isProgressSeekBarDragging, progressSeekBarPosition, previewImageUrl, previewImageInterval)
+                .ifNotEquals(new Function1<PLVRememberStateCompareResult, Unit>() {
                     @Override
-                    public void accept(PLVRememberStateCompareResult plvRememberStateCompareResult) {
+                    public Unit invoke(PLVRememberStateCompareResult result) {
                         updatePreviewImage();
+                        return null;
                     }
                 });
     }
 
     protected void updatePreviewImage() {
         final boolean isVisible = isProgressSeekBarDragging
-                && videoJson != null
-                && videoJson.getProgressImage() != null;
+                && previewImageUrl != null
+                && previewImageInterval != null;
         if (!isVisible) {
             seekProgressPreviewImageLayout.setVisibility(GONE);
             return;
@@ -143,13 +144,13 @@ public class PLVMediaPlayerSeekProgressPreviewLayout extends FrameLayout {
         isLastLoadImageFinish = false;
         needUpdateImageOnLoadImageFinish = false;
         Glide.with(this)
-                .load(videoJson.getProgressImage())
+                .load(previewImageUrl)
                 .apply(
                         RequestOptions
                                 .option(PLVSeekProgressPreviewImageDecoder.USE_SEEK_PROGRESS_PREVIEW_IMAGE_DECODER, true)
                                 .set(
                                         PLVSeekProgressPreviewImageDecoder.SEEK_PROGRESS_PREVIEW_IMAGE_INDEX,
-                                        PLVSeekProgressPreviewImageDecoder.calculateIndex(progressSeekBarPosition / 1000, videoJson)
+                                        PLVSeekProgressPreviewImageDecoder.calculateIndex(progressSeekBarPosition / 1000, previewImageInterval)
                                 )
                 )
                 .listener(new RequestListener<Drawable>() {
@@ -166,13 +167,14 @@ public class PLVMediaPlayerSeekProgressPreviewLayout extends FrameLayout {
                     }
 
                     private void onLoadFinish() {
-                        postToMainThread(new Runnable() {
+                        postToMainThread(new Function0<Unit>() {
                             @Override
-                            public void run() {
+                            public Unit invoke() {
                                 isLastLoadImageFinish = true;
                                 if (needUpdateImageOnLoadImageFinish) {
                                     innerUpdateImage();
                                 }
+                                return null;
                             }
                         });
                     }

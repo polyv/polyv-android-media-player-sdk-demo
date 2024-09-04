@@ -1,27 +1,25 @@
 package net.polyv.android.player.common.ui.component;
 
-import static com.plv.foundationsdk.component.livedata.PLVLiveDataExt.observeUntilViewDetached;
-import static com.plv.foundationsdk.utils.PLVSugarUtil.requireNotNull;
+import static net.polyv.android.player.sdk.foundation.graphics.DisplaysKt.isLandscape;
+import static net.polyv.android.player.sdk.foundation.lang.PreconditionsKt.requireNotNull;
 
-import androidx.lifecycle.Observer;
 import android.content.Context;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatImageView;
 import android.util.AttributeSet;
 import android.view.View;
 
-import com.plv.foundationsdk.component.remember.PLVRememberState;
-import com.plv.foundationsdk.component.remember.PLVRememberStateCompareResult;
-import com.plv.foundationsdk.utils.PLVSugarUtil;
-import com.plv.thirdpart.blankj.utilcode.util.ScreenUtils;
-
 import net.polyv.android.player.common.R;
-import net.polyv.android.player.common.ui.localprovider.PLVMediaPlayerLocalProvider;
-import net.polyv.android.player.common.ui.viewmodel.PLVMediaPlayerControlViewModel;
-import net.polyv.android.player.common.ui.viewmodel.action.PLVMediaPlayerControlAction;
-import net.polyv.android.player.common.ui.viewmodel.viewstate.PLVMediaPlayerControlViewState;
+import net.polyv.android.player.common.di.PLVMediaPlayerLocalProvider;
+import net.polyv.android.player.common.modules.mediacontroller.viewmodel.LockMediaControllerAction;
+import net.polyv.android.player.common.modules.mediacontroller.viewmodel.PLVMPMediaControllerViewModel;
+import net.polyv.android.player.common.modules.mediacontroller.viewmodel.viewstate.PLVMPMediaControllerViewState;
 import net.polyv.android.player.common.utils.orientation.PLVActivityOrientationManager;
+import net.polyv.android.player.sdk.foundation.lang.PLVRememberState;
+import net.polyv.android.player.sdk.foundation.lang.PLVRememberStateCompareResult;
+
+import kotlin.Unit;
+import kotlin.jvm.functions.Function1;
 
 /**
  * 同时锁定屏幕方向和控制操作
@@ -30,7 +28,8 @@ import net.polyv.android.player.common.utils.orientation.PLVActivityOrientationM
  */
 public class PLVMediaPlayerLockControllerImageView extends AppCompatImageView implements View.OnClickListener {
 
-    private PLVMediaPlayerControlViewState currentControlViewState = null;
+    private boolean isVisible = false;
+    private boolean isLocking = false;
 
     public PLVMediaPlayerLockControllerImageView(Context context) {
         super(context);
@@ -53,56 +52,51 @@ public class PLVMediaPlayerLockControllerImageView extends AppCompatImageView im
         super.onAttachedToWindow();
         if (isInEditMode()) return;
 
-        observeUntilViewDetached(
-                requireNotNull(PLVMediaPlayerLocalProvider.localControlViewModel.on(this).current())
-                        .getControlViewStateLiveData(),
-                this,
-                new Observer<PLVMediaPlayerControlViewState>() {
+        requireNotNull(PLVMediaPlayerLocalProvider.localDependScope.on(this).current())
+                .get(PLVMPMediaControllerViewModel.class)
+                .getMediaControllerViewState()
+                .observeUntilViewDetached(this, new Function1<PLVMPMediaControllerViewState, Unit>() {
                     @Override
-                    public void onChanged(@Nullable @org.jetbrains.annotations.Nullable PLVMediaPlayerControlViewState viewState) {
-                        currentControlViewState = viewState;
+                    public Unit invoke(PLVMPMediaControllerViewState viewState) {
+                        isVisible = viewState.getControllerVisible()
+                                && !viewState.isMediaStopOverlayVisible()
+                                && !viewState.getProgressSeekBarDragging()
+                                && !(viewState.isFloatActionLayoutVisible() && isLandscape());
+                        isLocking = viewState.getControllerLocking();
                         onViewStateChanged();
+                        return null;
                     }
-                }
-        );
+                });
     }
 
     protected void onViewStateChanged() {
         PLVRememberState.rememberStateOf(this, "onChangeVisibility")
-                .compareLastAndSet(currentControlViewState)
-                .ifNotEquals(new PLVSugarUtil.Consumer<PLVRememberStateCompareResult>() {
+                .compareLastAndSet(isVisible)
+                .ifNotEquals(new Function1<PLVRememberStateCompareResult, Unit>() {
                     @Override
-                    public void accept(PLVRememberStateCompareResult result) {
+                    public Unit invoke(PLVRememberStateCompareResult result) {
                         onChangeVisibility();
+                        return null;
                     }
                 });
 
         PLVRememberState.rememberStateOf(this, "onUpdateImage")
-                .compareLastAndSet(currentControlViewState)
-                .ifNotEquals(new PLVSugarUtil.Consumer<PLVRememberStateCompareResult>() {
+                .compareLastAndSet(isLocking)
+                .ifNotEquals(new Function1<PLVRememberStateCompareResult, Unit>() {
                     @Override
-                    public void accept(PLVRememberStateCompareResult result) {
+                    public Unit invoke(PLVRememberStateCompareResult result) {
                         onUpdateImage();
+                        return null;
                     }
                 });
     }
 
     protected void onChangeVisibility() {
-        if (currentControlViewState == null) {
-            return;
-        }
-        final boolean visible = currentControlViewState.controllerVisible
-                && !currentControlViewState.isOverlayLayoutVisible()
-                && !currentControlViewState.progressSeekBarDragging
-                && !(currentControlViewState.isFloatActionPanelVisible() && ScreenUtils.isLandscape());
-        setVisibility(visible ? View.VISIBLE : View.GONE);
+        setVisibility(isVisible ? View.VISIBLE : View.GONE);
     }
 
     protected void onUpdateImage() {
-        if (currentControlViewState == null) {
-            return;
-        }
-        if (currentControlViewState.controllerLocking) {
+        if (isLocking) {
             setImageResource(R.drawable.plv_media_player_lock_orientation_icon_locking);
         } else {
             setImageResource(R.drawable.plv_media_player_lock_orientation_icon_no_lock);
@@ -111,13 +105,11 @@ public class PLVMediaPlayerLockControllerImageView extends AppCompatImageView im
 
     @Override
     public void onClick(View v) {
-        boolean isLocking = currentControlViewState != null && currentControlViewState.controllerLocking;
-        boolean toLocking = !isLocking;
-        PLVMediaPlayerControlViewModel controlViewModel = PLVMediaPlayerLocalProvider.localControlViewModel.on(this).current();
-        if (controlViewModel != null) {
-            controlViewModel.requestControl(PLVMediaPlayerControlAction.lockMediaController(toLocking));
-            PLVActivityOrientationManager.on((AppCompatActivity) getContext()).setLockOrientation(toLocking);
-        }
+        final boolean toLocking = !isLocking;
+        requireNotNull(PLVMediaPlayerLocalProvider.localDependScope.on(this).current())
+                .get(PLVMPMediaControllerViewModel.class)
+                .lockMediaController(toLocking ? LockMediaControllerAction.LOCK : LockMediaControllerAction.UNLOCK);
+        PLVActivityOrientationManager.on((AppCompatActivity) getContext()).setLockOrientation(toLocking);
     }
 
 }

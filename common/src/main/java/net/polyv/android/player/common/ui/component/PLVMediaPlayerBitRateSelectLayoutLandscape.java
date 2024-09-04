@@ -1,9 +1,9 @@
 package net.polyv.android.player.common.ui.component;
 
-import static com.plv.foundationsdk.component.livedata.PLVLiveDataExt.observeUntilViewDetached;
-import static com.plv.foundationsdk.utils.PLVSugarUtil.requireNotNull;
+import static net.polyv.android.player.sdk.foundation.graphics.ColorsKt.parseColor;
+import static net.polyv.android.player.sdk.foundation.graphics.DisplaysKt.dp;
+import static net.polyv.android.player.sdk.foundation.lang.PreconditionsKt.requireNotNull;
 
-import androidx.lifecycle.Observer;
 import android.content.Context;
 import android.graphics.Color;
 import androidx.annotation.NonNull;
@@ -17,23 +17,22 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.plv.foundationsdk.component.collection.PLVSequenceWrapper;
-import com.plv.foundationsdk.component.remember.PLVRememberState;
-import com.plv.foundationsdk.component.remember.PLVRememberStateCompareResult;
-import com.plv.foundationsdk.utils.PLVFormatUtils;
-import com.plv.foundationsdk.utils.PLVSugarUtil;
-import com.plv.thirdpart.blankj.utilcode.util.ConvertUtils;
-
 import net.polyv.android.player.business.scene.common.model.vo.PLVMediaBitRate;
-import net.polyv.android.player.business.scene.common.player.IPLVMediaPlayer;
 import net.polyv.android.player.common.R;
-import net.polyv.android.player.common.ui.localprovider.PLVMediaPlayerLocalProvider;
-import net.polyv.android.player.common.ui.viewmodel.PLVMediaPlayerControlViewModel;
-import net.polyv.android.player.common.ui.viewmodel.action.PLVMediaPlayerControlAction;
-import net.polyv.android.player.common.ui.viewmodel.viewstate.PLVMediaPlayerControlViewState;
+import net.polyv.android.player.common.di.PLVMediaPlayerLocalProvider;
+import net.polyv.android.player.common.modules.media.viewmodel.PLVMPMediaViewModel;
+import net.polyv.android.player.common.modules.media.viewmodel.viewstate.PLVMPMediaInfoViewState;
+import net.polyv.android.player.common.modules.mediacontroller.viewmodel.PLVMPMediaControllerViewModel;
+import net.polyv.android.player.common.modules.mediacontroller.viewmodel.viewstate.PLVMPMediaControllerFloatAction;
+import net.polyv.android.player.common.modules.mediacontroller.viewmodel.viewstate.PLVMPMediaControllerViewState;
+import net.polyv.android.player.sdk.foundation.collections.PLVSequences;
+import net.polyv.android.player.sdk.foundation.di.DependScope;
+import net.polyv.android.player.sdk.foundation.lang.PLVRememberState;
+import net.polyv.android.player.sdk.foundation.lang.PLVRememberStateCompareResult;
 
 import java.util.List;
 
+import kotlin.Unit;
 import kotlin.jvm.functions.Function1;
 
 /**
@@ -46,7 +45,7 @@ public class PLVMediaPlayerBitRateSelectLayoutLandscape extends FrameLayout impl
 
     protected List<PLVMediaBitRate> currentSupportMediaBitRates = null;
     protected PLVMediaBitRate currentMediaBitRate = null;
-    protected PLVMediaPlayerControlViewState currentControlViewState = null;
+    protected boolean isVisible = false;
 
     public PLVMediaPlayerBitRateSelectLayoutLandscape(@NonNull Context context) {
         super(context);
@@ -74,121 +73,100 @@ public class PLVMediaPlayerBitRateSelectLayoutLandscape extends FrameLayout impl
         super.onAttachedToWindow();
         if (isInEditMode()) return;
 
-        observeUntilViewDetached(
-                requireNotNull(PLVMediaPlayerLocalProvider.localMediaPlayer.on(this).current())
-                        .getBusinessListenerRegistry()
-                        .getSupportMediaBitRates(),
-                this,
-                new Observer<List<PLVMediaBitRate>>() {
+        requireNotNull(PLVMediaPlayerLocalProvider.localDependScope.on(this).current())
+                .get(PLVMPMediaViewModel.class)
+                .getMediaInfoViewState()
+                .observeUntilViewDetached(this, new Function1<PLVMPMediaInfoViewState, Unit>() {
                     @Override
-                    public void onChanged(@Nullable @org.jetbrains.annotations.Nullable List<PLVMediaBitRate> mediaBitRates) {
-                        currentSupportMediaBitRates = mediaBitRates;
+                    public Unit invoke(PLVMPMediaInfoViewState viewState) {
+                        currentSupportMediaBitRates = viewState.getSupportBitRates();
+                        currentMediaBitRate = viewState.getBitRate();
                         onViewStateChanged();
+                        return null;
                     }
-                }
-        );
+                });
 
-        observeUntilViewDetached(
-                requireNotNull(PLVMediaPlayerLocalProvider.localMediaPlayer.on(this).current())
-                        .getBusinessListenerRegistry()
-                        .getCurrentMediaBitRate(),
-                this,
-                new Observer<PLVMediaBitRate>() {
+        requireNotNull(PLVMediaPlayerLocalProvider.localDependScope.on(this).current())
+                .get(PLVMPMediaControllerViewModel.class)
+                .getMediaControllerViewState()
+                .observeUntilViewDetached(this, new Function1<PLVMPMediaControllerViewState, Unit>() {
                     @Override
-                    public void onChanged(@Nullable @org.jetbrains.annotations.Nullable PLVMediaBitRate mediaBitRate) {
-                        currentMediaBitRate = mediaBitRate;
+                    public Unit invoke(PLVMPMediaControllerViewState viewState) {
+                        isVisible = viewState.getLastFloatActionLayout() == PLVMPMediaControllerFloatAction.BITRATE;
                         onViewStateChanged();
+                        return null;
                     }
-                }
-        );
-
-        observeUntilViewDetached(
-                requireNotNull(PLVMediaPlayerLocalProvider.localControlViewModel.on(this).current())
-                        .getControlViewStateLiveData(),
-                this,
-                new Observer<PLVMediaPlayerControlViewState>() {
-                    @Override
-                    public void onChanged(@Nullable @org.jetbrains.annotations.Nullable PLVMediaPlayerControlViewState viewState) {
-                        currentControlViewState = viewState;
-                        onViewStateChanged();
-                    }
-                }
-        );
+                });
     }
 
     protected void onViewStateChanged() {
         PLVRememberState.rememberStateOf(this, "onUpdateMediaBitRates")
                 .compareLastAndSet(currentSupportMediaBitRates, currentMediaBitRate)
-                .ifNotEquals(new PLVSugarUtil.Consumer<PLVRememberStateCompareResult>() {
+                .ifNotEquals(new Function1<PLVRememberStateCompareResult, Unit>() {
                     @Override
-                    public void accept(PLVRememberStateCompareResult result) {
+                    public Unit invoke(PLVRememberStateCompareResult result) {
                         onUpdateMediaBitRates();
+                        return null;
                     }
                 });
 
         PLVRememberState.rememberStateOf(this, "onChangeVisibility")
-                .compareLastAndSet(currentControlViewState)
-                .ifNotEquals(new PLVSugarUtil.Consumer<PLVRememberStateCompareResult>() {
+                .compareLastAndSet(isVisible)
+                .ifNotEquals(new Function1<PLVRememberStateCompareResult, Unit>() {
                     @Override
-                    public void accept(PLVRememberStateCompareResult result) {
+                    public Unit invoke(PLVRememberStateCompareResult result) {
                         onChangeVisibility();
+                        return null;
                     }
                 });
     }
 
     protected void onUpdateMediaBitRates() {
-        final IPLVMediaPlayer mediaPlayer = PLVMediaPlayerLocalProvider.localMediaPlayer.on(this).current();
-        final PLVMediaPlayerControlViewModel viewModel = PLVMediaPlayerLocalProvider.localControlViewModel.on(this).current();
-        if (mediaPlayer == null || viewModel == null) {
-            return;
-        }
+        final DependScope dependScope = requireNotNull(PLVMediaPlayerLocalProvider.localDependScope.on(this).current());
+        final PLVMPMediaViewModel mediaViewModel = dependScope.get(PLVMPMediaViewModel.class);
+        final PLVMPMediaControllerViewModel mediaControllerViewModel = dependScope.get(PLVMPMediaControllerViewModel.class);
         if (currentSupportMediaBitRates == null || currentMediaBitRate == null) {
             bitRateSelectContainer.removeAllViews();
             return;
         }
 
         bitRateSelectContainer.removeAllViews();
-        PLVSequenceWrapper.wrap(currentSupportMediaBitRates)
+        PLVSequences.wrap(currentSupportMediaBitRates)
                 .map(new Function1<PLVMediaBitRate, TextView>() {
                     @Override
                     public TextView invoke(final PLVMediaBitRate mediaBitRate) {
                         TextView tv = new TextView(getContext());
                         tv.setText(mediaBitRate.getName());
                         if (mediaBitRate.equals(currentMediaBitRate)) {
-                            tv.setTextColor(PLVFormatUtils.parseColor("#3F76FC"));
+                            tv.setTextColor(parseColor("#3F76FC"));
                         } else {
                             tv.setTextColor(Color.WHITE);
                         }
                         tv.setOnClickListener(new OnClickListener() {
                             @Override
                             public void onClick(View v) {
-                                mediaPlayer.changeBitRate(mediaBitRate);
-                                viewModel.requestControl(PLVMediaPlayerControlAction.hintBitRateChanged(mediaBitRate));
-                                viewModel.requestControl(PLVMediaPlayerControlAction.hideMediaController());
+                                mediaViewModel.changeBitRate(mediaBitRate);
+                                mediaControllerViewModel.changeControllerVisible(false);
                                 closeLayout();
                             }
                         });
                         return tv;
                     }
                 })
-                .forEach(new PLVSugarUtil.Consumer<TextView>() {
+                .forEach(new Function1<TextView, Unit>() {
                     @Override
-                    public void accept(TextView textView) {
+                    public Unit invoke(TextView textView) {
                         MarginLayoutParams lp = new MarginLayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-                        lp.topMargin = ConvertUtils.dp2px(24);
-                        lp.bottomMargin = ConvertUtils.dp2px(24);
+                        lp.topMargin = dp(24).px();
+                        lp.bottomMargin = dp(24).px();
                         bitRateSelectContainer.addView(textView, lp);
+                        return null;
                     }
                 });
     }
 
     protected void onChangeVisibility() {
-        if (currentControlViewState == null) {
-            return;
-        }
-        final boolean visible = currentControlViewState.bitRateSelectLayoutVisible
-                && !currentControlViewState.isOverlayLayoutVisible();
-        setVisibility(visible ? View.VISIBLE : View.GONE);
+        setVisibility(isVisible ? View.VISIBLE : View.GONE);
     }
 
     @Override
@@ -202,10 +180,9 @@ public class PLVMediaPlayerBitRateSelectLayoutLandscape extends FrameLayout impl
     }
 
     private void closeLayout() {
-        PLVMediaPlayerControlViewModel controlViewModel = PLVMediaPlayerLocalProvider.localControlViewModel.on(this).current();
-        if (controlViewModel != null) {
-            controlViewModel.requestControl(PLVMediaPlayerControlAction.closeFloatMenuLayout());
-        }
+        requireNotNull(PLVMediaPlayerLocalProvider.localDependScope.on(this).current())
+                .get(PLVMPMediaControllerViewModel.class)
+                .popFloatActionLayout();
     }
 
 }

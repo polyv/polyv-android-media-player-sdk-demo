@@ -6,14 +6,15 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentStatePagerAdapter;
 
-import com.plv.foundationsdk.component.exts.Nullables;
-import com.plv.foundationsdk.utils.PLVSugarUtil;
+import net.polyv.android.player.sdk.foundation.lang.Nullables;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import kotlin.jvm.functions.Function0;
 
 /**
  * @author Hoshiiro
@@ -40,9 +41,9 @@ public class PLVFeedViewPagerAdapter<T extends Fragment, R> extends FragmentStat
 
     @Override
     public T getItem(final int position) {
-        T item = Nullables.of(new PLVSugarUtil.Supplier<T>() {
+        T item = Nullables.of(new Function0<T>() {
             @Override
-            public T get() {
+            public T invoke() {
                 return weakItemMap.get(position).get();
             }
         }).getOrNull();
@@ -99,9 +100,9 @@ public class PLVFeedViewPagerAdapter<T extends Fragment, R> extends FragmentStat
     private void bindNewResources(int fromIndex, List<R> newResources) {
         for (int i = 0; i < newResources.size(); i++) {
             final int index = fromIndex + i;
-            T item = Nullables.of(new PLVSugarUtil.Supplier<T>() {
+            T item = Nullables.of(new Function0<T>() {
                 @Override
-                public T get() {
+                public T invoke() {
                     return weakItemMap.get(index).get();
                 }
             }).getOrNull();

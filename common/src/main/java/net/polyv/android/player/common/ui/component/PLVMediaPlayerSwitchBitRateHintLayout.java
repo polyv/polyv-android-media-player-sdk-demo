@@ -1,8 +1,8 @@
 package net.polyv.android.player.common.ui.component;
 
-import static com.plv.foundationsdk.component.event.PLVEventKt.observeUntilViewDetached;
-import static com.plv.foundationsdk.utils.PLVSugarUtil.format;
-import static com.plv.foundationsdk.utils.PLVSugarUtil.requireNotNull;
+import static net.polyv.android.player.sdk.foundation.graphics.ColorsKt.parseColor;
+import static net.polyv.android.player.sdk.foundation.lang.PreconditionsKt.requireNotNull;
+import static net.polyv.android.player.sdk.foundation.lang.StringsKt.format;
 
 import android.content.Context;
 import androidx.annotation.NonNull;
@@ -15,15 +15,15 @@ import android.view.LayoutInflater;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
-import com.plv.foundationsdk.utils.PLVFormatUtils;
-import com.plv.foundationsdk.utils.PLVSugarUtil;
-
 import net.polyv.android.player.business.scene.common.model.vo.PLVMediaBitRate;
 import net.polyv.android.player.common.R;
-import net.polyv.android.player.common.ui.localprovider.PLVMediaPlayerLocalProvider;
-import net.polyv.android.player.common.ui.viewmodel.action.PLVMediaPlayerControlAction;
+import net.polyv.android.player.common.di.PLVMediaPlayerLocalProvider;
+import net.polyv.android.player.common.modules.media.viewmodel.PLVMPMediaViewModel;
 import net.polyv.android.player.common.utils.ui.PLVViewUtil;
 import net.polyv.android.player.core.api.listener.event.PLVMediaPlayerOnInfoEvent;
+
+import kotlin.Unit;
+import kotlin.jvm.functions.Function1;
 
 /**
  * @author Hoshiiro
@@ -57,34 +57,30 @@ public class PLVMediaPlayerSwitchBitRateHintLayout extends FrameLayout {
         super.onAttachedToWindow();
         if (isInEditMode()) return;
 
-        observeUntilViewDetached(
-                requireNotNull(PLVMediaPlayerLocalProvider.localControlViewModel.on(this).current())
-                        .getControlActionEvent(),
-                this,
-                new PLVSugarUtil.Consumer<PLVMediaPlayerControlAction>() {
+        requireNotNull(PLVMediaPlayerLocalProvider.localDependScope.on(this).current())
+                .get(PLVMPMediaViewModel.class)
+                .getOnChangeBitRateEvent()
+                .observeUntilViewDetached(this, new Function1<PLVMediaBitRate, Unit>() {
                     @Override
-                    public void accept(PLVMediaPlayerControlAction action) {
-                        if (action instanceof PLVMediaPlayerControlAction.HintBitRateChanged) {
-                            currentBitRate = ((PLVMediaPlayerControlAction.HintBitRateChanged) action).bitRate;
-                            showSwitchBitRateStarted();
-                        }
+                    public Unit invoke(PLVMediaBitRate mediaBitRate) {
+                        currentBitRate = mediaBitRate;
+                        showSwitchBitRateStarted();
+                        return null;
                     }
-                }
-        );
+                });
 
-        observeUntilViewDetached(
-                requireNotNull(PLVMediaPlayerLocalProvider.localMediaPlayer.on(this).current())
-                        .getEventListenerRegistry().getOnInfo(),
-                this,
-                new PLVSugarUtil.Consumer<PLVMediaPlayerOnInfoEvent>() {
+        requireNotNull(PLVMediaPlayerLocalProvider.localDependScope.on(this).current())
+                .get(PLVMPMediaViewModel.class)
+                .getOnInfoEvent()
+                .observeUntilViewDetached(this, new Function1<PLVMediaPlayerOnInfoEvent, Unit>() {
                     @Override
-                    public void accept(PLVMediaPlayerOnInfoEvent onInfoEvent) {
-                        if (onInfoEvent != null && onInfoEvent.getWhat() == PLVMediaPlayerOnInfoEvent.MEDIA_INFO_VIDEO_RENDERING_START) {
+                    public Unit invoke(PLVMediaPlayerOnInfoEvent onInfoEvent) {
+                        if (onInfoEvent.getWhat() == PLVMediaPlayerOnInfoEvent.MEDIA_INFO_VIDEO_RENDERING_START) {
                             showSwitchBitRateFinished();
                         }
+                        return null;
                     }
-                }
-        );
+                });
     }
 
     @Override
@@ -102,7 +98,7 @@ public class PLVMediaPlayerSwitchBitRateHintLayout extends FrameLayout {
         sb.append(getContext().getString(R.string.plv_media_player_ui_component_switch_bit_rate_start_text_pre));
         sb.append(
                 format(" {} ", currentBitRate.getName()),
-                new ForegroundColorSpan(PLVFormatUtils.parseColor("#3F76FC")),
+                new ForegroundColorSpan(parseColor("#3F76FC")),
                 Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
         );
         sb.append(getContext().getString(R.string.plv_media_player_ui_component_switch_bit_rate_start_text_post));
@@ -120,7 +116,7 @@ public class PLVMediaPlayerSwitchBitRateHintLayout extends FrameLayout {
         sb.append(getContext().getString(R.string.plv_media_player_ui_component_switch_bit_rate_finish_text_pre));
         sb.append(
                 format(" {} ", currentBitRate.getName()),
-                new ForegroundColorSpan(PLVFormatUtils.parseColor("#3F76FC")),
+                new ForegroundColorSpan(parseColor("#3F76FC")),
                 Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
         );
         sb.append(getContext().getString(R.string.plv_media_player_ui_component_switch_bit_rate_finish_text_post));

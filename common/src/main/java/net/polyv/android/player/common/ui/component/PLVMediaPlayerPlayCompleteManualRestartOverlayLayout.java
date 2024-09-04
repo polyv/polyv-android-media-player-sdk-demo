@@ -1,9 +1,7 @@
 package net.polyv.android.player.common.ui.component;
 
-import static com.plv.foundationsdk.component.livedata.PLVLiveDataExt.observeUntilViewDetached;
-import static com.plv.foundationsdk.utils.PLVSugarUtil.requireNotNull;
+import static net.polyv.android.player.sdk.foundation.lang.PreconditionsKt.requireNotNull;
 
-import androidx.lifecycle.Observer;
 import android.content.Context;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -13,16 +11,18 @@ import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 
-import com.plv.foundationsdk.component.remember.PLVRememberState;
-import com.plv.foundationsdk.component.remember.PLVRememberStateCompareResult;
-import com.plv.foundationsdk.utils.PLVSugarUtil;
-
-import net.polyv.android.player.business.scene.common.player.IPLVMediaPlayer;
 import net.polyv.android.player.common.R;
-import net.polyv.android.player.common.ui.localprovider.PLVMediaPlayerLocalProvider;
-import net.polyv.android.player.common.ui.viewmodel.PLVMediaPlayerControlViewModel;
-import net.polyv.android.player.common.ui.viewmodel.action.PLVMediaPlayerControlAction;
+import net.polyv.android.player.common.di.PLVMediaPlayerLocalProvider;
+import net.polyv.android.player.common.modules.media.viewmodel.PLVMPMediaViewModel;
+import net.polyv.android.player.common.modules.media.viewmodel.viewstate.PLVMPMediaPlayViewState;
+import net.polyv.android.player.common.modules.mediacontroller.viewmodel.LockMediaControllerAction;
+import net.polyv.android.player.common.modules.mediacontroller.viewmodel.PLVMPMediaControllerViewModel;
 import net.polyv.android.player.core.api.listener.state.PLVMediaPlayerState;
+import net.polyv.android.player.sdk.foundation.lang.PLVRememberState;
+import net.polyv.android.player.sdk.foundation.lang.PLVRememberStateCompareResult;
+
+import kotlin.Unit;
+import kotlin.jvm.functions.Function1;
 
 /**
  * @author Hoshiiro
@@ -57,28 +57,27 @@ public class PLVMediaPlayerPlayCompleteManualRestartOverlayLayout extends FrameL
         super.onAttachedToWindow();
         if (isInEditMode()) return;
 
-        observeUntilViewDetached(
-                requireNotNull(PLVMediaPlayerLocalProvider.localMediaPlayer.on(this).current())
-                        .getStateListenerRegistry()
-                        .getPlayerState(),
-                this,
-                new Observer<PLVMediaPlayerState>() {
+        requireNotNull(PLVMediaPlayerLocalProvider.localDependScope.on(this).current())
+                .get(PLVMPMediaViewModel.class)
+                .getMediaPlayViewState()
+                .observeUntilViewDetached(this, new Function1<PLVMPMediaPlayViewState, Unit>() {
                     @Override
-                    public void onChanged(@Nullable @org.jetbrains.annotations.Nullable PLVMediaPlayerState playerState) {
-                        currentPlayerState = playerState;
+                    public Unit invoke(PLVMPMediaPlayViewState viewState) {
+                        currentPlayerState = viewState.getPlayerState();
                         onViewStateChanged();
+                        return null;
                     }
-                }
-        );
+                });
     }
 
     protected void onViewStateChanged() {
         PLVRememberState.rememberStateOf(this, "onPlayerStateChanged")
                 .compareLastAndSet(currentPlayerState)
-                .ifNotEquals(new PLVSugarUtil.Consumer<PLVRememberStateCompareResult>() {
+                .ifNotEquals(new Function1<PLVRememberStateCompareResult, Unit>() {
                     @Override
-                    public void accept(PLVRememberStateCompareResult result) {
+                    public Unit invoke(PLVRememberStateCompareResult result) {
                         onPlayerStateChanged();
+                        return null;
                     }
                 });
     }
@@ -86,28 +85,18 @@ public class PLVMediaPlayerPlayCompleteManualRestartOverlayLayout extends FrameL
     protected void onPlayerStateChanged() {
         boolean isCompleted = currentPlayerState == PLVMediaPlayerState.STATE_COMPLETED;
         setVisibility(isCompleted ? View.VISIBLE : View.GONE);
-        PLVMediaPlayerControlViewModel controlViewModel = PLVMediaPlayerLocalProvider.localControlViewModel.on(PLVMediaPlayerPlayCompleteManualRestartOverlayLayout.this).current();
-        if (controlViewModel != null) {
-            if (isCompleted) {
-                controlViewModel.requestControl(PLVMediaPlayerControlAction.lockMediaController(false));
-            }
-            controlViewModel.requestControl(PLVMediaPlayerControlAction.hintCompleteOverlayLayoutVisible(isCompleted));
-        }
+        requireNotNull(PLVMediaPlayerLocalProvider.localDependScope.on(this).current())
+                .get(PLVMPMediaControllerViewModel.class)
+                .lockMediaController(LockMediaControllerAction.UNLOCK);
     }
 
     @Override
     public void onClick(View v) {
         int id = v.getId();
         if (id == completeRestartLayout.getId()) {
-            IPLVMediaPlayer mediaPlayer = PLVMediaPlayerLocalProvider.localMediaPlayer.on(v).current();
-            PLVMediaPlayerControlViewModel controlViewModel = PLVMediaPlayerLocalProvider.localControlViewModel.on(v).current();
-            if (mediaPlayer != null) {
-                mediaPlayer.restart();
-            }
-            setVisibility(View.GONE);
-            if (controlViewModel != null) {
-                controlViewModel.requestControl(PLVMediaPlayerControlAction.hintCompleteOverlayLayoutVisible(false));
-            }
+            requireNotNull(PLVMediaPlayerLocalProvider.localDependScope.on(this).current())
+                    .get(PLVMPMediaViewModel.class)
+                    .restart();
         }
     }
 

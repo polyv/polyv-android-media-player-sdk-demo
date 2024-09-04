@@ -1,9 +1,8 @@
 package net.polyv.android.player.common.ui.component;
 
-import static com.plv.foundationsdk.component.livedata.PLVLiveDataExt.observeUntilViewDetached;
-import static com.plv.foundationsdk.utils.PLVSugarUtil.requireNotNull;
+import static net.polyv.android.player.sdk.foundation.graphics.ColorsKt.parseColor;
+import static net.polyv.android.player.sdk.foundation.lang.PreconditionsKt.requireNotNull;
 
-import androidx.lifecycle.Observer;
 import android.content.Context;
 import android.content.res.ColorStateList;
 import android.content.res.TypedArray;
@@ -17,17 +16,17 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.plv.foundationsdk.component.remember.PLVRememberState;
-import com.plv.foundationsdk.component.remember.PLVRememberStateCompareResult;
-import com.plv.foundationsdk.utils.PLVFormatUtils;
-import com.plv.foundationsdk.utils.PLVSugarUtil;
-
 import net.polyv.android.player.business.scene.common.model.vo.PLVMediaOutputMode;
-import net.polyv.android.player.business.scene.common.player.IPLVMediaPlayer;
 import net.polyv.android.player.common.R;
-import net.polyv.android.player.common.ui.localprovider.PLVMediaPlayerLocalProvider;
-import net.polyv.android.player.common.ui.viewmodel.PLVMediaPlayerControlViewModel;
-import net.polyv.android.player.common.ui.viewmodel.action.PLVMediaPlayerControlAction;
+import net.polyv.android.player.common.di.PLVMediaPlayerLocalProvider;
+import net.polyv.android.player.common.modules.media.viewmodel.PLVMPMediaViewModel;
+import net.polyv.android.player.common.modules.media.viewmodel.viewstate.PLVMPMediaInfoViewState;
+import net.polyv.android.player.common.modules.mediacontroller.viewmodel.PLVMPMediaControllerViewModel;
+import net.polyv.android.player.sdk.foundation.lang.PLVRememberState;
+import net.polyv.android.player.sdk.foundation.lang.PLVRememberStateCompareResult;
+
+import kotlin.Unit;
+import kotlin.jvm.functions.Function1;
 
 /**
  * @author Hoshiiro
@@ -38,9 +37,9 @@ public class PLVMediaPlayerMoreLayoutAudioModeActionView extends FrameLayout imp
     private TextView audioModeActionTv;
 
     private int tintColorIconNormal = Color.WHITE;
-    private int tintColorIconSelected = PLVFormatUtils.parseColor("#3F76FC");
-    private int textColorNormal = PLVFormatUtils.parseColor("#CCFFFFFF");
-    private int textColorSelected = PLVFormatUtils.parseColor("#CC3F76FC");
+    private int tintColorIconSelected = parseColor("#3F76FC");
+    private int textColorNormal = parseColor("#CCFFFFFF");
+    private int textColorSelected = parseColor("#CC3F76FC");
 
     protected PLVMediaOutputMode currentMediaOutputMode = null;
 
@@ -83,28 +82,27 @@ public class PLVMediaPlayerMoreLayoutAudioModeActionView extends FrameLayout imp
         super.onAttachedToWindow();
         if (isInEditMode()) return;
 
-        observeUntilViewDetached(
-                requireNotNull(PLVMediaPlayerLocalProvider.localMediaPlayer.on(this).current())
-                        .getBusinessListenerRegistry()
-                        .getCurrentMediaOutputMode(),
-                this,
-                new Observer<PLVMediaOutputMode>() {
+        requireNotNull(PLVMediaPlayerLocalProvider.localDependScope.on(this).current())
+                .get(PLVMPMediaViewModel.class)
+                .getMediaInfoViewState()
+                .observeUntilViewDetached(this, new Function1<PLVMPMediaInfoViewState, Unit>() {
                     @Override
-                    public void onChanged(@Nullable @org.jetbrains.annotations.Nullable PLVMediaOutputMode mediaOutputMode) {
-                        currentMediaOutputMode = mediaOutputMode;
+                    public Unit invoke(PLVMPMediaInfoViewState viewState) {
+                        currentMediaOutputMode = viewState.getOutputMode();
                         onViewStateChanged();
+                        return null;
                     }
-                }
-        );
+                });
     }
 
     protected void onViewStateChanged() {
         PLVRememberState.rememberStateOf(this, "onChangeColor")
                 .compareLastAndSet(currentMediaOutputMode)
-                .ifNotEquals(new PLVSugarUtil.Consumer<PLVRememberStateCompareResult>() {
+                .ifNotEquals(new Function1<PLVRememberStateCompareResult, Unit>() {
                     @Override
-                    public void accept(PLVRememberStateCompareResult result) {
+                    public Unit invoke(PLVRememberStateCompareResult result) {
                         onChangeColor();
+                        return null;
                     }
                 });
     }
@@ -121,18 +119,13 @@ public class PLVMediaPlayerMoreLayoutAudioModeActionView extends FrameLayout imp
 
     @Override
     public void onClick(View v) {
-        IPLVMediaPlayer mediaPlayer = PLVMediaPlayerLocalProvider.localMediaPlayer.on(PLVMediaPlayerMoreLayoutAudioModeActionView.this).current();
-        PLVMediaPlayerControlViewModel viewModel = PLVMediaPlayerLocalProvider.localControlViewModel.on(PLVMediaPlayerMoreLayoutAudioModeActionView.this).current();
-        if (mediaPlayer == null || viewModel == null) {
-            return;
-        }
-        boolean currentIsAudioMode = mediaPlayer.getBusinessListenerRegistry().getCurrentMediaOutputMode().getValue() == PLVMediaOutputMode.AUDIO_ONLY;
-        if (currentIsAudioMode) {
-            mediaPlayer.changeMediaOutputMode(PLVMediaOutputMode.AUDIO_VIDEO);
-        } else {
-            mediaPlayer.changeMediaOutputMode(PLVMediaOutputMode.AUDIO_ONLY);
-        }
-        viewModel.requestControl(PLVMediaPlayerControlAction.closeFloatMenuLayout());
+        boolean currentIsAudioMode = currentMediaOutputMode == PLVMediaOutputMode.AUDIO_ONLY;
+        requireNotNull(PLVMediaPlayerLocalProvider.localDependScope.on(this).current())
+                .get(PLVMPMediaViewModel.class)
+                .changeMediaOutputMode(currentIsAudioMode ? PLVMediaOutputMode.AUDIO_VIDEO : PLVMediaOutputMode.AUDIO_ONLY);
+        requireNotNull(PLVMediaPlayerLocalProvider.localDependScope.on(this).current())
+                .get(PLVMPMediaControllerViewModel.class)
+                .popFloatActionLayout();
     }
 
 }

@@ -1,8 +1,7 @@
 package net.polyv.android.player.demo.mock;
 
-import com.plv.thirdpart.blankj.utilcode.util.NetworkUtils;
-
 import net.polyv.android.player.business.scene.common.model.vo.PLVMediaResource;
+import net.polyv.android.player.sdk.PLVDeviceManager;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -15,7 +14,7 @@ public class PLVMockFeedVideoDataRepo {
         Thread.sleep(1000);
 
         // Simulate network connected
-        if (!NetworkUtils.isConnected()) {
+        if (!PLVDeviceManager.isNetworkConnected()) {
             throw new Exception("Network disconnected");
         }
 

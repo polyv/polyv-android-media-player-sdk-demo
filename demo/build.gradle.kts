@@ -32,6 +32,8 @@ dependencies {
     implementation("androidx.constraintlayout:constraintlayout:1.1.3")
     implementation("androidx.multidex:multidex:2.0.0")
 
+    implementation(project(":scenes-single-video"))
+    implementation(project(":scenes-feed-video"))
     implementation(project(":common"))
 
     annotationProcessor("com.github.bumptech.glide:compiler:$deps_glide_version")

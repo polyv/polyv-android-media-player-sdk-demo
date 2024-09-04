@@ -1,7 +1,6 @@
 package net.polyv.android.player.common.ui.component;
 
-import static com.plv.foundationsdk.component.event.PLVEventKt.observeUntilViewDetached;
-import static com.plv.foundationsdk.utils.PLVSugarUtil.requireNotNull;
+import static net.polyv.android.player.sdk.foundation.lang.PreconditionsKt.requireNotNull;
 
 import android.content.Context;
 import androidx.annotation.NonNull;
@@ -12,23 +11,25 @@ import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
-import com.plv.foundationsdk.utils.PLVSugarUtil;
-
 import net.polyv.android.player.common.R;
-import net.polyv.android.player.common.ui.localprovider.PLVMediaPlayerLocalProvider;
-import net.polyv.android.player.common.ui.viewmodel.action.PLVMediaPlayerControlAction;
+import net.polyv.android.player.common.di.PLVMediaPlayerLocalProvider;
+import net.polyv.android.player.common.modules.mediacontroller.viewmodel.PLVMPMediaControllerViewModel;
+import net.polyv.android.player.common.modules.mediacontroller.viewmodel.viewstate.PLVMPMediaControllerViewState;
+import net.polyv.android.player.sdk.foundation.lang.PLVRememberState;
+import net.polyv.android.player.sdk.foundation.lang.PLVRememberStateCompareResult;
 
-import java.text.DecimalFormat;
+import kotlin.Unit;
+import kotlin.jvm.functions.Function1;
 
 /**
  * @author Hoshiiro
  */
 public class PLVMediaPlayerLongPressSpeedHintLayout extends FrameLayout {
 
-    private static final DecimalFormat SPEED_FORMAT = new DecimalFormat("#.#x");
-
     private TextView speedTv;
     private TextView speedHintTv;
+
+    private boolean isVisible = false;
 
     public PLVMediaPlayerLongPressSpeedHintLayout(@NonNull Context context) {
         super(context);
@@ -53,26 +54,33 @@ public class PLVMediaPlayerLongPressSpeedHintLayout extends FrameLayout {
         super.onAttachedToWindow();
         if (isInEditMode()) return;
 
-        observeUntilViewDetached(
-                requireNotNull(PLVMediaPlayerLocalProvider.localControlViewModel.on(this).current())
-                        .getControlActionEvent(),
-                this,
-                new PLVSugarUtil.Consumer<PLVMediaPlayerControlAction>() {
+        requireNotNull(PLVMediaPlayerLocalProvider.localDependScope.on(this).current())
+                .get(PLVMPMediaControllerViewModel.class)
+                .getMediaControllerViewState()
+                .observeUntilViewDetached(this, new Function1<PLVMPMediaControllerViewState, Unit>() {
                     @Override
-                    public void accept(PLVMediaPlayerControlAction action) {
-                        if (action instanceof PLVMediaPlayerControlAction.HintLongPressSpeedControl) {
-                            showLongPressControlHint((PLVMediaPlayerControlAction.HintLongPressSpeedControl) action);
-                        }
+                    public Unit invoke(PLVMPMediaControllerViewState viewState) {
+                        isVisible = viewState.getLongPressSpeeding();
+                        onViewStateChanged();
+                        return null;
                     }
-                }
-        );
+                });
     }
 
-    protected void showLongPressControlHint(PLVMediaPlayerControlAction.HintLongPressSpeedControl action) {
-        setVisibility(action.isLongPressing ? View.VISIBLE : View.GONE);
-        if (action.isLongPressing) {
-            speedTv.setText(SPEED_FORMAT.format(action.speed));
-        }
+    protected void onViewStateChanged() {
+        PLVRememberState.rememberStateOf(this, "updateLongPressSpeedHint")
+                .compareLastAndSet(isVisible)
+                .ifNotEquals(new Function1<PLVRememberStateCompareResult, Unit>() {
+                    @Override
+                    public Unit invoke(PLVRememberStateCompareResult result) {
+                        updateLongPressSpeedHint();
+                        return null;
+                    }
+                });
+    }
+
+    protected void updateLongPressSpeedHint() {
+        setVisibility(isVisible ? View.VISIBLE : View.GONE);
     }
 
 }

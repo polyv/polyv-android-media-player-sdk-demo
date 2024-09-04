@@ -1,31 +1,30 @@
 package net.polyv.android.player.common.ui.component.floatwindow;
 
+import static net.polyv.android.player.sdk.foundation.graphics.DisplaysKt.dp;
+import static net.polyv.android.player.sdk.foundation.graphics.DisplaysKt.getScreenHeight;
+import static net.polyv.android.player.sdk.foundation.graphics.DisplaysKt.getScreenWidth;
+
 import android.graphics.Point;
 import android.graphics.Rect;
 import androidx.annotation.Nullable;
-
-import com.plv.thirdpart.blankj.utilcode.util.ConvertUtils;
-import com.plv.thirdpart.blankj.utilcode.util.ScreenUtils;
-
-import net.polyv.android.player.business.scene.common.player.IPLVMediaPlayer;
 
 /**
  * @author Hoshiiro
  */
 public class PLVMediaPlayerFloatWindowHelper {
 
-    private static final int FLOAT_WINDOW_WIDTH_LANDSCAPE = ConvertUtils.dp2px(176);
-    private static final int FLOAT_WINDOW_WIDTH_PORTRAIT = ConvertUtils.dp2px(153);
-    private static final int FLOAT_WINDOW_SIZE_MAX = ConvertUtils.dp2px(278);
+    private static final int FLOAT_WINDOW_WIDTH_LANDSCAPE = dp(176).px();
+    private static final int FLOAT_WINDOW_WIDTH_PORTRAIT = dp(153).px();
+    private static final int FLOAT_WINDOW_SIZE_MAX = dp(278).px();
 
     @Nullable
-    public static Rect calculateFloatWindowPosition(@Nullable IPLVMediaPlayer mediaPlayer) {
+    public static Rect calculateFloatWindowPosition(@Nullable Rect videoSize) {
         Point currentFloatWindowLocation = PLVMediaPlayerFloatWindowManager.getInstance().getFloatWindowLocation();
-        Rect newFloatWindowLocation = newFloatWindowLocation(mediaPlayer);
+        Rect newFloatWindowLocation = newFloatWindowLocation(videoSize);
         if (currentFloatWindowLocation == null || newFloatWindowLocation == null) {
             return newFloatWindowLocation;
         }
-        int screenWidth = ScreenUtils.getScreenOrientatedWidth();
+        int screenWidth = getScreenWidth().px();
         if (currentFloatWindowLocation.x < screenWidth / 2) {
             return new Rect(
                     currentFloatWindowLocation.x,
@@ -44,14 +43,7 @@ public class PLVMediaPlayerFloatWindowHelper {
     }
 
     @Nullable
-    private static Rect newFloatWindowLocation(@Nullable IPLVMediaPlayer mediaPlayer) {
-        if (mediaPlayer == null) {
-            return null;
-        }
-        Rect videoSize = mediaPlayer.getStateListenerRegistry().getVideoSize().getValue();
-        if (videoSize == null) {
-            return null;
-        }
+    private static Rect newFloatWindowLocation(@Nullable Rect videoSize) {
         boolean isPortrait = videoSize.height() > videoSize.width();
         double whRatio = ((double) videoSize.width()) / videoSize.height();
         int width = isPortrait ? FLOAT_WINDOW_WIDTH_PORTRAIT : FLOAT_WINDOW_WIDTH_LANDSCAPE;
@@ -60,8 +52,8 @@ public class PLVMediaPlayerFloatWindowHelper {
             height = FLOAT_WINDOW_SIZE_MAX;
             width = (int) (height * whRatio);
         }
-        int left = ScreenUtils.getScreenOrientatedWidth() - width - ConvertUtils.dp2px(6);
-        int top = ScreenUtils.getScreenOrientatedHeight() - height - ConvertUtils.dp2px(42);
+        int left = getScreenWidth().px() - width - dp(6).px();
+        int top = getScreenHeight().px() - height - dp(42).px();
         return new Rect(left, top, left + width, top + height);
     }
 

@@ -1,11 +1,11 @@
 package net.polyv.android.player.common.utils.feed;
 
+import static net.polyv.android.player.sdk.foundation.graphics.DisplaysKt.getScreenHeight;
+
 import android.content.Context;
 import androidx.annotation.Nullable;
 import androidx.viewpager.widget.ViewPager;
 import android.util.AttributeSet;
-
-import com.plv.thirdpart.blankj.utilcode.util.ScreenUtils;
 
 import net.polyv.android.player.common.utils.ui.viewpager.VerticalViewPager;
 
@@ -114,7 +114,7 @@ public class PLVFeedViewPager extends VerticalViewPager {
     };
 
     protected boolean shouldRefreshFeedResource(float topOverScroll) {
-        return topOverScroll < -ScreenUtils.getScreenOrientatedHeight() * 0.2F;
+        return topOverScroll < -getScreenHeight().px() * 0.2F;
     }
 
     protected boolean shouldLoadMoreFeedResource(float bottomOverScroll, int currentPage, int count) {
