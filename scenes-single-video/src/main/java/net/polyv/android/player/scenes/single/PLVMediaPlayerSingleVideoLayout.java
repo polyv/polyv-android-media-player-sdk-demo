@@ -27,6 +27,7 @@ import net.polyv.android.player.common.di.PLVMPCommonModuleKt;
 import net.polyv.android.player.common.di.PLVMediaPlayerLocalProvider;
 import net.polyv.android.player.common.modules.auxiliary.view.PLVMPAuxiliaryVideoView;
 import net.polyv.android.player.common.modules.auxiliary.viewmodel.PLVMPAuxiliaryViewModel;
+import net.polyv.android.player.common.modules.download.single.viewmodel.PLVMPDownloadItemViewModel;
 import net.polyv.android.player.common.modules.media.view.PLVMPVideoView;
 import net.polyv.android.player.common.modules.media.viewmodel.PLVMPMediaViewModel;
 import net.polyv.android.player.common.modules.mediacontroller.viewmodel.LockMediaControllerAction;
@@ -64,6 +65,7 @@ public class PLVMediaPlayerSingleVideoLayout extends FrameLayout {
     private final PLVMPMediaViewModel mediaViewModel = dependScope.get(PLVMPMediaViewModel.class);
     private final PLVMPMediaControllerViewModel mediaControllerViewModel = dependScope.get(PLVMPMediaControllerViewModel.class);
     private final PLVMPAuxiliaryViewModel auxiliaryViewModel = dependScope.get(PLVMPAuxiliaryViewModel.class);
+    private final PLVMPDownloadItemViewModel downloadItemViewModel = dependScope.get(PLVMPDownloadItemViewModel.class);
 
     // 纵向-半屏 播放器皮肤 layout
     private final Lazy<PortraitLayout> portraitLayout = new Lazy<PortraitLayout>() {
@@ -201,6 +203,10 @@ public class PLVMediaPlayerSingleVideoLayout extends FrameLayout {
 
     public void setEnterFromFloatWindow(boolean enterFromFloatWindow) {
         auxiliaryViewModel.setEnterFromFloatWindow(enterFromFloatWindow);
+    }
+
+    public void setEnterFromDownloadCenter(boolean enterFromDownloadCenter) {
+        downloadItemViewModel.setDownloadActionVisible(!enterFromDownloadCenter);
     }
     // </editor-fold>
 

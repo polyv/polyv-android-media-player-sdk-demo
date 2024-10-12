@@ -2,6 +2,7 @@ package net.polyv.android.player.common.modules.media.mediator
 
 import net.polyv.android.player.business.scene.auxiliary.player.IPLVAuxiliaryMediaPlayer
 import net.polyv.android.player.business.scene.common.model.vo.PLVMediaBitRate
+import net.polyv.android.player.business.scene.common.model.vo.PLVMediaResource
 import net.polyv.android.player.business.scene.common.player.error.PLVMediaPlayerBusinessError
 import net.polyv.android.player.business.scene.common.player.listener.event.PLVMediaPlayerAutoContinueEvent
 import net.polyv.android.player.common.modules.media.viewmodel.viewstate.PLVMPMediaInfoViewState
@@ -11,14 +12,17 @@ import net.polyv.android.player.core.api.listener.event.PLVMediaPlayerOnInfoEven
 import net.polyv.android.player.core.api.listener.event.PLVMediaPlayerOnPreparedEvent
 import net.polyv.android.player.core.api.listener.state.PLVMediaPlayerPlayingState
 import net.polyv.android.player.core.api.listener.state.PLVMediaPlayerState
+import net.polyv.android.player.sdk.foundation.di.LifecycleAwareDependComponent
 import net.polyv.android.player.sdk.foundation.lang.MutableEvent
+import net.polyv.android.player.sdk.foundation.lang.MutableSource
 import net.polyv.android.player.sdk.foundation.lang.MutableState
 
 /**
  * @author Hoshiiro
  */
-class PLVMPMediaMediator {
+class PLVMPMediaMediator : LifecycleAwareDependComponent {
 
+    val mediaResource = MutableState<PLVMediaResource>()
     val mediaPlayViewState = MutableState(PLVMPMediaPlayViewState())
     val mediaInfoViewState = MutableState(PLVMPMediaInfoViewState())
     val networkPoorEvent = MutableEvent<Long>()
@@ -39,5 +43,10 @@ class PLVMPMediaMediator {
     var getVolume: (() -> Int)? = null
     var setVolume: ((Int) -> Unit)? = null
     var bindAuxiliaryPlayer: ((IPLVAuxiliaryMediaPlayer) -> Unit)? = null
+
+    override fun onDestroy() {
+        MutableSource.disposeAllSource(this)
+        bindAuxiliaryPlayer = null
+    }
 
 }

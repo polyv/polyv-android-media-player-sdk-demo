@@ -131,6 +131,17 @@
         app:layout_constraintTop_toTopOf="parent"
         tools:src="@drawable/plv_media_player_lock_orientation_icon_locking" />
 
+    <!-- 视频截图按钮 -->
+    <net.polyv.android.player.common.ui.component.PLVMediaPlayerScreenshotImageView
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_marginEnd="12dp"
+        android:scaleType="center"
+        android:padding="4dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/plv_media_player_video_view_container"
+        app:layout_constraintTop_toTopOf="parent" />
+
     <!-- 播放/暂停按钮 -->
     <net.polyv.android.player.common.ui.component.PLVMediaPlayerPlayButtonLandscape
         android:id="@+id/plv_media_player_play_button"

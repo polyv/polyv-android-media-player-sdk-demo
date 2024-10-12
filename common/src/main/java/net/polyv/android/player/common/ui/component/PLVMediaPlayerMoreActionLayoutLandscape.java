@@ -85,8 +85,7 @@ public class PLVMediaPlayerMoreActionLayoutLandscape extends FrameLayout impleme
                 .observeUntilViewDetached(this, new Function1<PLVMPMediaControllerViewState, Unit>() {
                     @Override
                     public Unit invoke(PLVMPMediaControllerViewState viewState) {
-                        isVisible = viewState.getLastFloatActionLayout() == PLVMPMediaControllerFloatAction.MORE
-                                && !viewState.isMediaStopOverlayVisible();
+                        isVisible = viewState.getLastFloatActionLayout() == PLVMPMediaControllerFloatAction.MORE;
                         onViewStateChanged();
                         return null;
                     }

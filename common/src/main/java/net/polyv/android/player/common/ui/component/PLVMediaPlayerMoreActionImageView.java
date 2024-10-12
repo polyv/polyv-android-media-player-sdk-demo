@@ -57,6 +57,7 @@ public class PLVMediaPlayerMoreActionImageView extends AppCompatImageView implem
                                 && !viewState.getProgressSeekBarDragging()
                                 && !viewState.getControllerLocking()
                                 && !(viewState.isFloatActionLayoutVisible() && isLandscape());
+                        isVisible = isVisible || viewState.isMediaStopOverlayVisible();
                         onViewStateChanged();
                         return null;
                     }

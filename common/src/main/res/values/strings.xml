@@ -10,6 +10,12 @@
     <string name="plv_media_player_ui_component_subtitle_setting_text">字幕设置</string>
     <string name="plv_media_player_ui_component_subtitle_setting_show_switch_label">显示字幕</string>
     <string name="plv_media_player_ui_component_subtitle_setting_double_subtitle_prefix">显示双语：</string>
+    <string name="plv_media_player_ui_component_download_text">下载</string>
+    <string name="plv_media_player_ui_component_download_text_paused">暂停中</string>
+    <string name="plv_media_player_ui_component_download_text_downloading">下载中</string>
+    <string name="plv_media_player_ui_component_download_text_waiting">等待中</string>
+    <string name="plv_media_player_ui_component_download_text_completed">已下载</string>
+    <string name="plv_media_player_ui_component_download_text_failed">下载失败</string>
     <string name="plv_media_player_ui_component_float_window_hint_text">小窗播放</string>
     <string name="plv_media_player_ui_component_switch_video_hint_text">切回视频</string>
     <string name="plv_media_player_ui_component_error_hint_text">视频加载失败，请检查网络设置</string>
@@ -27,4 +33,6 @@
     <string name="plv_media_player_ui_component_auto_continue_hint_post">，已为您自动续播</string>
     <string name="plv_media_player_ui_component_auto_continue_hint_feed_pre">已从</string>
     <string name="plv_media_player_ui_component_auto_continue_hint_feed_post">续播</string>
+    <string name="plv_media_player_ui_component_screenshot_save_success">视频截图成功保存至：%s</string>
+    <string name="plv_media_player_ui_component_screenshot_save_failed">视频截图保存失败</string>
 </resources>

@@ -1,5 +1,6 @@
 package net.polyv.android.player.common.modules.media.model
 
+import android.graphics.Bitmap
 import net.polyv.android.player.business.scene.common.model.vo.PLVMediaBitRate
 import net.polyv.android.player.business.scene.common.model.vo.PLVMediaOutputMode
 import net.polyv.android.player.business.scene.common.model.vo.PLVMediaResource
@@ -44,6 +45,7 @@ internal class PLVMPMediaRepo(
 
     override fun setMediaResource(mediaResource: PLVMediaResource) {
         this.player.setMediaResource(mediaResource)
+        this.mediator.mediaResource.setValue(mediaResource)
     }
 
     override fun setRenderView(renderView: IPLVMediaPlayerRenderView) {
@@ -100,6 +102,10 @@ internal class PLVMPMediaRepo(
 
     override fun setShowSubtitles(subtitles: List<PLVMediaSubtitle>) {
         this.player.setShowSubtitles(subtitles)
+    }
+
+    override fun screenshot(): Bitmap? {
+        return this.player.screenShot()
     }
 
     override fun onDestroy() {

@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#172449">
+
+    <ImageView
+        android:id="@+id/plv_media_player_download_back_iv"
+        android:layout_width="28dp"
+        android:layout_height="28dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="8dp"
+        android:src="@drawable/plv_media_player_back_icon"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/plv_media_player_download_center_text"
+        android:textColor="#FFFFFF"
+        android:textSize="16sp"
+        app:layout_constraintBottom_toBottomOf="@+id/plv_media_player_download_back_iv"
+        app:layout_constraintStart_toEndOf="@+id/plv_media_player_download_back_iv"
+        app:layout_constraintTop_toTopOf="@+id/plv_media_player_download_back_iv" />
+
+    <LinearLayout
+        android:id="@+id/plv_media_player_download_tab_layout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="18dp"
+        android:orientation="horizontal"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/plv_media_player_download_back_iv">
+
+        <LinearLayout
+            android:id="@+id/plv_media_player_download_completed_tab"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:paddingHorizontal="12dp"
+            android:paddingVertical="11dp">
+
+            <TextView
+                android:id="@+id/plv_media_player_download_completed_tab_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/plv_media_player_ui_component_download_text_completed"
+                android:textColor="#FFFFFF"
+                android:textSize="16sp" />
+
+            <net.polyv.android.player.common.utils.ui.PLVRoundRectConstraintLayout
+                android:id="@+id/plv_media_player_download_completed_tab_indicator"
+                android:layout_width="20dp"
+                android:layout_height="2dp"
+                android:layout_marginTop="6dp"
+                android:background="#3F76FC"
+                app:radius="2dp" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/plv_media_player_downloading_tab"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:gravity="center"
+            android:orientation="vertical"
+            android:paddingHorizontal="12dp"
+            android:paddingVertical="11dp">
+
+            <TextView
+                android:id="@+id/plv_media_player_downloading_tab_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/plv_media_player_ui_component_download_text_downloading"
+                android:textColor="#99FFFFFF"
+                android:textSize="16sp" />
+
+            <net.polyv.android.player.common.utils.ui.PLVRoundRectConstraintLayout
+                android:id="@+id/plv_media_player_downloading_tab_indicator"
+                android:layout_width="20dp"
+                android:layout_height="2dp"
+                android:layout_marginTop="6dp"
+                android:background="#3F76FC"
+                app:radius="2dp" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <net.polyv.android.player.scenes.download.tab.PLVMediaPlayerDownloadTabViewPager
+        android:id="@+id/plv_media_player_download_tab_view_pager"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginTop="6dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/plv_media_player_download_tab_layout" />
+
+    <LinearLayout
+        android:id="@+id/plv_media_player_download_list_is_empty_layout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="280dp"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:visibility="visible">
+
+        <ImageView
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:src="@drawable/plv_media_player_download_list_is_empty_icon" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:text="@string/plv_media_player_download_center_list_is_empty"
+            android:textColor="#FFFFFF"
+            android:textSize="12sp" />
+
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

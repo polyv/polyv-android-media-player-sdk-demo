@@ -1,6 +1,5 @@
 package net.polyv.android.player.demo.activity;
 
-import android.content.Intent;
 import android.os.Bundle;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -9,6 +8,10 @@ import android.widget.Button;
 import android.widget.Toast;
 
 import net.polyv.android.player.business.scene.common.model.vo.PLVMediaResource;
+import net.polyv.android.player.common.ui.router.PLVMediaPlayerRouter;
+import net.polyv.android.player.common.ui.router.RouterDestination;
+import net.polyv.android.player.common.ui.router.RouterPayload;
+import net.polyv.android.player.common.ui.router.RouterPayloadStaticHolder;
 import net.polyv.android.player.common.utils.ui.PLVDebounceClicker;
 import net.polyv.android.player.demo.R;
 import net.polyv.android.player.demo.mock.PLVMockMediaResourceData;
@@ -25,6 +28,7 @@ public class PLVMediaPlayerEntranceActivity extends AppCompatActivity implements
 
     private Button entranceFeedVideoBtn;
     private Button entranceSingleVideoBtn;
+    private Button entranceDownloadCenterBtn;
 
     // </editor-fold>
 
@@ -40,9 +44,11 @@ public class PLVMediaPlayerEntranceActivity extends AppCompatActivity implements
 
         entranceFeedVideoBtn = findViewById(R.id.plv_media_player_entrance_feed_video_btn);
         entranceSingleVideoBtn = findViewById(R.id.plv_media_player_entrance_single_video_btn);
+        entranceDownloadCenterBtn = findViewById(R.id.plv_media_player_entrance_download_center_btn);
 
         entranceFeedVideoBtn.setOnClickListener(this);
         entranceSingleVideoBtn.setOnClickListener(this);
+        entranceDownloadCenterBtn.setOnClickListener(this);
     }
     // </editor-fold>
 
@@ -58,6 +64,8 @@ public class PLVMediaPlayerEntranceActivity extends AppCompatActivity implements
             gotoFeedVideoActivity();
         } else if (id == entranceSingleVideoBtn.getId()) {
             gotoSingleVideoActivity();
+        } else if (id == entranceDownloadCenterBtn.getId()) {
+            gotoDownloadCenter();
         }
     }
 
@@ -75,23 +83,33 @@ public class PLVMediaPlayerEntranceActivity extends AppCompatActivity implements
         List<PLVMediaResource> mediaResourceList = sourceList.subList(0, Math.min(10, sourceList.size()));
 
         // goto Feed Video Activity
-        Intent intent = PLVMediaPlayerFeedVideoActivity.launchActivity(PLVMediaPlayerEntranceActivity.this, mediaResourceList);
-        startActivity(intent);
+        PLVMediaPlayerRouter.routerTo(
+                PLVMediaPlayerEntranceActivity.this,
+                new RouterDestination.SceneFeed(new RouterPayload.SceneFeedPayload(
+                        RouterPayloadStaticHolder.create(mediaResourceList)
+                ))
+        );
     }
 
     private void gotoSingleVideoActivity() {
         // mock data
-        PLVMediaResource mediaResource = PLVMockMediaResourceData.getInstance().getRandomMediaResource();
-        if (mediaResource == null) {
+        List<PLVMediaResource> mediaResources = PLVMockMediaResourceData.getInstance().getMediaResources();
+        if (mediaResources == null || mediaResources.isEmpty()) {
             Toast.makeText(this, "视频数据未初始化", Toast.LENGTH_SHORT).show();
             return;
         }
 
         // goto Single Video Activity
-        Intent intent = new Intent(PLVMediaPlayerEntranceActivity.this, PLVMediaPlayerSingleVideoActivity.class);
-        intent.putExtra(PLVMediaPlayerSingleVideoActivity.KEY_TARGET_MEDIA_RESOURCE, mediaResource);
-        startActivity(intent);
+        PLVMediaPlayerRouter.routerTo(
+                PLVMediaPlayerEntranceActivity.this,
+                new RouterDestination.SceneSingle(new RouterPayload.SceneSinglePayload(mediaResources.get(0)))
+        );
     }
+
+    private void gotoDownloadCenter() {
+        PLVMediaPlayerRouter.routerTo(this, new RouterDestination.DownloadCenter(new RouterPayload.DownloadCenterPayload()));
+    }
+
     // </editor-fold>
 
 }

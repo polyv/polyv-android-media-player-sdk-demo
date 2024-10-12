@@ -1,5 +1,6 @@
 package net.polyv.android.player.common.modules.media.model
 
+import android.graphics.Bitmap
 import net.polyv.android.player.business.scene.common.model.vo.PLVMediaBitRate
 import net.polyv.android.player.business.scene.common.model.vo.PLVMediaOutputMode
 import net.polyv.android.player.business.scene.common.model.vo.PLVMediaResource
@@ -37,5 +38,7 @@ interface IPLVMPMediaPlayer {
     fun changeMediaOutputMode(outputMode: PLVMediaOutputMode)
 
     fun setShowSubtitles(subtitles: List<PLVMediaSubtitle>)
+
+    fun screenshot(): Bitmap?
 
 }

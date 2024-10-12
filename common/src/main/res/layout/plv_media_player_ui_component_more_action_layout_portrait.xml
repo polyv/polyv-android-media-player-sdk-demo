@@ -62,8 +62,18 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="24dp"
-                app:layout_constraintStart_toEndOf="@id/plv_media_player_more_float_window_action_view"
+                app:layout_constraintStart_toEndOf="@+id/plv_media_player_more_float_window_action_view"
                 app:layout_constraintTop_toTopOf="parent" />
+
+            <net.polyv.android.player.common.ui.component.PLVMediaPlayerMoreLayoutDownloadActionView
+                android:id="@+id/plv_media_player_more_download_action_view"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="24dp"
+                app:layout_constraintStart_toEndOf="@+id/plv_media_player_more_subtitle_action_view"
+                app:layout_constraintTop_toTopOf="parent"
+                app:plvIconTintNormal="#333333"
+                app:plvTextColorNormal="#CC333333" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

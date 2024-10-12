@@ -1,0 +1,4 @@
+<resources>
+    <string name="plv_media_player_download_center_text">下载中心</string>
+    <string name="plv_media_player_download_center_list_is_empty">暂无下载内容</string>
+</resources>

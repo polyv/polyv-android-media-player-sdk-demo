@@ -8,10 +8,14 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import android.view.WindowManager;
 
 import net.polyv.android.player.business.scene.common.model.vo.PLVMediaResource;
 import net.polyv.android.player.common.ui.component.floatwindow.IPLVMediaPlayerFloatWindowControlActionListener;
 import net.polyv.android.player.common.ui.component.floatwindow.PLVMediaPlayerFloatWindowManager;
+import net.polyv.android.player.common.ui.router.PLVMediaPlayerRouter;
+import net.polyv.android.player.common.ui.router.RouterDestination;
+import net.polyv.android.player.common.ui.router.RouterPayload;
 import net.polyv.android.player.common.utils.orientation.PLVActivityOrientationManager;
 import net.polyv.android.player.scenes.single.PLVMediaPlayerSingleVideoLayout;
 import net.polyv.android.player.sdk.PLVDeviceManager;
@@ -21,14 +25,14 @@ import net.polyv.android.player.sdk.PLVDeviceManager;
  */
 public class PLVMediaPlayerSingleVideoActivity extends AppCompatActivity {
 
-    // 进入页面时的视频资源传参Key
-    public static final String KEY_TARGET_MEDIA_RESOURCE = "key_target_media_resource";
-    public static final String KEY_ENTER_FROM_FLOAT_WINDOW = "key_enter_from_float_window";
+    // 禁止录屏、截图
+    public static final boolean FLAG_SECURE_WINDOW = false;
 
     // 进入页面时初始的视频资源
     @Nullable
     private PLVMediaResource targetMediaResource = null;
     private boolean enterFromFloatWindow = false;
+    private boolean enterFromDownloadCenter = false;
 
     // 实际的业务布局
     private PLVMediaPlayerSingleVideoLayout contentLayout;
@@ -37,6 +41,10 @@ public class PLVMediaPlayerSingleVideoActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable @org.jetbrains.annotations.Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        if (FLAG_SECURE_WINDOW) {
+            getWindow().addFlags(WindowManager.LayoutParams.FLAG_SECURE);
+        }
 
         // 全局状态更新
         PLVMediaPlayerFloatWindowManager.getInstance().clear(); // 如果是从小窗状态进入，需要先销毁小窗
@@ -59,8 +67,9 @@ public class PLVMediaPlayerSingleVideoActivity extends AppCompatActivity {
 
         Bundle bundle = getIntent().getExtras();
         if (bundle != null) {
-            targetMediaResource = bundle.getParcelable(KEY_TARGET_MEDIA_RESOURCE);
-            enterFromFloatWindow = bundle.getBoolean(KEY_ENTER_FROM_FLOAT_WINDOW, false);
+            targetMediaResource = bundle.getParcelable(PLVMediaPlayerRouter.KEY_TARGET_MEDIA_RESOURCE);
+            enterFromFloatWindow = bundle.getBoolean(PLVMediaPlayerRouter.KEY_ENTER_FROM_FLOAT_WINDOW, false);
+            enterFromDownloadCenter = bundle.getBoolean(PLVMediaPlayerRouter.KEY_ENTER_FROM_DOWNLOAD_CENTER, false);
         }
     }
 
@@ -70,6 +79,7 @@ public class PLVMediaPlayerSingleVideoActivity extends AppCompatActivity {
             contentLayout.setMediaResource(targetMediaResource);
         }
         contentLayout.setEnterFromFloatWindow(enterFromFloatWindow);
+        contentLayout.setEnterFromDownloadCenter(enterFromDownloadCenter);
     }
 
     // </editor-fold>
@@ -117,9 +127,10 @@ public class PLVMediaPlayerSingleVideoActivity extends AppCompatActivity {
                             return;
                         }
 
-                        Intent intent = new Intent(PLVMediaPlayerSingleVideoActivity.this, PLVMediaPlayerSingleVideoActivity.class);
-                        intent.putExtra(PLVMediaPlayerSingleVideoActivity.KEY_TARGET_MEDIA_RESOURCE, mediaResource);
-                        intent.putExtra(PLVMediaPlayerSingleVideoActivity.KEY_ENTER_FROM_FLOAT_WINDOW, true);
+                        Intent intent = PLVMediaPlayerRouter.router(
+                                PLVMediaPlayerSingleVideoActivity.this,
+                                new RouterDestination.SceneSingle(new RouterPayload.SceneSinglePayload(mediaResource, true))
+                        );
                         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
                         startActivity(intent);
 

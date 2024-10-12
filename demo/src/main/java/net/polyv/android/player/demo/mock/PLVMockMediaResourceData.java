@@ -10,11 +10,14 @@ import net.polyv.android.player.business.scene.common.model.vo.PLVMediaResource;
 import net.polyv.android.player.business.scene.common.model.vo.PLVViewerParam;
 import net.polyv.android.player.business.scene.common.model.vo.PLVVodAuthentication;
 import net.polyv.android.player.business.scene.common.model.vo.PLVVodMainAccountAuthentication;
+import net.polyv.android.player.sdk.addon.download.common.model.vo.PLVMediaDownloadSetting;
+import net.polyv.android.player.sdk.foundation.app.PLVApplicationContext;
 import net.polyv.android.player.sdk.foundation.collections.PLVSequences;
 import net.polyv.android.player.sdk.foundation.log.PLVMediaPlayerLogger;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.io.File;
 import java.util.List;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -128,16 +131,12 @@ public class PLVMockMediaResourceData {
         return this.mediaResources;
     }
 
-    @Nullable
-    public PLVMediaResource getRandomMediaResource() {
-        if (mediaResources == null || mediaResources.isEmpty()) {
-            return null;
-        }
-        return mediaResources.get((int) (Math.random() * mediaResources.size()));
-    }
-
     private static PLVMediaResource vod(String videoId) {
-        return PLVMediaResource.vod(videoId, mockAuthentication, mockViewerParam);
+        // 播放器 SDK 默认下载路径
+        final String defaultDownloadRoot = PLVMediaDownloadSetting.defaultSetting(PLVApplicationContext.getApplicationContext()).getDownloadRootDirectory().getAbsolutePath();
+        // 点播 SDK 默认下载路径，需要提前调用 PLVMediaDownloaderVodMigrate.migrate 才能播放在点播 SDK 下载的视频
+        final String vodSdkDownloadRoot = new File(PLVApplicationContext.getApplicationContext().getExternalFilesDir(null), "polyvdownload").getAbsolutePath();
+        return PLVMediaResource.vod(videoId, mockAuthentication, mockViewerParam, listOf(defaultDownloadRoot, vodSdkDownloadRoot));
     }
 
     private static PLVMediaResource url(String url) {

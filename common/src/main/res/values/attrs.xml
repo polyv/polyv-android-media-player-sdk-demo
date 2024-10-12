@@ -75,6 +75,10 @@
         <attr name="plvTextColorNormal" />
         <attr name="plvTextColorSelected" />
     </declare-styleable>
+    <declare-styleable name="PLVMediaPlayerMoreLayoutDownloadActionView">
+        <attr name="plvIconTintNormal" />
+        <attr name="plvTextColorNormal" />
+    </declare-styleable>
     <declare-styleable name="PLVRoundRectConstraintLayout">
         <attr name="radius" />
         <attr name="mode" />
