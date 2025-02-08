@@ -26,7 +26,10 @@ internal class DownloadItemUpdateStateUseCase(
         DerivedState {
             val mediaResource = repo.mediaMediator.mediaResource.value ?: return@DerivedState null
             val bitRate = repo.mediaMediator.mediaInfoViewState.value?.bitRate ?: PLVMediaBitRate.BITRATE_AUTO
-            val downloader = PLVMediaDownloaderManager.getDownloader(mediaResource, bitRate)
+            val downloader = runCatching { PLVMediaDownloaderManager.getDownloader(mediaResource, bitRate) }.getOrNull()
+            if (downloader == null) {
+                return@DerivedState null
+            }
             PLVMPDownloadItemViewState(
                 downloader,
                 downloader.listenerRegistry.progress.value ?: 0F,

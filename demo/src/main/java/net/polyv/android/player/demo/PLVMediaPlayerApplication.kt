@@ -10,6 +10,7 @@ import net.polyv.android.player.scenes.download.PLVMediaPlayerDownloadCenterActi
 import net.polyv.android.player.sdk.addon.download.PLVMediaDownloaderManager
 import net.polyv.android.player.sdk.addon.download.common.model.vo.PLVMediaDownloadSetting
 import net.polyv.android.player.sdk.addon.download.migrate.vod.PLVMediaDownloaderVodMigrate
+import net.polyv.android.player.sdk.foundation.network.httpdns.PLVMediaPlayerHttpDns
 
 /**
  * @author Hoshiiro
@@ -17,6 +18,9 @@ import net.polyv.android.player.sdk.addon.download.migrate.vod.PLVMediaDownloade
 class PLVMediaPlayerApplication : Application() {
     override fun onCreate() {
         super.onCreate()
+
+        PLVMediaPlayerHttpDns.enable = true
+
         // 初始化下载模块
         PLVMediaDownloaderManager.init(PLVMediaDownloadSetting.defaultSetting(applicationContext))
         // 如果在点播 SDK 下载的视频需要通过播放器 SDK 播放，需要调用 migrate 方法

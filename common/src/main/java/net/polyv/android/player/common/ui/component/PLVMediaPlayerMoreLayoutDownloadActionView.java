@@ -43,7 +43,7 @@ public class PLVMediaPlayerMoreLayoutDownloadActionView extends FrameLayout impl
 
     private PLVMediaDownloadStatus downloadStatus = PLVMediaDownloadStatus.NOT_STARTED.INSTANCE;
     private float downloadProgress = 0;
-    private boolean isVisible = true;
+    private boolean isVisible = false;
 
     public PLVMediaPlayerMoreLayoutDownloadActionView(@NonNull Context context) {
         super(context);
