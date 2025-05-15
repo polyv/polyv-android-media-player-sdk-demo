@@ -20,7 +20,6 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Paint;
-import android.renderscript.RSRuntimeException;
 import androidx.annotation.NonNull;
 
 import com.bumptech.glide.load.engine.bitmap_recycle.BitmapPool;
@@ -74,8 +73,8 @@ public class BlurTransformation extends BitmapTransformation {
         canvas.drawBitmap(toTransform, 0, 0, paint);
 
         try {
-            bitmap = RSBlur.blur(context, bitmap, radius);
-        } catch (RSRuntimeException e) {
+            bitmap = RSBlur.blur(bitmap, radius);
+        } catch (Throwable e) {
             bitmap = FastBlur.blur(bitmap, radius, true);
         }
 

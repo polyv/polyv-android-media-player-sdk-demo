@@ -5,8 +5,8 @@
  * @author Hoshiiro
  */
 
-const val version_name = "2.5.0"
-const val version_code = 20500
+const val version_name = "2.5.2"
+const val version_code = 20502
 
 const val compile_sdk_version = 34
 const val target_sdk_version = 34
@@ -26,10 +26,11 @@ const val deps_gson_version = "2.8.5"
 const val deps_jsr305_version = "2.0.1"
 const val deps_retrofit_version = "2.6.0"
 const val deps_okhttp_version = "4.5.0"
-const val deps_httpdns_version = "2.3.5.p2"
+const val deps_httpdns_version = "2.3.5.p3"
 const val deps_rxjava_version = "2.2.8"
 const val deps_rxjava_android_version = "2.1.1"
 const val deps_glide_version = "4.10.0"
 const val deps_circle_image_view_version = "2.2.0"
 const val deps_svga_version = "2.6.1"
-
+const val deps_native_module = "1.0.0"
+const val deps_render_script = "1.0.0"

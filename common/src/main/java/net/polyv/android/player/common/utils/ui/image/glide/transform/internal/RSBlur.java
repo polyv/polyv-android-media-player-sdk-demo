@@ -1,13 +1,8 @@
 package net.polyv.android.player.common.utils.ui.image.glide.transform.internal;
 
-import android.content.Context;
 import android.graphics.Bitmap;
-import android.os.Build;
-import android.renderscript.Allocation;
-import android.renderscript.Element;
-import android.renderscript.RSRuntimeException;
-import android.renderscript.RenderScript;
-import android.renderscript.ScriptIntrinsicBlur;
+
+import net.polyv.android.renderscript.RenderScript;
 
 /**
  * Copyright (C) 2020 Wasabeef
@@ -27,42 +22,7 @@ import android.renderscript.ScriptIntrinsicBlur;
 
 public class RSBlur {
 
-    public static Bitmap blur(Context context, Bitmap bitmap, int radius) throws RSRuntimeException {
-        RenderScript rs = null;
-        Allocation input = null;
-        Allocation output = null;
-        ScriptIntrinsicBlur blur = null;
-        try {
-            rs = RenderScript.create(context);
-            rs.setMessageHandler(new RenderScript.RSMessageHandler());
-            input = Allocation.createFromBitmap(rs, bitmap, Allocation.MipmapControl.MIPMAP_NONE,
-                    Allocation.USAGE_SCRIPT);
-            output = Allocation.createTyped(rs, input.getType());
-            blur = ScriptIntrinsicBlur.create(rs, Element.U8_4(rs));
-
-            blur.setInput(input);
-            blur.setRadius(radius);
-            blur.forEach(output);
-            output.copyTo(bitmap);
-        } finally {
-            if (rs != null) {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                    RenderScript.releaseAllContexts();
-                } else {
-                    rs.destroy();
-                }
-            }
-            if (input != null) {
-                input.destroy();
-            }
-            if (output != null) {
-                output.destroy();
-            }
-            if (blur != null) {
-                blur.destroy();
-            }
-        }
-
-        return bitmap;
+    public static Bitmap blur(Bitmap bitmap, int radius) throws Throwable {
+        return RenderScript.blur(bitmap, radius);
     }
 }

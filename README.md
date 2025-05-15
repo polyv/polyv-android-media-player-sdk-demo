@@ -2,7 +2,7 @@ polyv-android-media-player-sdk-demo
 ===
 
 [![build passing](https://img.shields.io/badge/build-passing-brightgreen.svg)](#)
-[![GitHub release](https://img.shields.io/badge/release-2.5.0-blue.svg)](https://github.com/polyv/polyv-android-media-player-sdk-demo/releases/tag/2.5.0)
+[![GitHub release](https://img.shields.io/badge/release-2.5.2-blue.svg)](https://github.com/polyv/polyv-android-media-player-sdk-demo/releases/tag/2.5.2)
 
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
@@ -49,7 +49,7 @@ Demo [下载链接](https://www.pgyer.com/iE13Ej) （密码：polyv）
 
 #### 3.2 接口文档
 
-[v2.5.0 接口文档](https://repo.polyv.net/android/documents/media_player_sdk/2.5.0/index.html)
+[v2.5.2 接口文档](https://repo.polyv.net/android/documents/media_player_sdk/2.5.2/index.html)
 
 #### 3.3 版本更新记录
 [全版本更新记录](./CHANGELOG.md)

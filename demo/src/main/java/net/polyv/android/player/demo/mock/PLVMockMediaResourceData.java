@@ -102,11 +102,7 @@ public class PLVMockMediaResourceData {
                                 .map(new Function1<PLVVodVideoListResponseVO.VodVideo, PLVMediaResource>() {
                                     @Override
                                     public PLVMediaResource invoke(PLVVodVideoListResponseVO.VodVideo vodVideo) {
-                                        return PLVMediaResource.vod(
-                                                vodVideo.getVid(),
-                                                authentication,
-                                                viewerParam
-                                        );
+                                        return vod(vodVideo.getVid());
                                     }
                                 })
                                 .toMutableList();

@@ -137,7 +137,13 @@ public class PLVMediaPlayerProgressSeekBar extends AppCompatSeekBar implements S
     }
 
     protected void updateProgress() {
-        long showProgress = isDragging || dragWaitSeekFinish ? dragProgress : videoProgress;
+        if (videoDuration == 0) {
+            return;
+        }
+        if (!isDragging && dragWaitSeekFinish) {
+            return;
+        }
+        long showProgress = isDragging ? dragProgress : videoProgress;
         setMax((int) videoDuration);
         setProgress((int) showProgress);
     }

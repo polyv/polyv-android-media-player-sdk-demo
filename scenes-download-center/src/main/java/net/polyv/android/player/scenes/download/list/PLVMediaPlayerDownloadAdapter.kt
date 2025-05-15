@@ -122,18 +122,18 @@ internal sealed class DownloadViewHolder(view: View) : ViewHolder(view) {
         icon: ImageView
     ): MutableObserver<*> {
         icon.setOnClickListener {
-            if (item.value?.downloadStatus?.canStartDownload() == true) {
-                item.value?.startDownload()
-            } else {
+            if (item.value?.downloadStatus?.isRunningDownload() == true) {
                 item.value?.pauseDownload()
+            } else {
+                item.value?.startDownload()
             }
         }
 
         return item.observeUntilViewDetached(icon) { viewState ->
-            if (viewState.downloadStatus.canStartDownload()) {
-                icon.setImageResource(R.drawable.plv_media_player_download_item_download_icon_to_start)
-            } else {
+            if (viewState.downloadStatus.isRunningDownload()) {
                 icon.setImageResource(R.drawable.plv_media_player_download_item_download_icon_to_pause)
+            } else {
+                icon.setImageResource(R.drawable.plv_media_player_download_item_download_icon_to_start)
             }
         }
     }

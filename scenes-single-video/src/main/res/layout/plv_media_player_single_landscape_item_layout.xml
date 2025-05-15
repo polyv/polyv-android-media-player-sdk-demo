@@ -59,19 +59,19 @@
         app:layout_constraintTop_toTopOf="@+id/plv_media_player_video_view_container" />
 
     <!-- 亮度/音量手势控制层 -->
-    <net.polyv.android.player.common.ui.component.PLVMediaPlayerBrightnessVolumeControlLayout
+    <net.polyv.android.player.common.ui.component.PLVMediaPlayerGestureBrightnessVolumeControlLayout
         android:id="@+id/plv_media_player_brightness_volume_control_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
     <!-- 长按快进手势控制层 -->
-    <net.polyv.android.player.common.ui.component.PLVMediaPlayerLongPressSpeedControlLayout
+    <net.polyv.android.player.common.ui.component.PLVMediaPlayerGestureLongPressSpeedControlLayout
         android:id="@+id/plv_media_player_long_press_speed_control_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
     <!-- 左右滑动seek控制层 -->
-    <net.polyv.android.player.common.ui.component.PLVMediaPlayerHorizontalDragControlLayout
+    <net.polyv.android.player.common.ui.component.PLVMediaPlayerGestureHorizontalDragControlLayout
         android:id="@+id/plv_media_player_horizontal_drag_control_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />

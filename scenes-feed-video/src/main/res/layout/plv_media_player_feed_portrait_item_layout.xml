@@ -93,7 +93,7 @@
         app:layout_constraintTop_toBottomOf="@+id/plv_media_player_video_view_container" />
 
     <!-- 长按快进手势控制层 -->
-    <net.polyv.android.player.common.ui.component.PLVMediaPlayerLongPressSpeedControlLayout
+    <net.polyv.android.player.common.ui.component.PLVMediaPlayerGestureLongPressSpeedControlLayout
         android:id="@+id/plv_media_player_long_press_speed_control_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />

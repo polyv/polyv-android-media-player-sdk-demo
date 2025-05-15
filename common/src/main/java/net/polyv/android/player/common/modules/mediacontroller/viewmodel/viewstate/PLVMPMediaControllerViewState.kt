@@ -4,7 +4,7 @@ package net.polyv.android.player.common.modules.mediacontroller.viewmodel.viewst
  * @author Hoshiiro
  */
 data class PLVMPMediaControllerViewState(
-    val controllerVisible: Boolean = true,
+    val controllerVisible: Boolean = false,
     val controllerLocking: Boolean = false,
     val progressSeekBarDragging: Boolean = false,
     val progressSeekBarDragPosition: Long = 0,

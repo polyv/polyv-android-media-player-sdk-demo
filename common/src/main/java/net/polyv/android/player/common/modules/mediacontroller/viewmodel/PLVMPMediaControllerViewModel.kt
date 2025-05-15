@@ -2,6 +2,11 @@ package net.polyv.android.player.common.modules.mediacontroller.viewmodel
 
 import android.app.Activity
 import android.content.Context
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import net.polyv.android.player.business.scene.common.coroutine.PLVMediaPlayerGlobalCoroutineScope
 import net.polyv.android.player.common.modules.mediacontroller.model.PLVMPMediaControllerRepo
 import net.polyv.android.player.common.modules.mediacontroller.viewmodel.usecase.PLVMPMediaControllerUseCases
 import net.polyv.android.player.common.modules.mediacontroller.viewmodel.viewstate.PLVMPMediaControllerFloatAction
@@ -10,6 +15,8 @@ import net.polyv.android.player.common.utils.floatwindow.enums.PLVFloatWindowLau
 import net.polyv.android.player.core.api.listener.event.PLVMediaPlayerOnInfoEvent
 import net.polyv.android.player.sdk.PLVDeviceManager
 import net.polyv.android.player.sdk.foundation.di.LifecycleAwareDependComponent
+import net.polyv.android.player.sdk.foundation.lang.Duration
+import net.polyv.android.player.sdk.foundation.lang.Duration.Companion.seconds
 import net.polyv.android.player.sdk.foundation.lang.MutableObserver
 import net.polyv.android.player.sdk.foundation.lang.MutableObserver.Companion.disposeAll
 
@@ -29,6 +36,8 @@ class PLVMPMediaControllerViewModel internal constructor(
     private var viewState: PLVMPMediaControllerViewState
         get() = repo.mediator.mediaControllerViewState.value ?: PLVMPMediaControllerViewState()
         set(value) = repo.mediator.mediaControllerViewState.setValue(value)
+
+    private var showControllerForDurationJob: Job? = null
 
     private val observers = mutableListOf<MutableObserver<*>>()
 
@@ -62,9 +71,29 @@ class PLVMPMediaControllerViewModel internal constructor(
 
     @JvmOverloads
     fun changeControllerVisible(toVisible: Boolean = !viewState.controllerVisible) {
+        showControllerForDurationJob?.cancel()
         viewState = viewState.copy(
             controllerVisible = toVisible
         )
+    }
+
+    fun showControllerForDuration(duration: Duration) {
+        showControllerForDurationJob?.cancel()
+        viewState = viewState.copy(
+            controllerVisible = true
+        )
+        showControllerForDurationJob = PLVMediaPlayerGlobalCoroutineScope.launch(Dispatchers.Main) {
+            delay(duration.toMillis())
+            viewState = viewState.copy(controllerVisible = false)
+        }
+    }
+
+    fun onClickChangeControllerVisible() {
+        if (viewState.controllerVisible) {
+            changeControllerVisible(false)
+        } else {
+            showControllerForDuration(5.seconds())
+        }
     }
 
     fun handleLongPressSpeeding(action: LongPressSpeedingAction) {
