@@ -18,7 +18,6 @@ import net.polyv.android.player.common.utils.ui.PLVDebounceClicker
 import net.polyv.android.player.demo.R
 import net.polyv.android.player.demo.mock.PLVMockMediaResourceData
 import net.polyv.android.player.sdk.PLVDeviceManager.setTransparentStatusBar
-import kotlin.math.min
 
 /**
  * @author Hoshiiro
@@ -69,10 +68,7 @@ class PLVMediaPlayerEntranceActivity : AppCompatActivity(), View.OnClickListener
             Toast.makeText(this, "视频数据未初始化", Toast.LENGTH_SHORT).show()
             return
         }
-        val mediaResourceList: List<PLVMediaResource> = sourceList.subList(
-            0,
-            min(10.0, sourceList.size.toDouble()).toInt()
-        )
+        val mediaResourceList: List<PLVMediaResource> = sourceList.subList(0, sourceList.size.coerceAtMost(10))
 
         // goto Feed Video Activity
         routerTo(

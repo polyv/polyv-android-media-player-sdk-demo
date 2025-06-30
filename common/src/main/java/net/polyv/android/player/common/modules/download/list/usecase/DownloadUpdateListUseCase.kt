@@ -7,53 +7,42 @@ import net.polyv.android.player.common.modules.download.list.viewstate.PLVMPDown
 import net.polyv.android.player.sdk.addon.download.PLVMediaDownloaderManager
 import net.polyv.android.player.sdk.addon.download.common.PLVMediaDownloader
 import net.polyv.android.player.sdk.addon.download.common.model.vo.PLVMediaDownloadStatus
+import net.polyv.android.player.sdk.foundation.di.LifecycleAwareDependComponent
 import net.polyv.android.player.sdk.foundation.lang.DerivedState
 import net.polyv.android.player.sdk.foundation.lang.Duration.Companion.seconds
 import net.polyv.android.player.sdk.foundation.lang.MutableObserver
 import net.polyv.android.player.sdk.foundation.lang.MutableObserver.Companion.disposeAll
 import net.polyv.android.player.sdk.foundation.lang.State
+import net.polyv.android.player.sdk.foundation.lang.watchStates
 
 /**
  * @author Hoshiiro
  */
 internal class DownloadUpdateListUseCase(
     private val repo: PLVMPDownloadListRepo
-) {
+) : LifecycleAwareDependComponent {
 
-    private val observersAnyDownloaderStatusChanged = mutableListOf<MutableObserver<*>>()
+    private val observers = mutableListOf<MutableObserver<*>>()
 
     init {
-        PLVMediaDownloaderManager.downloaderList.observe {
-            updateDownloadList()
-        }
+        watchStates {
+            val list = PLVMediaDownloaderManager.downloaderList.value ?: emptyList()
+
+            val downloading = list
+                .filter { it.isDownloading() }
+                .map { it.asDownloadItemState() }
+
+            val downloaded = list
+                .filter { it.isDownloadCompleted() }
+                .map { it.asDownloadItemState() }
+
+            repo.mediator.downloadingList.setValue(PLVMPDownloadListViewState(downloading))
+            repo.mediator.downloadedList.setValue(PLVMPDownloadListViewState(downloaded))
+        }.addTo(this.observers)
     }
 
-    private fun updateDownloadList() {
-        val list = PLVMediaDownloaderManager.downloaderList.value ?: emptyList()
-
-        observersAnyDownloaderStatusChanged.disposeAll()
-        observersAnyDownloaderStatusChanged.clear()
-
-        list.forEach { downloader ->
-            val downloading = downloader.isDownloading()
-            val downloadCompleted = downloader.isDownloadCompleted()
-            downloader.listenerRegistry.status.observe {
-                if (downloading != downloader.isDownloading() || downloadCompleted != downloader.isDownloadCompleted()) {
-                    updateDownloadList()
-                }
-            }.addTo(observersAnyDownloaderStatusChanged)
-        }
-
-        val downloading = list
-            .filter { it.isDownloading() }
-            .map { it.asDownloadItemState() }
-
-        val downloaded = list
-            .filter { it.isDownloadCompleted() }
-            .map { it.asDownloadItemState() }
-
-        repo.mediator.downloadingList.setValue(PLVMPDownloadListViewState(downloading))
-        repo.mediator.downloadedList.setValue(PLVMPDownloadListViewState(downloaded))
+    override fun onDestroy() {
+        this.observers.disposeAll()
     }
 
     private fun PLVMediaDownloader.isDownloading(): Boolean {

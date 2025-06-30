@@ -45,12 +45,12 @@ class PLVMediaPlayerFeedVideoActivity : AppCompatActivity() {
             window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
         }
 
-        // 全局状态更新
-        PLVMediaPlayerFloatWindowManager.getInstance().clear() // 如果是从小窗状态进入，需要先销毁小窗
-        updateWindowInsets() // 更新状态栏的横竖屏状态
+        // 如果是从小窗状态进入，需要先销毁小窗
+        PLVMediaPlayerFloatWindowManager.getInstance().clear()
 
         // 初始化 页面 和 Layout
         initActivity()
+        updateWindowInsets()
         initFeedVideoLayout()
 
         // 设置屏幕方向监听

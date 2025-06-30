@@ -83,7 +83,21 @@ internal class PLVMediaPlayerDownloadAdapter : RecyclerView.Adapter<DownloadView
 }
 
 internal sealed class DownloadViewHolder(view: View) : ViewHolder(view) {
+
+    init {
+        itemView.addOnAttachStateChangeListener(object : View.OnAttachStateChangeListener {
+            override fun onViewAttachedToWindow(v: View) {
+                onAttached()
+            }
+
+            override fun onViewDetachedFromWindow(v: View) {
+
+            }
+        })
+    }
+
     abstract fun bind(item: State<PLVMPDownloadListItemViewState>)
+    abstract fun onAttached()
     abstract fun unbind()
 
     protected fun observeCoverImage(item: State<PLVMPDownloadListItemViewState>, imageView: ImageView) =
@@ -193,6 +207,7 @@ internal class DownloadCompletedViewHolder(
     private val downloadFileSizeTv: TextView by lazy { findViewById<TextView>(R.id.plv_media_player_download_file_size_tv) }
     private val downloadItemDeleteTv: TextView by lazy { findViewById<TextView>(R.id.plv_media_player_download_item_delete_tv) }
 
+    private var item: State<PLVMPDownloadListItemViewState>? = null
     private val observers: MutableList<MutableObserver<*>> = mutableListOf()
 
     init {
@@ -203,7 +218,14 @@ internal class DownloadCompletedViewHolder(
 
     override fun bind(item: State<PLVMPDownloadListItemViewState>) {
         unbind()
+        this.item = item
         downloadItemRoot.scrollTo(0, 0)
+    }
+
+    override fun onAttached() {
+        observers.disposeAll()
+        observers.clear()
+        val item = this.item ?: return
 
         observeCoverImage(item, downloadCoverImageIv).addTo(observers)
         observeDuration(item, downloadDurationTv).addTo(observers)
@@ -228,8 +250,7 @@ internal class DownloadCompletedViewHolder(
     }
 
     override fun unbind() {
-        observers.disposeAll()
-        observers.clear()
+        this.item = null
     }
 
 }
@@ -257,6 +278,7 @@ internal class DownloadingViewHolder(
     private val downloadItemDownloadIcon: ImageView by lazy { findViewById<ImageView>(R.id.plv_media_player_download_item_download_icon) }
     private val downloadItemDeleteTv: TextView by lazy { findViewById<TextView>(R.id.plv_media_player_download_item_delete_tv) }
 
+    private var item: State<PLVMPDownloadListItemViewState>? = null
     private val observers: MutableList<MutableObserver<*>> = mutableListOf()
 
     init {
@@ -267,7 +289,14 @@ internal class DownloadingViewHolder(
 
     override fun bind(item: State<PLVMPDownloadListItemViewState>) {
         unbind()
+        this.item = item
         downloadItemRoot.scrollTo(0, 0)
+    }
+
+    override fun onAttached() {
+        observers.disposeAll()
+        observers.clear()
+        val item = this.item ?: return
 
         observeCoverImage(item, downloadCoverImageIv).addTo(observers)
         observeDuration(item, downloadDurationTv).addTo(observers)
@@ -281,8 +310,7 @@ internal class DownloadingViewHolder(
     }
 
     override fun unbind() {
-        observers.disposeAll()
-        observers.clear()
+        this.item = null
     }
 
 }

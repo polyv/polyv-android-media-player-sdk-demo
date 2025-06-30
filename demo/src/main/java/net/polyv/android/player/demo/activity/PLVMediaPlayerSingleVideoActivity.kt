@@ -3,7 +3,9 @@ package net.polyv.android.player.demo.activity
 import android.content.Intent
 import android.content.res.Configuration
 import android.os.Bundle
+import androidx.core.view.ViewCompat
 import androidx.appcompat.app.AppCompatActivity
+import android.view.ViewGroup
 import android.view.WindowManager
 import net.polyv.android.player.business.scene.common.model.vo.PLVMediaResource
 import net.polyv.android.player.common.ui.component.floatwindow.IPLVMediaPlayerFloatWindowControlActionListener
@@ -44,12 +46,12 @@ class PLVMediaPlayerSingleVideoActivity : AppCompatActivity() {
             window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
         }
 
-        // 全局状态更新
-        PLVMediaPlayerFloatWindowManager.getInstance().clear() // 如果是从小窗状态进入，需要先销毁小窗
-        updateWindowInsets() // 更新状态栏的横竖屏状态
+        // 如果是从小窗状态进入，需要先销毁小窗
+        PLVMediaPlayerFloatWindowManager.getInstance().clear()
 
         // 初始化 页面 和 Layout
         initActivity()
+        updateWindowInsets()
         initSingleVideoLayout()
 
         // 设置屏幕方向监听
@@ -93,6 +95,28 @@ class PLVMediaPlayerSingleVideoActivity : AppCompatActivity() {
         } else {
             hideStatusBar(this)
             hideNavigationBar(this)
+        }
+        updateWindowInsetsAPI35()
+    }
+
+    // Android 15: force edge to edge
+    private fun updateWindowInsetsAPI35() {
+        val rootContent = findViewById<ViewGroup>(android.R.id.content).getChildAt(0)
+        if (isPortrait()) {
+            ViewCompat.setOnApplyWindowInsetsListener(rootContent) { v, insets ->
+                v.setPadding(
+                    insets.systemWindowInsetLeft,
+                    insets.systemWindowInsetTop,
+                    insets.systemWindowInsetRight,
+                    insets.systemWindowInsetBottom
+                )
+                insets
+            }
+        } else {
+            ViewCompat.setOnApplyWindowInsetsListener(rootContent) { v, insets ->
+                v.setPadding(0, 0, 0, 0)
+                insets
+            }
         }
     }
 
