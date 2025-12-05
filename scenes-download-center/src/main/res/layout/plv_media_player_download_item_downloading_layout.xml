@@ -27,7 +27,7 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:radius="4dp">
+                app:plv_radius="4dp">
 
                 <ImageView
                     android:id="@+id/plv_media_player_download_cover_image_iv"

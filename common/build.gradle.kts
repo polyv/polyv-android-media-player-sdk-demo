@@ -30,12 +30,12 @@ dependencies {
     implementation("com.google.android.material:material:1.0.0")
     implementation("androidx.constraintlayout:constraintlayout:1.1.3")
 
-    api("net.polyv.android:media-player-full:2.6.0")
-    api("net.polyv.android:media-player-sdk-addon-download:2.6.0")
+    api("net.polyv.android:media-player-full:2.7.0")
+    api("net.polyv.android:media-player-sdk-addon-download:2.7.0")
 
     api("de.hdodenhof:circleimageview:$deps_circle_image_view_version")
     api("com.github.yyued:SVGAPlayer-Android:$deps_svga_version")
-    api("com.github.bumptech.glide:okhttp3-integration:$deps_glide_version")
-    annotationProcessor("com.github.bumptech.glide:compiler:$deps_glide_version")
+    api("com.github.bumptech.glide:okhttp3-integration:4.10.0")
+    annotationProcessor("com.github.bumptech.glide:compiler:4.10.0")
     api("net.polyv.android:renderscript:$deps_render_script")
 }

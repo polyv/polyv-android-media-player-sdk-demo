@@ -4,13 +4,13 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:paddingVertical="6dp"
-    app:indicateColor="#CC000000"
-    app:rectRadius="8dp"
-    app:triangleHeight="0dp"
-    app:triangleMargin="16dp"
-    app:triangleMarginType="right"
-    app:trianglePosition="bottom"
-    app:triangleWidth="0dp">
+    app:plv_indicate_color="#CC000000"
+    app:plv_radius="8dp"
+    app:plv_triangle_height="0dp"
+    app:plv_triangle_margin="16dp"
+    app:plv_triangle_marginType="right"
+    app:plv_triangle_position="bottom"
+    app:plv_triangle_width="0dp">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="wrap_content"

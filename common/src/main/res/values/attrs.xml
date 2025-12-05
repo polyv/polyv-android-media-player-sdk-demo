@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <attr name="radius" format="dimension" />
-    <attr name="mode" format="flags">
+    <attr name="plv_radius" format="dimension" />
+    <attr name="plv_mode" format="flags">
         <flag name="none" value="0" />
         <flag name="leftTop" value="1" />
         <flag name="leftBottom" value="2" />
@@ -15,21 +15,21 @@
         <flag name="all" value="15" />
     </attr>
 
-    <attr name="plvIconTintNormal" format="color" />
-    <attr name="plvIconTintSelected" format="color" />
-    <attr name="plvTextColorNormal" format="color" />
-    <attr name="plvTextColorSelected" format="color" />
+    <attr name="plv_icon_tint_normal" format="color" />
+    <attr name="plv_icon_tint_selected" format="color" />
+    <attr name="plv_text_color_normal" format="color" />
+    <attr name="plv_text_color_selected" format="color" />
 
-    <attr name="triangleWidth" format="dimension" />
-    <attr name="triangleHeight" format="dimension" />
-    <attr name="triangleMargin" format="dimension" />
-    <attr name="trianglePosition" format="enum">
+    <attr name="plv_triangle_width" format="dimension" />
+    <attr name="plv_triangle_height" format="dimension" />
+    <attr name="plv_triangle_margin" format="dimension" />
+    <attr name="plv_triangle_position" format="enum">
         <enum name="top" value="0" />
         <enum name="bottom" value="1" />
         <enum name="left" value="2" />
         <enum name="right" value="3" />
     </attr>
-    <attr name="triangleMarginType" format="enum">
+    <attr name="plv_triangle_marginType" format="enum">
         <enum name="left" value="0" />
         <enum name="right" value="1" />
         <enum name="top" value="2" />
@@ -37,11 +37,10 @@
         <enum name="center" value="4" />
         <enum name="anchor" value="5" />
     </attr>
-    <attr name="triangleCenter" format="boolean" />
-    <attr name="indicateColor" format="color" />
-    <attr name="indicateEndColor" format="color" />
-    <attr name="rectRadius" format="dimension" />
-    <attr name="plvGradientOrientation" format="enum">
+    <attr name="plv_triangle_center" format="boolean" />
+    <attr name="plv_indicate_color" format="color" />
+    <attr name="plv_indicate_end_color" format="color" />
+    <attr name="plv_gradient_orientation" format="enum">
         <enum name="leftRight" value="0" />
         <enum name="bottomLeftTopRight" value="1" />
         <enum name="bottomTop" value="2" />
@@ -51,51 +50,51 @@
         <enum name="topBottom" value="6" />
         <enum name="topLeftBottomRight" value="7" />
     </attr>
-    <attr name="plvGradientStartColor" format="color" />
-    <attr name="plvGradientMiddleColor" format="color" />
-    <attr name="plvGradientEndColor" format="color" />
-    <attr name="plvGradientColors" format="string" />
+    <attr name="plv_gradient_start_color" format="color" />
+    <attr name="plv_gradient_middle_color" format="color" />
+    <attr name="plv_gradient_end_color" format="color" />
+    <attr name="plv_gradient_colors" format="string" />
 
     <declare-styleable name="PLVMediaPlayerProgressSeekBar">
-        <attr name="plvSeekBarHeight" format="dimension" />
-        <attr name="plvSeekBarHeightOnDrag" format="dimension" />
-        <attr name="plvProgressDrawableOnDrag" format="reference" />
-        <attr name="plvThumbDrawableOnDrag" format="reference" />
+        <attr name="plv_seek_bar_height" format="dimension" />
+        <attr name="plv_seek_bar_height_on_drag" format="dimension" />
+        <attr name="plv_progress_drawable_on_drag" format="reference" />
+        <attr name="plv_thumb_drawable_on_drag" format="reference" />
     </declare-styleable>
 
     <declare-styleable name="PLVMediaPlayerMoreLayoutAudioModeActionView">
-        <attr name="plvIconTintNormal" />
-        <attr name="plvIconTintSelected" />
-        <attr name="plvTextColorNormal" />
-        <attr name="plvTextColorSelected" />
+        <attr name="plv_icon_tint_normal" />
+        <attr name="plv_icon_tint_selected" />
+        <attr name="plv_text_color_normal" />
+        <attr name="plv_text_color_selected" />
     </declare-styleable>
     <declare-styleable name="PLVMediaPlayerMoreLayoutFloatWindowActionView">
-        <attr name="plvIconTintNormal" />
-        <attr name="plvIconTintSelected" />
-        <attr name="plvTextColorNormal" />
-        <attr name="plvTextColorSelected" />
+        <attr name="plv_icon_tint_normal" />
+        <attr name="plv_icon_tint_selected" />
+        <attr name="plv_text_color_normal" />
+        <attr name="plv_text_color_selected" />
     </declare-styleable>
     <declare-styleable name="PLVMediaPlayerMoreLayoutDownloadActionView">
-        <attr name="plvIconTintNormal" />
-        <attr name="plvTextColorNormal" />
+        <attr name="plv_icon_tint_normal" />
+        <attr name="plv_text_color_normal" />
     </declare-styleable>
     <declare-styleable name="PLVRoundRectConstraintLayout">
-        <attr name="radius" />
-        <attr name="mode" />
+        <attr name="plv_radius" />
+        <attr name="plv_mode" />
     </declare-styleable>
     <declare-styleable name="PLVMediaPlayerControllerGradientMaskLayout">
-        <attr name="plvTopMaskHeight" format="dimension" />
-        <attr name="plvBottomMaskHeight" format="dimension" />
+        <attr name="plv_top_mask_height" format="dimension" />
+        <attr name="plv_bottom_mask_height" format="dimension" />
     </declare-styleable>
     <declare-styleable name="PLVTriangleIndicateLayout">
-        <attr name="triangleWidth" />
-        <attr name="triangleHeight" />
-        <attr name="triangleMargin" />
-        <attr name="trianglePosition" />
-        <attr name="triangleMarginType" />
-        <attr name="indicateColor" />
-        <attr name="plvGradientColors" />
-        <attr name="plvGradientOrientation" />
-        <attr name="rectRadius" />
+        <attr name="plv_triangle_width" />
+        <attr name="plv_triangle_height" />
+        <attr name="plv_triangle_margin" />
+        <attr name="plv_triangle_position" />
+        <attr name="plv_triangle_marginType" />
+        <attr name="plv_indicate_color" />
+        <attr name="plv_gradient_colors" />
+        <attr name="plv_gradient_orientation" />
+        <attr name="plv_radius" />
     </declare-styleable>
 </resources>

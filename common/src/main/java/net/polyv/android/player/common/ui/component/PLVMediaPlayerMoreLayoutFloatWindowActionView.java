@@ -73,10 +73,10 @@ public class PLVMediaPlayerMoreLayoutFloatWindowActionView extends FrameLayout i
 
     private void parseAttrs(@Nullable AttributeSet attrs) {
         TypedArray typedArray = getContext().obtainStyledAttributes(attrs, R.styleable.PLVMediaPlayerMoreLayoutFloatWindowActionView);
-        tintColorIconNormal = typedArray.getColor(R.styleable.PLVMediaPlayerMoreLayoutFloatWindowActionView_plvIconTintNormal, tintColorIconNormal);
-        tintColorIconSelected = typedArray.getColor(R.styleable.PLVMediaPlayerMoreLayoutFloatWindowActionView_plvIconTintSelected, tintColorIconSelected);
-        textColorNormal = typedArray.getColor(R.styleable.PLVMediaPlayerMoreLayoutFloatWindowActionView_plvTextColorNormal, textColorNormal);
-        textColorSelected = typedArray.getColor(R.styleable.PLVMediaPlayerMoreLayoutFloatWindowActionView_plvTextColorSelected, textColorSelected);
+        tintColorIconNormal = typedArray.getColor(R.styleable.PLVMediaPlayerMoreLayoutFloatWindowActionView_plv_icon_tint_normal, tintColorIconNormal);
+        tintColorIconSelected = typedArray.getColor(R.styleable.PLVMediaPlayerMoreLayoutFloatWindowActionView_plv_icon_tint_selected, tintColorIconSelected);
+        textColorNormal = typedArray.getColor(R.styleable.PLVMediaPlayerMoreLayoutFloatWindowActionView_plv_text_color_normal, textColorNormal);
+        textColorSelected = typedArray.getColor(R.styleable.PLVMediaPlayerMoreLayoutFloatWindowActionView_plv_text_color_selected, textColorSelected);
         typedArray.recycle();
     }
 

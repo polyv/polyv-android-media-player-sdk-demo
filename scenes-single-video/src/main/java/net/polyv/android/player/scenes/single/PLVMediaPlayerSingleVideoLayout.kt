@@ -34,6 +34,7 @@ import net.polyv.android.player.common.utils.orientation.PLVActivityOrientationM
 import net.polyv.android.player.common.utils.ui.PLVViewLifecycleObservable
 import net.polyv.android.player.common.utils.ui.PLVViewLifecycleObservable.IViewLifecycleObserver
 import net.polyv.android.player.core.api.option.PLVMediaPlayerOptionEnum
+import net.polyv.android.player.scenes.single.component.PLVMediaPlayerRecommendVideoLayout
 import net.polyv.android.player.scenes.single.layout.PLVMediaPlayerSingleLandscapeItemLayout
 import net.polyv.android.player.scenes.single.layout.PLVMediaPlayerSinglePortraitItemLayout
 import net.polyv.android.player.sdk.foundation.collections.listOf
@@ -164,6 +165,10 @@ class PLVMediaPlayerSingleVideoLayout @JvmOverloads constructor(
         }
     }
 
+    fun setRecommendVideos(recommendVideos: List<PLVMediaResource>) {
+        portraitLayout.setRecommendVideos(recommendVideos)
+    }
+
     fun setEnterFromFloatWindow(enterFromFloatWindow: Boolean) {
         auxiliaryViewModel.setEnterFromFloatWindow(enterFromFloatWindow)
     }
@@ -259,8 +264,8 @@ class PLVMediaPlayerSingleVideoLayout @JvmOverloads constructor(
     ) : FrameLayout(context, attrs, defStyleAttr) {
 
         private val singlePortVideoLayout by lazy { findViewById<PLVMediaPlayerSinglePortraitItemLayout>(R.id.plv_media_player_single_port_video_layout) }
-        private val singlePortVideoDetailContainer by lazy { findViewById<FrameLayout>(R.id.plv_media_player_single_port_video_detail_container) }
-        private val singlePortVideoMoreActionLayout by lazy { findViewById<PLVMediaPlayerMoreActionLayoutPortrait>(R.id.plv_media_player_more_action_layout_portrait) }
+        private val recommendVideoLayout by lazy { findViewById<PLVMediaPlayerRecommendVideoLayout>(R.id.plv_media_player_recommend_video_layout) }
+        private val moreActionLayoutPortrait by lazy { findViewById<PLVMediaPlayerMoreActionLayoutPortrait>(R.id.plv_media_player_more_action_layout_portrait) }
 
         init {
             LayoutInflater.from(context).inflate(R.layout.plv_media_player_single_video_layout_port, this)
@@ -272,6 +277,10 @@ class PLVMediaPlayerSingleVideoLayout @JvmOverloads constructor(
 
         fun setAuxiliaryVideoView(auxiliaryVideoView: View?) {
             singlePortVideoLayout.setAuxiliaryVideoView(auxiliaryVideoView)
+        }
+
+        fun setRecommendVideos(recommendVideos: List<PLVMediaResource>) {
+            recommendVideoLayout.setVideos(recommendVideos)
         }
     }
 

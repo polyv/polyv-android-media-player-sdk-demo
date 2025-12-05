@@ -13,8 +13,8 @@ import android.widget.ProgressBar
 import android.widget.TextView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
+import net.polyv.android.common.libs.lang.state.MutableObserver.Companion.disposeAll
 import net.polyv.android.player.common.modules.download.list.viewstate.PLVMPDownloadListItemViewState
-import net.polyv.android.player.common.ui.router.PLVMediaPlayerRouter
 import net.polyv.android.player.common.ui.router.PLVMediaPlayerRouter.routerTo
 import net.polyv.android.player.common.ui.router.RouterDestination
 import net.polyv.android.player.common.ui.router.RouterPayload
@@ -26,7 +26,6 @@ import net.polyv.android.player.sdk.addon.download.common.model.vo.PLVMediaDownl
 import net.polyv.android.player.sdk.foundation.graphics.getScreenWidth
 import net.polyv.android.player.sdk.foundation.lang.FileSize.Companion.bytes
 import net.polyv.android.player.sdk.foundation.lang.MutableObserver
-import net.polyv.android.player.sdk.foundation.lang.MutableObserver.Companion.disposeAll
 import net.polyv.android.player.sdk.foundation.lang.State
 import net.polyv.android.player.sdk.foundation.lang.toFixed
 import java.util.Locale
@@ -238,7 +237,6 @@ internal class DownloadCompletedViewHolder(
 
     private fun gotoDownloadedSingleVideo(item: State<PLVMPDownloadListItemViewState>) {
         val downloader = item.value?.downloader ?: return
-        PLVMediaPlayerRouter.finish(RouterDestination.SceneSingle::class.java, RouterDestination.SceneFeed::class.java)
         itemView.context.routerTo(
             RouterDestination.SceneSingle(
                 RouterPayload.SceneSinglePayload(

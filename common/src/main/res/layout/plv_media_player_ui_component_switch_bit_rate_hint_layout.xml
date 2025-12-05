@@ -5,8 +5,8 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:background="#CC000000"
-    app:mode="all"
-    app:radius="20dp">
+    app:plv_mode="all"
+    app:plv_radius="20dp">
 
     <TextView
         android:id="@+id/plv_media_player_switch_bit_rate_hint_tv"

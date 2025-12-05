@@ -70,10 +70,10 @@ public class PLVMediaPlayerMoreLayoutAudioModeActionView extends FrameLayout imp
 
     private void parseAttrs(@Nullable AttributeSet attrs) {
         TypedArray typedArray = getContext().obtainStyledAttributes(attrs, R.styleable.PLVMediaPlayerMoreLayoutAudioModeActionView);
-        tintColorIconNormal = typedArray.getColor(R.styleable.PLVMediaPlayerMoreLayoutAudioModeActionView_plvIconTintNormal, tintColorIconNormal);
-        tintColorIconSelected = typedArray.getColor(R.styleable.PLVMediaPlayerMoreLayoutAudioModeActionView_plvIconTintSelected, tintColorIconSelected);
-        textColorNormal = typedArray.getColor(R.styleable.PLVMediaPlayerMoreLayoutAudioModeActionView_plvTextColorNormal, textColorNormal);
-        textColorSelected = typedArray.getColor(R.styleable.PLVMediaPlayerMoreLayoutAudioModeActionView_plvTextColorSelected, textColorSelected);
+        tintColorIconNormal = typedArray.getColor(R.styleable.PLVMediaPlayerMoreLayoutAudioModeActionView_plv_icon_tint_normal, tintColorIconNormal);
+        tintColorIconSelected = typedArray.getColor(R.styleable.PLVMediaPlayerMoreLayoutAudioModeActionView_plv_icon_tint_selected, tintColorIconSelected);
+        textColorNormal = typedArray.getColor(R.styleable.PLVMediaPlayerMoreLayoutAudioModeActionView_plv_text_color_normal, textColorNormal);
+        textColorSelected = typedArray.getColor(R.styleable.PLVMediaPlayerMoreLayoutAudioModeActionView_plv_text_color_selected, textColorSelected);
         typedArray.recycle();
     }
 

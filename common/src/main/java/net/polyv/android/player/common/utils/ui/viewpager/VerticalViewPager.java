@@ -480,7 +480,7 @@ public class VerticalViewPager extends ViewGroup {
 
     /**
      * Set a listener that will be invoked whenever the page changes or is incrementally
-     * scrolled. See {@link ViewPager.OnPageChangeListener}.
+     * scrolled. See {@link androidx.viewpager.widget.ViewPager.OnPageChangeListener}.
      *
      * @param listener Listener to set
      */
@@ -489,7 +489,7 @@ public class VerticalViewPager extends ViewGroup {
     }
 
     /**
-     * Set a {@link ViewPager.PageTransformer} that will be called for each attached page whenever
+     * Set a {@link androidx.viewpager.widget.ViewPager.PageTransformer} that will be called for each attached page whenever
      * the scroll position is changed. This allows the application to apply custom property
      * transformations to each page, overriding the default sliding look and feel.
      * <p/>

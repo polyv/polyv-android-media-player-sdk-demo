@@ -64,8 +64,8 @@ public class PLVMediaPlayerControllerGradientMaskLayout extends FrameLayout {
 
     private void parseAttrs(@Nullable AttributeSet attrs) {
         TypedArray typedArray = getContext().obtainStyledAttributes(attrs, R.styleable.PLVMediaPlayerControllerGradientMaskLayout);
-        topMaskHeight = typedArray.getDimension(R.styleable.PLVMediaPlayerControllerGradientMaskLayout_plvTopMaskHeight, topMaskHeight);
-        bottomMaskHeight = typedArray.getDimension(R.styleable.PLVMediaPlayerControllerGradientMaskLayout_plvBottomMaskHeight, bottomMaskHeight);
+        topMaskHeight = typedArray.getDimension(R.styleable.PLVMediaPlayerControllerGradientMaskLayout_plv_top_mask_height, topMaskHeight);
+        bottomMaskHeight = typedArray.getDimension(R.styleable.PLVMediaPlayerControllerGradientMaskLayout_plv_bottom_mask_height, bottomMaskHeight);
         typedArray.recycle();
     }
 

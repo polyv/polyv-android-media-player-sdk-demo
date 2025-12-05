@@ -13,6 +13,7 @@ import net.polyv.android.player.common.ui.component.floatwindow.PLVMediaPlayerFl
 import net.polyv.android.player.common.ui.router.PLVMediaPlayerRouter
 import net.polyv.android.player.common.ui.router.PLVMediaPlayerRouter.router
 import net.polyv.android.player.common.ui.router.RouterDestination.SceneFeed
+import net.polyv.android.player.common.ui.router.RouterDestination.SceneSingle
 import net.polyv.android.player.common.ui.router.RouterPayload.SceneFeedPayload
 import net.polyv.android.player.common.ui.router.RouterPayloadStaticHolder
 import net.polyv.android.player.common.utils.orientation.PLVActivityOrientationManager
@@ -36,7 +37,7 @@ private const val FLAG_SECURE_WINDOW: Boolean = false
 
 class PLVMediaPlayerFeedVideoActivity : AppCompatActivity() {
     // 实际的业务布局
-    private var contentLayout: PLVMediaPlayerFeedVideoLayout? = null
+    private val contentLayout by lazy { PLVMediaPlayerFeedVideoLayout(this) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -49,7 +50,7 @@ class PLVMediaPlayerFeedVideoActivity : AppCompatActivity() {
         PLVMediaPlayerFloatWindowManager.getInstance().clear()
 
         // 初始化 页面 和 Layout
-        initActivity()
+        setContentView(contentLayout)
         updateWindowInsets()
         initFeedVideoLayout()
 
@@ -60,17 +61,12 @@ class PLVMediaPlayerFeedVideoActivity : AppCompatActivity() {
         setFloatWindowListener()
     }
 
-    private fun initActivity() {
-        contentLayout = PLVMediaPlayerFeedVideoLayout(this)
-        setContentView(contentLayout)
-    }
-
     private fun initFeedVideoLayout() {
         // 模拟 生成Feed流容器的数据的请求实现类，客户集成式，需要替换的
         val feedVideoDataViewModel = mock()
 
         // 把 Feed流容器的数据的请求实现类 传入Feed流布局，以备后续Feed流容器获取更新的数据
-        contentLayout!!.init(feedVideoDataViewModel)
+        contentLayout.init(feedVideoDataViewModel)
 
         // 获取传入的第一页数据
         val bundle = intent.extras
@@ -78,7 +74,7 @@ class PLVMediaPlayerFeedVideoActivity : AppCompatActivity() {
             val holderId = bundle.getInt(PLVMediaPlayerRouter.KEY_TARGET_MEDIA_RESOURCE_LIST_HOLDER_ID, 0)
             val holder = RouterPayloadStaticHolder.remove<List<PLVMediaResource>>(holderId)
             if (holder != null) {
-                contentLayout!!.setTargetMediaResource(holder.value)
+                contentLayout.setTargetMediaResource(holder.value)
             }
         }
     }
@@ -116,7 +112,7 @@ class PLVMediaPlayerFeedVideoActivity : AppCompatActivity() {
             .setControlActionListener(object : IPLVMediaPlayerFloatWindowControlActionListener {
                 override fun onAfterFloatWindowShow(reason: Int) {
                     if (reason == PLVMediaPlayerFloatWindowManager.SHOW_REASON_MANUAL) {
-                        finish()
+                        PLVMediaPlayerRouter.finish(SceneSingle::class.java, SceneFeed::class.java)
                     }
                 }
 
@@ -150,7 +146,7 @@ class PLVMediaPlayerFeedVideoActivity : AppCompatActivity() {
     // </editor-fold>
 
     override fun onBackPressed() {
-        if (contentLayout != null && contentLayout!!.onBackPressed()) {
+        if (contentLayout.onBackPressed()) {
             return
         }
         super.onBackPressed()

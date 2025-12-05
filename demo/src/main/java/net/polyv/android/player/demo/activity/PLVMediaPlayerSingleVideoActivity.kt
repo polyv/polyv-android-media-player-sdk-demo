@@ -12,9 +12,11 @@ import net.polyv.android.player.common.ui.component.floatwindow.IPLVMediaPlayerF
 import net.polyv.android.player.common.ui.component.floatwindow.PLVMediaPlayerFloatWindowManager
 import net.polyv.android.player.common.ui.router.PLVMediaPlayerRouter
 import net.polyv.android.player.common.ui.router.PLVMediaPlayerRouter.router
+import net.polyv.android.player.common.ui.router.RouterDestination.SceneFeed
 import net.polyv.android.player.common.ui.router.RouterDestination.SceneSingle
 import net.polyv.android.player.common.ui.router.RouterPayload.SceneSinglePayload
 import net.polyv.android.player.common.utils.orientation.PLVActivityOrientationManager
+import net.polyv.android.player.demo.mock.PLVMockMediaResourceData
 import net.polyv.android.player.scenes.single.PLVMediaPlayerSingleVideoLayout
 import net.polyv.android.player.sdk.PLVDeviceManager.hideNavigationBar
 import net.polyv.android.player.sdk.PLVDeviceManager.hideStatusBar
@@ -31,13 +33,8 @@ private const val TAG = "PLVMediaPlayerSingleVideoActivity"
 private const val FLAG_SECURE_WINDOW: Boolean = false
 
 class PLVMediaPlayerSingleVideoActivity : AppCompatActivity() {
-    // 进入页面时初始的视频资源
-    private var targetMediaResource: PLVMediaResource? = null
-    private var enterFromFloatWindow = false
-    private var enterFromDownloadCenter = false
-
     // 实际的业务布局
-    private var contentLayout: PLVMediaPlayerSingleVideoLayout? = null
+    private val contentLayout by lazy { PLVMediaPlayerSingleVideoLayout(this) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -50,7 +47,7 @@ class PLVMediaPlayerSingleVideoActivity : AppCompatActivity() {
         PLVMediaPlayerFloatWindowManager.getInstance().clear()
 
         // 初始化 页面 和 Layout
-        initActivity()
+        setContentView(contentLayout)
         updateWindowInsets()
         initSingleVideoLayout()
 
@@ -61,25 +58,24 @@ class PLVMediaPlayerSingleVideoActivity : AppCompatActivity() {
         setFloatWindowListener()
     }
 
-    private fun initActivity() {
-        contentLayout = PLVMediaPlayerSingleVideoLayout(this)
-        setContentView(contentLayout)
-
-        val bundle = intent.extras
-        if (bundle != null) {
-            targetMediaResource = bundle.getParcelable(PLVMediaPlayerRouter.KEY_TARGET_MEDIA_RESOURCE)
-            enterFromFloatWindow = bundle.getBoolean(PLVMediaPlayerRouter.KEY_ENTER_FROM_FLOAT_WINDOW, false)
-            enterFromDownloadCenter = bundle.getBoolean(PLVMediaPlayerRouter.KEY_ENTER_FROM_DOWNLOAD_CENTER, false)
-        }
-    }
-
     private fun initSingleVideoLayout() {
-        contentLayout!!.init()
+        contentLayout.init()
+
+        val bundle = intent.extras ?: return
+        val targetMediaResource: PLVMediaResource? = bundle.getParcelable(PLVMediaPlayerRouter.KEY_TARGET_MEDIA_RESOURCE)
+        val enterFromFloatWindow = bundle.getBoolean(PLVMediaPlayerRouter.KEY_ENTER_FROM_FLOAT_WINDOW, false)
+        val enterFromDownloadCenter = bundle.getBoolean(PLVMediaPlayerRouter.KEY_ENTER_FROM_DOWNLOAD_CENTER, false)
+        val recommendVideos = (PLVMockMediaResourceData.getInstance().mediaResources ?: emptyList())
+            .filter { it != targetMediaResource }
+            .shuffled()
+            .take(10)
+
         if (targetMediaResource != null) {
-            contentLayout!!.setMediaResource(targetMediaResource)
+            contentLayout.setMediaResource(targetMediaResource)
         }
-        contentLayout!!.setEnterFromFloatWindow(enterFromFloatWindow)
-        contentLayout!!.setEnterFromDownloadCenter(enterFromDownloadCenter)
+        contentLayout.setRecommendVideos(recommendVideos)
+        contentLayout.setEnterFromFloatWindow(enterFromFloatWindow)
+        contentLayout.setEnterFromDownloadCenter(enterFromDownloadCenter)
     }
 
     // <editor-fold defaultstate="collapsed" desc="页面-横竖屏切换">
@@ -135,7 +131,7 @@ class PLVMediaPlayerSingleVideoActivity : AppCompatActivity() {
             .setControlActionListener(object : IPLVMediaPlayerFloatWindowControlActionListener {
                 override fun onAfterFloatWindowShow(reason: Int) {
                     if (reason == PLVMediaPlayerFloatWindowManager.SHOW_REASON_MANUAL) {
-                        finish()
+                        PLVMediaPlayerRouter.finish(SceneSingle::class.java, SceneFeed::class.java)
                     }
                 }
 
@@ -165,7 +161,7 @@ class PLVMediaPlayerSingleVideoActivity : AppCompatActivity() {
     // </editor-fold>
 
     override fun onBackPressed() {
-        if (contentLayout != null && contentLayout!!.onBackPressed()) {
+        if (contentLayout.onBackPressed()) {
             return
         }
         super.onBackPressed()

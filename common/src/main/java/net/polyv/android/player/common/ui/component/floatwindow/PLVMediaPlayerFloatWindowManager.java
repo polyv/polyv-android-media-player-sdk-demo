@@ -9,14 +9,14 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import android.view.View;
 
+import net.polyv.android.common.libs.lang.state.MutableState;
+import net.polyv.android.common.libs.lang.state.State;
 import net.polyv.android.player.common.ui.component.floatwindow.layout.PLVMediaPlayerFloatWindowContentLayout;
 import net.polyv.android.player.common.utils.floatwindow.PLVFloatingWindowManager;
 import net.polyv.android.player.common.utils.floatwindow.enums.PLVFloatWindowLaunchReason;
 import net.polyv.android.player.common.utils.floatwindow.enums.PLVFloatingEnums;
 import net.polyv.android.player.common.utils.floatwindow.permission.PLVFloatPermissionUtils;
 import net.polyv.android.player.sdk.foundation.lang.Consumer;
-import net.polyv.android.player.sdk.foundation.lang.MutableState;
-import net.polyv.android.player.sdk.foundation.lang.State;
 
 import java.util.ArrayDeque;
 import java.util.Queue;

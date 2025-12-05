@@ -38,5 +38,5 @@ dependencies {
     implementation(project(":scenes-download-center"))
     implementation(project(":common"))
 
-    annotationProcessor("com.github.bumptech.glide:compiler:$deps_glide_version")
+    annotationProcessor("com.github.bumptech.glide:compiler:4.10.0")
 }

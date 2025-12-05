@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingHorizontal="16dp"
+    android:paddingTop="8dp"
+    tools:background="#10203B">
+
+    <net.polyv.android.player.common.utils.ui.PLVRoundRectConstraintLayout
+        android:id="@+id/plv_media_player_recommend_video_cover_layout"
+        android:layout_width="128dp"
+        android:layout_height="72dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:plv_mode="all"
+        app:plv_radius="4dp">
+
+        <ImageView
+            android:id="@+id/plv_media_player_recommend_video_cover_iv"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="centerCrop" />
+
+    </net.polyv.android.player.common.utils.ui.PLVRoundRectConstraintLayout>
+
+    <TextView
+        android:id="@+id/plv_media_player_recommend_video_title_tv"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:textColor="#F0F1F5"
+        android:textSize="14sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/plv_media_player_recommend_video_cover_layout"
+        app:layout_constraintTop_toTopOf="@+id/plv_media_player_recommend_video_cover_layout"
+        tools:text="视频标题视频标题视频标题视频标题视频标题视频标题视频标题" />
+
+    <TextView
+        android:id="@+id/plv_media_player_recommend_video_duration_tv"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:textColor="#666666"
+        android:textSize="14sp"
+        app:layout_constraintBottom_toBottomOf="@+id/plv_media_player_recommend_video_cover_layout"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/plv_media_player_recommend_video_cover_layout"
+        tools:text="00:00:00" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1px"
+        android:layout_marginTop="8dp"
+        android:background="#666666"
+        app:layout_constraintTop_toBottomOf="@+id/plv_media_player_recommend_video_cover_layout" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

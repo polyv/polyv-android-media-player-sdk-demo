@@ -4,9 +4,9 @@ import android.content.Context;
 import android.media.AudioManager;
 import androidx.annotation.NonNull;
 
+import net.polyv.android.common.libs.lang.state.MutableObserver;
 import net.polyv.android.player.common.modules.media.viewmodel.PLVMPMediaViewModel;
 import net.polyv.android.player.common.modules.media.viewmodel.viewstate.PLVMPMediaPlayViewState;
-import net.polyv.android.player.sdk.foundation.lang.MutableObserver;
 
 import javax.annotation.Nullable;
 

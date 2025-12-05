@@ -4,8 +4,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#333333"
-    app:mode="all"
-    app:radius="8dp">
+    app:plv_mode="all"
+    app:plv_radius="8dp">
 
     <FrameLayout
         android:id="@+id/plv_media_player_float_window_media_container"

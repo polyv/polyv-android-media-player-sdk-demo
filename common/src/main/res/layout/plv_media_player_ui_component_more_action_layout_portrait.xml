@@ -40,10 +40,10 @@
                 android:layout_marginHorizontal="24dp"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:plvIconTintNormal="#333333"
-                app:plvIconTintSelected="#3F76FC"
-                app:plvTextColorNormal="#CC333333"
-                app:plvTextColorSelected="#CC3F76FC" />
+                app:plv_icon_tint_normal="#333333"
+                app:plv_icon_tint_selected="#3F76FC"
+                app:plv_text_color_normal="#CC333333"
+                app:plv_text_color_selected="#CC3F76FC" />
 
             <net.polyv.android.player.common.ui.component.PLVMediaPlayerMoreLayoutFloatWindowActionView
                 android:id="@+id/plv_media_player_more_float_window_action_view"
@@ -52,10 +52,10 @@
                 android:layout_marginHorizontal="24dp"
                 app:layout_constraintStart_toEndOf="@+id/plv_media_player_more_audio_mode_action_view"
                 app:layout_constraintTop_toTopOf="parent"
-                app:plvIconTintNormal="#333333"
-                app:plvIconTintSelected="#3F76FC"
-                app:plvTextColorNormal="#CC333333"
-                app:plvTextColorSelected="#CC3F76FC" />
+                app:plv_icon_tint_normal="#333333"
+                app:plv_icon_tint_selected="#3F76FC"
+                app:plv_text_color_normal="#CC333333"
+                app:plv_text_color_selected="#CC3F76FC" />
 
             <net.polyv.android.player.common.ui.component.PLVMediaPlayerMoreLayoutSubtitleActionViewPort
                 android:id="@+id/plv_media_player_more_subtitle_action_view"
@@ -72,8 +72,8 @@
                 android:layout_marginHorizontal="24dp"
                 app:layout_constraintStart_toEndOf="@+id/plv_media_player_more_subtitle_action_view"
                 app:layout_constraintTop_toTopOf="parent"
-                app:plvIconTintNormal="#333333"
-                app:plvTextColorNormal="#CC333333" />
+                app:plv_icon_tint_normal="#333333"
+                app:plv_text_color_normal="#CC333333" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -117,15 +117,25 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/plv_media_player_more_bit_rate_hint_tv" />
 
-        <net.polyv.android.player.common.ui.component.PLVMediaPlayerSpeedSelectLayoutPortrait
-            android:id="@+id/plv_media_player_more_speed_ll"
-            android:layout_width="wrap_content"
+        <HorizontalScrollView
+            android:id="@+id/plv_media_player_more_speed_sv"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="47dp"
-            android:orientation="horizontal"
+            android:layout_marginEnd="20dp"
             app:layout_constraintBottom_toBottomOf="@+id/plv_media_player_more_speed_hint_tv"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/plv_media_player_more_speed_hint_tv"
-            app:layout_constraintTop_toTopOf="@+id/plv_media_player_more_speed_hint_tv" />
+            app:layout_constraintTop_toTopOf="@+id/plv_media_player_more_speed_hint_tv">
+
+            <net.polyv.android.player.common.ui.component.PLVMediaPlayerSpeedSelectLayoutPortrait
+                android:id="@+id/plv_media_player_more_speed_ll"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal" />
+
+        </HorizontalScrollView>
+
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

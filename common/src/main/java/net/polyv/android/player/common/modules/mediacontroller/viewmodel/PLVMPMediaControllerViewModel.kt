@@ -6,6 +6,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import net.polyv.android.common.libs.lang.state.MutableObserver.Companion.disposeAll
 import net.polyv.android.player.business.scene.common.coroutine.PLVMediaPlayerGlobalCoroutineScope
 import net.polyv.android.player.common.modules.mediacontroller.model.PLVMPMediaControllerRepo
 import net.polyv.android.player.common.modules.mediacontroller.viewmodel.usecase.PLVMPMediaControllerUseCases
@@ -18,7 +19,6 @@ import net.polyv.android.player.sdk.foundation.di.LifecycleAwareDependComponent
 import net.polyv.android.player.sdk.foundation.lang.Duration
 import net.polyv.android.player.sdk.foundation.lang.Duration.Companion.seconds
 import net.polyv.android.player.sdk.foundation.lang.MutableObserver
-import net.polyv.android.player.sdk.foundation.lang.MutableObserver.Companion.disposeAll
 
 /**
  * @author Hoshiiro

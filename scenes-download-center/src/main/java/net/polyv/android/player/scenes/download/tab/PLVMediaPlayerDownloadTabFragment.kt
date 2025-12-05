@@ -28,11 +28,7 @@ class PLVMediaPlayerDownloadTabFragment : Fragment() {
             downloadTabRv = findViewById(R.id.plv_media_player_download_tab_rv)
 
             downloadTabRv?.adapter = adapter
-            downloadTabRv?.layoutManager = LinearLayoutManager(
-                inflater.context,
-                LinearLayoutManager.VERTICAL,
-                false
-            )
+            downloadTabRv?.layoutManager = LinearLayoutManager(inflater.context, LinearLayoutManager.VERTICAL, false)
         }
     }
 

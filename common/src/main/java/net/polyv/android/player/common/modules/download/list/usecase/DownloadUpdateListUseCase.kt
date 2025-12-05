@@ -1,5 +1,6 @@
 package net.polyv.android.player.common.modules.download.list.usecase
 
+import net.polyv.android.common.libs.lang.state.MutableObserver.Companion.disposeAll
 import net.polyv.android.player.business.scene.common.model.vo.PLVMediaBitRate
 import net.polyv.android.player.common.modules.download.list.model.PLVMPDownloadListRepo
 import net.polyv.android.player.common.modules.download.list.viewstate.PLVMPDownloadListItemViewState
@@ -11,7 +12,6 @@ import net.polyv.android.player.sdk.foundation.di.LifecycleAwareDependComponent
 import net.polyv.android.player.sdk.foundation.lang.DerivedState
 import net.polyv.android.player.sdk.foundation.lang.Duration.Companion.seconds
 import net.polyv.android.player.sdk.foundation.lang.MutableObserver
-import net.polyv.android.player.sdk.foundation.lang.MutableObserver.Companion.disposeAll
 import net.polyv.android.player.sdk.foundation.lang.State
 import net.polyv.android.player.sdk.foundation.lang.watchStates
 

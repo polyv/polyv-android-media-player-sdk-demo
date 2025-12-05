@@ -11,18 +11,12 @@
         android:layout_height="wrap_content"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <ScrollView
+    <net.polyv.android.player.scenes.single.component.PLVMediaPlayerRecommendVideoLayout
+        android:id="@+id/plv_media_player_recommend_video_layout"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/plv_media_player_single_port_video_layout">
-
-        <FrameLayout
-            android:id="@+id/plv_media_player_single_port_video_detail_container"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
-
-    </ScrollView>
+        app:layout_constraintTop_toBottomOf="@+id/plv_media_player_single_port_video_layout" />
 
     <net.polyv.android.player.common.ui.component.PLVMediaPlayerMoreActionLayoutPortrait
         android:id="@+id/plv_media_player_more_action_layout_portrait"

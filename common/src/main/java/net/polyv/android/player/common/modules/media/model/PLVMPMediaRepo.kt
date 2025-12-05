@@ -1,6 +1,7 @@
 package net.polyv.android.player.common.modules.media.model
 
 import android.graphics.Bitmap
+import net.polyv.android.common.libs.lang.state.MutableObserver.Companion.disposeAll
 import net.polyv.android.player.business.scene.common.model.vo.PLVMediaBitRate
 import net.polyv.android.player.business.scene.common.model.vo.PLVMediaOutputMode
 import net.polyv.android.player.business.scene.common.model.vo.PLVMediaResource
@@ -12,7 +13,6 @@ import net.polyv.android.player.core.api.render.IPLVMediaPlayerRenderView
 import net.polyv.android.player.sdk.PLVMediaPlayer
 import net.polyv.android.player.sdk.foundation.di.LifecycleAwareDependComponent
 import net.polyv.android.player.sdk.foundation.lang.MutableObserver
-import net.polyv.android.player.sdk.foundation.lang.MutableObserver.Companion.disposeAll
 
 /**
  * @author Hoshiiro

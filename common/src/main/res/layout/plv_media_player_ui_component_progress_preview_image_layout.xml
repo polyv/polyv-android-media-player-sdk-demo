@@ -20,8 +20,8 @@
         app:layout_constraintBottom_toTopOf="@+id/plv_media_player_seek_progress_preview_tv"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:mode="all"
-        app:radius="8dp">
+        app:plv_mode="all"
+        app:plv_radius="8dp">
 
         <ImageView
             android:id="@+id/plv_media_player_seek_progress_preview_iv"

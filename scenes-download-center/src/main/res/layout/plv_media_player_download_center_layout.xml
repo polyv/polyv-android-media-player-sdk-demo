@@ -59,7 +59,7 @@
                 android:layout_height="2dp"
                 android:layout_marginTop="6dp"
                 android:background="#3F76FC"
-                app:radius="2dp" />
+                app:plv_radius="2dp" />
 
         </LinearLayout>
 
@@ -87,7 +87,7 @@
                 android:layout_height="2dp"
                 android:layout_marginTop="6dp"
                 android:background="#3F76FC"
-                app:radius="2dp" />
+                app:plv_radius="2dp" />
 
         </LinearLayout>
 

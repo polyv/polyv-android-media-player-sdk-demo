@@ -1,11 +1,11 @@
 package net.polyv.android.player.common.modules.media.viewmodel.usecase
 
+import net.polyv.android.common.libs.lang.state.MutableObserver.Companion.disposeAll
 import net.polyv.android.player.common.modules.media.model.PLVMPMediaRepo
 import net.polyv.android.player.core.api.listener.event.PLVMediaPlayerOnInfoEvent
 import net.polyv.android.player.sdk.foundation.di.LifecycleAwareDependComponent
 import net.polyv.android.player.sdk.foundation.lang.Duration.Companion.seconds
 import net.polyv.android.player.sdk.foundation.lang.MutableObserver
-import net.polyv.android.player.sdk.foundation.lang.MutableObserver.Companion.disposeAll
 import net.polyv.android.player.sdk.foundation.lang.postToMainThread
 
 /**

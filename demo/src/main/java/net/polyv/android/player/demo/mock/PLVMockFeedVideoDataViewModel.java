@@ -3,10 +3,10 @@ package net.polyv.android.player.demo.mock;
 
 import androidx.lifecycle.ViewModel;
 
+import net.polyv.android.common.libs.lang.state.MutableEvent;
 import net.polyv.android.player.business.scene.common.model.vo.PLVMediaResource;
 import net.polyv.android.player.common.utils.data.PLVStatefulData;
 import net.polyv.android.player.scenes.feed.viewmodel.IPLVMediaPlayerFeedVideoDataViewModel;
-import net.polyv.android.player.sdk.foundation.lang.MutableEvent;
 
 import java.util.List;
 

@@ -94,8 +94,8 @@
         app:layout_constraintEnd_toEndOf="@+id/plv_media_player_video_view_container"
         app:layout_constraintStart_toStartOf="@+id/plv_media_player_video_view_container"
         app:layout_constraintTop_toTopOf="@+id/plv_media_player_video_view_container"
-        app:plvBottomMaskHeight="64dp"
-        app:plvTopMaskHeight="64dp" />
+        app:plv_bottom_mask_height="64dp"
+        app:plv_top_mask_height="64dp" />
 
     <!-- 播放结束弹层 -->
     <net.polyv.android.player.common.ui.component.PLVMediaPlayerPlayCompleteManualRestartOverlayLayout
@@ -199,10 +199,10 @@
         app:layout_constraintBottom_toTopOf="@+id/plv_media_player_play_button"
         app:layout_constraintEnd_toEndOf="@+id/plv_media_player_video_view_container"
         app:layout_constraintStart_toStartOf="@+id/plv_media_player_video_view_container"
-        app:plvProgressDrawableOnDrag="@drawable/plv_media_player_progress_seek_bar_style_drag"
-        app:plvSeekBarHeight="2dp"
-        app:plvSeekBarHeightOnDrag="8dp"
-        app:plvThumbDrawableOnDrag="@drawable/plv_media_player_progress_position_point_style_drag" />
+        app:plv_progress_drawable_on_drag="@drawable/plv_media_player_progress_seek_bar_style_drag"
+        app:plv_seek_bar_height="2dp"
+        app:plv_seek_bar_height_on_drag="8dp"
+        app:plv_thumb_drawable_on_drag="@drawable/plv_media_player_progress_position_point_style_drag" />
 
     <!-- 自动续播提示条 -->
     <net.polyv.android.player.common.ui.component.PLVMediaPlayerAutoContinueHintLayout
