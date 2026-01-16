@@ -18,13 +18,13 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/plv_media_player_single_port_video_layout" />
 
-    <net.polyv.android.player.common.ui.component.PLVMediaPlayerMoreActionLayoutPortrait
+    <net.polyv.android.player.common.ui.component.more.PLVMediaPlayerMoreActionLayoutPortrait
         android:id="@+id/plv_media_player_more_action_layout_portrait"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
     <!-- 字幕设置弹层 -->
-    <net.polyv.android.player.common.ui.component.PLVMediaPlayerMoreSubtitleSettingLayoutPort
+    <net.polyv.android.player.common.ui.component.more.PLVMediaPlayerMoreSubtitleSettingLayoutPort
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 

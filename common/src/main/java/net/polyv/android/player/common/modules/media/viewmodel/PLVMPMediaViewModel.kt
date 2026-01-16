@@ -21,6 +21,7 @@ class PLVMPMediaViewModel internal constructor(
     val onPreparedEvent = this.mediator.onPreparedEvent
     val onAutoContinueEvent = this.mediator.onAutoContinueEvent
     val onInfoEvent = this.mediator.onInfoEvent
+    val onSeekCompleteEvent = this.mediator.onSeekCompleteEvent
     val onCompleteEvent = this.mediator.onCompleteEvent
     val playerState = this.mediator.playerState
 

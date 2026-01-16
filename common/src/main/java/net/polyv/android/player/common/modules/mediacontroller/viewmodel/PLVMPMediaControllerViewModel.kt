@@ -12,6 +12,7 @@ import net.polyv.android.player.common.modules.mediacontroller.model.PLVMPMediaC
 import net.polyv.android.player.common.modules.mediacontroller.viewmodel.usecase.PLVMPMediaControllerUseCases
 import net.polyv.android.player.common.modules.mediacontroller.viewmodel.viewstate.PLVMPMediaControllerFloatAction
 import net.polyv.android.player.common.modules.mediacontroller.viewmodel.viewstate.PLVMPMediaControllerViewState
+import net.polyv.android.player.common.modules.mediacontroller.viewmodel.viewstate.PLVMPMediaViewTranslation
 import net.polyv.android.player.common.utils.floatwindow.enums.PLVFloatWindowLaunchReason
 import net.polyv.android.player.core.api.listener.event.PLVMediaPlayerOnInfoEvent
 import net.polyv.android.player.sdk.PLVDeviceManager
@@ -136,6 +137,23 @@ class PLVMPMediaControllerViewModel internal constructor(
         val nextVolume = nextVolumeCandidate.coerceIn(0, 100)
         PLVDeviceManager.setVolume(context, nextVolume)
         repo.mediator.volumeUpdateEvent.setValue(nextVolume)
+    }
+
+    fun setMediaViewTranslation(translation: PLVMPMediaViewTranslation) {
+        viewState = viewState.copy(
+            mediaViewTranslation = translation
+        )
+    }
+
+    fun onMediaViewTranslationGestureFinish() {
+        val newTranslation = viewState.mediaViewTranslation.copy(
+            offsetX = 0F,
+            offsetY = 0F,
+            rotateAngle = viewState.mediaViewTranslation.axisAngle()
+        )
+        viewState = viewState.copy(
+            mediaViewTranslation = newTranslation
+        )
     }
 
     fun lockMediaController(action: LockMediaControllerAction) {

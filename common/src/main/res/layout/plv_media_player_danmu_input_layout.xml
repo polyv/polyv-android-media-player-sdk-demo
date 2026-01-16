@@ -1,0 +1,261 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/plv_media_player_danmu_input_keyboard_height_guideline"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_end="0dp" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/plv_media_player_danmu_input_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#000000"
+        android:paddingVertical="16dp"
+        app:layout_constraintBottom_toTopOf="@+id/plv_media_player_danmu_style_layout">
+
+        <ImageView
+            android:id="@+id/plv_media_player_danmu_style_setting_iv"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_marginStart="16dp"
+            android:scaleType="center"
+            android:src="@drawable/plv_media_player_danmu_style_setting_icon"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <EditText
+            android:id="@+id/plv_media_player_danmu_content_et"
+            android:layout_width="0dp"
+            android:layout_height="32dp"
+            android:layout_marginHorizontal="16dp"
+            android:background="@drawable/plv_media_player_danmu_content_background"
+            android:hint="@string/plv_media_player_danmu_content_hint"
+            android:imeOptions="actionSend|flagNoFullscreen"
+            android:paddingHorizontal="8dp"
+            android:singleLine="true"
+            android:focusedByDefault="true"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/plv_media_player_danmu_send_tv"
+            app:layout_constraintStart_toEndOf="@+id/plv_media_player_danmu_style_setting_iv"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/plv_media_player_danmu_send_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="32dp"
+            android:layout_marginEnd="16dp"
+            android:gravity="center"
+            android:text="@string/plv_media_player_danmu_send"
+            android:textColor="#FFFFFF"
+            android:textSize="16sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/plv_media_player_danmu_style_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="#000000"
+        app:layout_constraintBottom_toTopOf="@+id/plv_media_player_danmu_input_keyboard_height_guideline">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/plv_media_player_danmu_style_color_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="32dp"
+            android:layout_marginTop="16dp"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <TextView
+                android:id="@+id/plv_media_player_danmu_style_color_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/plv_media_player_danmu_color"
+                android:textColor="#FFFFFF"
+                android:textSize="16sp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <LinearLayout
+                android:id="@+id/plv_media_player_danmu_style_color_view_container"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:divider="@drawable/plv_media_player_common_divider_16dp"
+                android:orientation="horizontal"
+                android:showDividers="middle"
+                app:layout_constraintBottom_toBottomOf="@+id/plv_media_player_danmu_style_color_tv"
+                app:layout_constraintStart_toEndOf="@+id/plv_media_player_danmu_style_color_tv"
+                app:layout_constraintTop_toTopOf="@+id/plv_media_player_danmu_style_color_tv">
+
+                <net.polyv.android.player.common.ui.component.danmu.PLVMediaPlayerDanmuColorView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    app:plv_color="#FFFFFF" />
+
+                <net.polyv.android.player.common.ui.component.danmu.PLVMediaPlayerDanmuColorView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    app:plv_color="#E15241" />
+
+                <net.polyv.android.player.common.ui.component.danmu.PLVMediaPlayerDanmuColorView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    app:plv_color="#9031AA" />
+
+                <net.polyv.android.player.common.ui.component.danmu.PLVMediaPlayerDanmuColorView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    app:plv_color="#4BA6EE" />
+
+                <net.polyv.android.player.common.ui.component.danmu.PLVMediaPlayerDanmuColorView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    app:plv_color="#67AD5B" />
+
+                <net.polyv.android.player.common.ui.component.danmu.PLVMediaPlayerDanmuColorView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    app:plv_color="#F8D86E" />
+
+            </LinearLayout>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/plv_media_player_danmu_style_mode_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="32dp"
+            android:layout_marginTop="32dp"
+            app:layout_constraintTop_toBottomOf="@+id/plv_media_player_danmu_style_color_layout">
+
+            <TextView
+                android:id="@+id/plv_media_player_danmu_style_mode_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/plv_media_player_danmu_mode"
+                android:textColor="#FFFFFF"
+                android:textSize="16sp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:divider="@drawable/plv_media_player_common_divider_16dp"
+                android:showDividers="middle"
+                app:layout_constraintBottom_toBottomOf="@+id/plv_media_player_danmu_style_mode_tv"
+                app:layout_constraintStart_toEndOf="@+id/plv_media_player_danmu_style_mode_tv"
+                app:layout_constraintTop_toTopOf="@+id/plv_media_player_danmu_style_mode_tv">
+
+                <TextView
+                    android:id="@+id/plv_media_player_danmu_style_mode_roll"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/plv_media_player_danmu_mode_roll"
+                    android:textColor="#FFFFFF"
+                    android:textSize="16sp" />
+
+                <TextView
+                    android:id="@+id/plv_media_player_danmu_style_mode_top"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/plv_media_player_danmu_mode_top"
+                    android:textColor="#FFFFFF"
+                    android:textSize="16sp" />
+
+                <TextView
+                    android:id="@+id/plv_media_player_danmu_style_mode_bottom"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/plv_media_player_danmu_mode_bottom"
+                    android:textColor="#FFFFFF"
+                    android:textSize="16sp" />
+
+            </LinearLayout>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/plv_media_player_danmu_style_size_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="32dp"
+            android:layout_marginTop="32dp"
+            app:layout_constraintTop_toBottomOf="@+id/plv_media_player_danmu_style_mode_layout">
+
+            <TextView
+                android:id="@+id/plv_media_player_danmu_style_size_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/plv_media_player_danmu_size"
+                android:textColor="#FFFFFF"
+                android:textSize="16sp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:divider="@drawable/plv_media_player_common_divider_16dp"
+                android:showDividers="middle"
+                app:layout_constraintBottom_toBottomOf="@+id/plv_media_player_danmu_style_size_tv"
+                app:layout_constraintStart_toEndOf="@+id/plv_media_player_danmu_style_size_tv"
+                app:layout_constraintTop_toTopOf="@+id/plv_media_player_danmu_style_size_tv">
+
+                <TextView
+                    android:id="@+id/plv_media_player_danmu_style_size_small"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="16"
+                    android:textColor="#FFFFFF"
+                    android:textSize="16sp" />
+
+                <TextView
+                    android:id="@+id/plv_media_player_danmu_style_size_medium"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="18"
+                    android:textColor="#FFFFFF"
+                    android:textSize="16sp" />
+
+                <TextView
+                    android:id="@+id/plv_media_player_danmu_style_size_large"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="24"
+                    android:textColor="#FFFFFF"
+                    android:textSize="16sp" />
+
+            </LinearLayout>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="32dp"
+            app:layout_constraintTop_toBottomOf="@+id/plv_media_player_danmu_style_size_layout" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <View
+        android:id="@+id/plv_media_player_danmu_input_hit_area_back_press"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/plv_media_player_danmu_input_container" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

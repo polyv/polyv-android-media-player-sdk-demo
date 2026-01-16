@@ -5,6 +5,53 @@
     android:layout_height="match_parent"
     android:background="@drawable/plv_media_player_float_menu_bg_landscape">
 
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/plv_media_player_more_action_start_guide_line"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:orientation="vertical"
+        app:layout_constraintGuide_percent="0.52" />
+
+    <com.google.android.flexbox.FlexboxLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="48dp"
+        app:dividerDrawable="@drawable/plv_media_player_common_divider_16dp"
+        app:flexWrap="wrap"
+        app:layout_constraintEnd_toStartOf="@+id/plv_media_player_more_action_close_iv"
+        app:layout_constraintStart_toEndOf="@+id/plv_media_player_more_action_start_guide_line"
+        app:layout_constraintTop_toTopOf="parent"
+        app:showDivider="middle">
+
+        <net.polyv.android.player.common.ui.component.more.PLVMediaPlayerMoreLayoutAudioModeActionView
+            android:id="@+id/plv_media_player_more_audio_mode_action_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <net.polyv.android.player.common.ui.component.more.PLVMediaPlayerMoreLayoutFloatWindowActionView
+            android:id="@+id/plv_media_player_more_float_window_action_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <net.polyv.android.player.common.ui.component.more.PLVMediaPlayerMoreLayoutSubtitleActionViewLand
+            android:id="@+id/plv_media_player_more_subtitle_action_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <net.polyv.android.player.common.ui.component.more.PLVMediaPlayerMoreLayoutDownloadActionView
+            android:id="@+id/plv_media_player_more_download_action_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:plv_icon_tint_normal="#FFFFFF"
+            app:plv_text_color_normal="#CCFFFFFF" />
+
+        <net.polyv.android.player.common.ui.component.more.PLVMediaPlayerMoreLayoutKnowledgeActionView
+            android:id="@+id/plv_media_player_more_knowledge_action_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+    </com.google.android.flexbox.FlexboxLayout>
+
     <ImageView
         android:id="@+id/plv_media_player_more_action_close_iv"
         android:layout_width="48dp"
@@ -15,57 +62,5 @@
         android:src="@drawable/plv_media_player_float_menu_close_icon"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
-
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/plv_media_player_more_action_container"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-        <androidx.constraintlayout.widget.Guideline
-            android:id="@+id/more_action_start_guide_line"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:orientation="vertical"
-            app:layout_constraintGuide_percent="0.52" />
-
-        <net.polyv.android.player.common.ui.component.PLVMediaPlayerMoreLayoutAudioModeActionView
-            android:id="@+id/plv_media_player_more_audio_mode_action_view"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginHorizontal="14dp"
-            android:layout_marginTop="48dp"
-            app:layout_constraintStart_toStartOf="@+id/more_action_start_guide_line"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <net.polyv.android.player.common.ui.component.PLVMediaPlayerMoreLayoutFloatWindowActionView
-            android:id="@+id/plv_media_player_more_float_window_action_view"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginHorizontal="14dp"
-            android:layout_marginTop="48dp"
-            app:layout_constraintStart_toEndOf="@+id/plv_media_player_more_audio_mode_action_view"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <net.polyv.android.player.common.ui.component.PLVMediaPlayerMoreLayoutSubtitleActionViewLand
-            android:id="@+id/plv_media_player_more_subtitle_action_view"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginHorizontal="14dp"
-            android:layout_marginTop="48dp"
-            app:layout_constraintStart_toEndOf="@+id/plv_media_player_more_float_window_action_view"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <net.polyv.android.player.common.ui.component.PLVMediaPlayerMoreLayoutDownloadActionView
-            android:id="@+id/plv_media_player_more_download_action_view"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginHorizontal="14dp"
-            android:layout_marginTop="48dp"
-            app:layout_constraintStart_toEndOf="@+id/plv_media_player_more_subtitle_action_view"
-            app:layout_constraintTop_toTopOf="parent"
-            app:plv_icon_tint_normal="#FFFFFF"
-            app:plv_text_color_normal="#CCFFFFFF" />
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

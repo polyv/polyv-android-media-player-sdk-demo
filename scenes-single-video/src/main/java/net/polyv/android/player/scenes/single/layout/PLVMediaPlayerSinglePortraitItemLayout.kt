@@ -6,30 +6,28 @@ import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
-import android.view.ViewGroup
 import android.widget.FrameLayout
 import net.polyv.android.player.common.di.PLVMediaPlayerLocalProvider
 import net.polyv.android.player.common.modules.media.viewmodel.PLVMPMediaViewModel
 import net.polyv.android.player.common.modules.mediacontroller.viewmodel.PLVMPMediaControllerViewModel
 import net.polyv.android.player.common.ui.component.PLVMediaPlayerAudioModeCoverLayoutPortrait
 import net.polyv.android.player.common.ui.component.PLVMediaPlayerAutoContinueHintLayout
-import net.polyv.android.player.common.ui.component.PLVMediaPlayerAuxiliaryViewContainer
 import net.polyv.android.player.common.ui.component.PLVMediaPlayerBackImageView
-import net.polyv.android.player.common.ui.component.PLVMediaPlayerBrightnessVolumeHintLayout
 import net.polyv.android.player.common.ui.component.PLVMediaPlayerControllerGradientMaskLayout
-import net.polyv.android.player.common.ui.component.PLVMediaPlayerGestureBlockWindowInsetsMotionEventLayout
-import net.polyv.android.player.common.ui.component.PLVMediaPlayerGestureBrightnessVolumeControlLayout
-import net.polyv.android.player.common.ui.component.PLVMediaPlayerGestureHorizontalDragControlLayout
-import net.polyv.android.player.common.ui.component.PLVMediaPlayerGestureLongPressSpeedControlLayout
-import net.polyv.android.player.common.ui.component.PLVMediaPlayerLongPressSpeedHintLayout
-import net.polyv.android.player.common.ui.component.PLVMediaPlayerMoreActionImageView
 import net.polyv.android.player.common.ui.component.PLVMediaPlayerPlayButtonLandscape
 import net.polyv.android.player.common.ui.component.PLVMediaPlayerPlayCompleteManualRestartOverlayLayout
 import net.polyv.android.player.common.ui.component.PLVMediaPlayerPlayErrorOverlayLayout
-import net.polyv.android.player.common.ui.component.PLVMediaPlayerProgressSeekBar
-import net.polyv.android.player.common.ui.component.PLVMediaPlayerProgressTextView
 import net.polyv.android.player.common.ui.component.PLVMediaPlayerSwitchToFullScreenButtonPortraitHalfScreen
 import net.polyv.android.player.common.ui.component.PLVMediaPlayerTitleTextView
+import net.polyv.android.player.common.ui.component.PLVMediaPlayerVideoViewContainer
+import net.polyv.android.player.common.ui.component.auxiliary.PLVMediaPlayerAuxiliaryViewContainer
+import net.polyv.android.player.common.ui.component.gesture.PLVMediaPlayerBrightnessVolumeHintLayout
+import net.polyv.android.player.common.ui.component.gesture.PLVMediaPlayerGestureBlockWindowInsetsMotionEventLayout
+import net.polyv.android.player.common.ui.component.gesture.PLVMediaPlayerGestureHandleLayout
+import net.polyv.android.player.common.ui.component.gesture.PLVMediaPlayerLongPressSpeedHintLayout
+import net.polyv.android.player.common.ui.component.more.PLVMediaPlayerMoreActionImageView
+import net.polyv.android.player.common.ui.component.progress.PLVMediaPlayerProgressSeekBar
+import net.polyv.android.player.common.ui.component.progress.PLVMediaPlayerProgressTextView
 import net.polyv.android.player.common.utils.ui.PLVOnDoubleClickListener
 import net.polyv.android.player.scenes.single.R
 
@@ -47,15 +45,9 @@ class PLVMediaPlayerSinglePortraitItemLayout @JvmOverloads constructor(
 
     // <editor-fold defaultstate="collapsed" desc="Layout-views">
     private val videoLayout by lazy { findViewById<ConstraintLayout>(R.id.plv_media_player_video_layout) }
-    private val videoViewContainer by lazy { findViewById<FrameLayout>(R.id.plv_media_player_video_view_container) }
+    private val videoViewContainer by lazy { findViewById<PLVMediaPlayerVideoViewContainer>(R.id.plv_media_player_video_view_container) }
     private val audioModeCoverPortrait by lazy { findViewById<PLVMediaPlayerAudioModeCoverLayoutPortrait>(R.id.plv_media_player_audio_mode_cover_portrait) }
-    private val brightnessVolumeControlLayout by lazy {
-        findViewById<PLVMediaPlayerGestureBrightnessVolumeControlLayout>(
-            R.id.plv_media_player_brightness_volume_control_layout
-        )
-    }
-    private val longPressSpeedControlLayout by lazy { findViewById<PLVMediaPlayerGestureLongPressSpeedControlLayout>(R.id.plv_media_player_long_press_speed_control_layout) }
-    private val horizontalDragControlLayout by lazy { findViewById<PLVMediaPlayerGestureHorizontalDragControlLayout>(R.id.plv_media_player_horizontal_drag_control_layout) }
+    private val gestureHandleLayout by lazy { findViewById<PLVMediaPlayerGestureHandleLayout>(R.id.plv_media_player_gesture_handle_layout) }
     private val controllerGradientMaskLayout by lazy { findViewById<PLVMediaPlayerControllerGradientMaskLayout>(R.id.plv_media_player_controller_gradient_mask_layout) }
     private val completeOverlayLayout by lazy { findViewById<PLVMediaPlayerPlayCompleteManualRestartOverlayLayout>(R.id.plv_media_player_complete_overlay_layout) }
     private val errorOverlayLayout by lazy { findViewById<PLVMediaPlayerPlayErrorOverlayLayout>(R.id.plv_media_player_error_overlay_layout) }
@@ -114,13 +106,7 @@ class PLVMediaPlayerSinglePortraitItemLayout @JvmOverloads constructor(
         if (gestureBlockWindowInsetsMotionEventLayout.handleOnTouchEvent(event)) {
             return true
         }
-        if (brightnessVolumeControlLayout.handleOnTouchEvent(event)) {
-            return true
-        }
-        if (horizontalDragControlLayout.handleOnTouchEvent(event)) {
-            return true
-        }
-        if (longPressSpeedControlLayout.handleOnTouchEvent(event)) {
+        if (gestureHandleLayout.handleOnTouchEvent(event)) {
             return true
         }
         return super.onTouchEvent(event)
@@ -130,15 +116,7 @@ class PLVMediaPlayerSinglePortraitItemLayout @JvmOverloads constructor(
 
     // <editor-fold defaultstate="collapsed" desc="Layout-方法-播放器皮肤-设置裸播放器到皮肤容器">
     fun setVideoView(videoView: View?) {
-        videoViewContainer.removeAllViews()
-        if (videoView != null && videoView.parent != null) {
-            // 把裸播放器从原来的父容器中移除，比如从小窗容器中移除
-            (videoView.parent as ViewGroup).removeView(videoView)
-        }
-        if (videoView != null && videoView.parent == null) {
-            // 把裸播放器添加到当前的皮肤容器中
-            videoViewContainer.addView(videoView)
-        }
+        videoViewContainer.setVideoView(videoView)
     }
 
     fun setAuxiliaryVideoView(auxiliaryVideoView: View?) {

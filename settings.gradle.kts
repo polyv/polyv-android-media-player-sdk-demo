@@ -22,6 +22,9 @@ dependencyResolutionManagement {
         maven {
             url = uri("https://maven.aliyun.com/nexus/content/repositories/releases/")
         }
+        maven {
+            url = uri("https://maven.aliyun.com/repository/public")
+        }
     }
 }
 

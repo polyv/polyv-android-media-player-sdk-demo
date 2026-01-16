@@ -14,6 +14,7 @@
         <flag name="right" value="12" />
         <flag name="all" value="15" />
     </attr>
+    <attr name="plv_color" format="color" />
 
     <attr name="plv_icon_tint_normal" format="color" />
     <attr name="plv_icon_tint_selected" format="color" />
@@ -96,5 +97,15 @@
         <attr name="plv_gradient_colors" />
         <attr name="plv_gradient_orientation" />
         <attr name="plv_radius" />
+    </declare-styleable>
+    <declare-styleable name="PLVMediaPlayerDanmuColorView">
+        <attr name="plv_color" />
+    </declare-styleable>
+    <declare-styleable name="PLVMediaPlayerGestureHandleLayout">
+        <attr name="plv_brightness_gesture_enable" format="boolean" />
+        <attr name="plv_volume_gesture_enable" format="boolean" />
+        <attr name="plv_horizon_drag_gesture_enable" format="boolean" />
+        <attr name="plv_long_press_gesture_enable" format="boolean" />
+        <attr name="plv_translation_gesture_enable" format="boolean" />
     </declare-styleable>
 </resources>

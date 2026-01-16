@@ -18,7 +18,7 @@ import net.polyv.android.player.common.modules.mediacontroller.viewmodel.viewsta
 import net.polyv.android.player.sdk.foundation.lang.PLVRememberState;
 import net.polyv.android.player.sdk.foundation.lang.PLVRememberStateCompareResult;
 
-import java.util.Locale;
+import java.text.DecimalFormat;
 
 import kotlin.Unit;
 import kotlin.jvm.functions.Function1;
@@ -108,7 +108,8 @@ public class PLVMediaPlayerSpeedTextView extends AppCompatTextView implements Vi
         if (currentSpeed == null) {
             setText(R.string.plv_media_player_ui_component_speed_hint_text);
         } else {
-            setText(String.format(Locale.getDefault(), "%.1fx", currentSpeed));
+            DecimalFormat format = new DecimalFormat("#.##");
+            setText(format.format(currentSpeed) + "x");
         }
     }
 

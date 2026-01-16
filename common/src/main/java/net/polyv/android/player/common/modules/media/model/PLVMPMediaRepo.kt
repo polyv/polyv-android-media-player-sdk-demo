@@ -11,6 +11,7 @@ import net.polyv.android.player.core.api.listener.state.PLVMediaPlayerPlayingSta
 import net.polyv.android.player.core.api.option.PLVMediaPlayerOption
 import net.polyv.android.player.core.api.render.IPLVMediaPlayerRenderView
 import net.polyv.android.player.sdk.PLVMediaPlayer
+import net.polyv.android.player.sdk.addon.business.addonBusinessManager
 import net.polyv.android.player.sdk.foundation.di.LifecycleAwareDependComponent
 import net.polyv.android.player.sdk.foundation.lang.MutableObserver
 
@@ -32,12 +33,15 @@ internal class PLVMPMediaRepo(
         this.mediator.getVolume = { this.player.getStateListenerRegistry().volume.value ?: 100 }
         this.mediator.setVolume = { this.player.setVolume(it) }
         this.mediator.bindAuxiliaryPlayer = { this.player.bindAuxiliaryPlayer(it) }
+        this.mediator.addonBusinessManager = { this.player.addonBusinessManager }
         this.player.getBusinessListenerRegistry().onAutoContinueEvent.relayTo(this.mediator.onAutoContinueEvent)
             .addTo(this.observers)
         this.player.getBusinessListenerRegistry().businessErrorState.relayTo(this.mediator.businessErrorState)
             .addTo(this.observers)
         this.player.getStateListenerRegistry().playingState.relayTo(this.mediator.playingState).addTo(this.observers)
         this.player.getStateListenerRegistry().playerState.relayTo(this.mediator.playerState).addTo(this.observers)
+        this.player.getEventListenerRegistry().onSeekCompleteEvent.relayTo(this.mediator.onSeekCompleteEvent)
+            .addTo(this.observers)
         this.player.getEventListenerRegistry().onInfo.relayTo(this.mediator.onInfoEvent).addTo(this.observers)
         this.player.getEventListenerRegistry().onPrepared.relayTo(this.mediator.onPreparedEvent).addTo(this.observers)
         this.player.getEventListenerRegistry().onCompleted.relayTo(this.mediator.onCompleteEvent).addTo(this.observers)
@@ -109,6 +113,7 @@ internal class PLVMPMediaRepo(
     }
 
     override fun onDestroy() {
+        this.player.addonBusinessManager.destroy()
         this.player.destroy()
         this.observers.disposeAll()
         this.observers.clear()

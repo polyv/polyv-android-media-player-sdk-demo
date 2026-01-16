@@ -1,6 +1,9 @@
 package net.polyv.android.player.scenes.download
 
 import android.app.Activity
+import androidx.lifecycle.GenericLifecycleObserver
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleOwner
 import android.content.Context
 import android.graphics.Color
 import androidx.fragment.app.FragmentActivity
@@ -26,7 +29,7 @@ internal class PLVMediaPlayerDownloadCenterLayout @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyle: Int = 0
-) : FrameLayout(context, attrs, defStyle), View.OnClickListener {
+) : FrameLayout(context, attrs, defStyle), View.OnClickListener, GenericLifecycleObserver {
 
     private val downloadBackIv: ImageView by lazy { findViewById(R.id.plv_media_player_download_back_iv) }
     private val downloadTabLayout: LinearLayout by lazy { findViewById(R.id.plv_media_player_download_tab_layout) }
@@ -52,6 +55,7 @@ internal class PLVMediaPlayerDownloadCenterLayout @JvmOverloads constructor(
     }
 
     init {
+        (context as LifecycleOwner).lifecycle.addObserver(this)
         LayoutInflater.from(context).inflate(R.layout.plv_media_player_download_center_layout, this)
 
         downloadBackIv.setOnClickListener(this)
@@ -107,6 +111,12 @@ internal class PLVMediaPlayerDownloadCenterLayout @JvmOverloads constructor(
             downloadCompletedTab.id -> currentSelectTab.setValue(0)
             downloadingTab.id -> currentSelectTab.setValue(1)
             else -> {}
+        }
+    }
+
+    override fun onStateChanged(source: LifecycleOwner?, event: Lifecycle.Event?) {
+        if (event == Lifecycle.Event.ON_DESTROY) {
+            downloadListEmptyHintVisibleState.destroy()
         }
     }
 

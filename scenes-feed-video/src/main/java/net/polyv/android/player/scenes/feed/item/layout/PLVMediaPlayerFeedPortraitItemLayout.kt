@@ -16,17 +16,18 @@ import net.polyv.android.player.common.modules.media.viewmodel.PLVMPMediaViewMod
 import net.polyv.android.player.common.ui.component.PLVMediaPlayerAudioModeCoverLayoutPortrait
 import net.polyv.android.player.common.ui.component.PLVMediaPlayerAutoContinueHintFeedStyleLayout
 import net.polyv.android.player.common.ui.component.PLVMediaPlayerBackImageView
-import net.polyv.android.player.common.ui.component.PLVMediaPlayerGestureLongPressSpeedControlLayout
-import net.polyv.android.player.common.ui.component.PLVMediaPlayerLongPressSpeedHintLayout
-import net.polyv.android.player.common.ui.component.PLVMediaPlayerMoreActionImageView
-import net.polyv.android.player.common.ui.component.PLVMediaPlayerMoreActionLayoutPortrait
 import net.polyv.android.player.common.ui.component.PLVMediaPlayerPlayButtonPortraitFullScreen
 import net.polyv.android.player.common.ui.component.PLVMediaPlayerPlayErrorOverlayLayout
-import net.polyv.android.player.common.ui.component.PLVMediaPlayerProgressSeekBar
-import net.polyv.android.player.common.ui.component.PLVMediaPlayerProgressTextView
 import net.polyv.android.player.common.ui.component.PLVMediaPlayerSwitchToFullScreenButtonPortraitFullScreen
 import net.polyv.android.player.common.ui.component.PLVMediaPlayerTitleTextView
 import net.polyv.android.player.common.ui.component.PLVMediaPlayerVideoFirstImageView
+import net.polyv.android.player.common.ui.component.PLVMediaPlayerVideoViewContainer
+import net.polyv.android.player.common.ui.component.gesture.PLVMediaPlayerGestureHandleLayout
+import net.polyv.android.player.common.ui.component.gesture.PLVMediaPlayerLongPressSpeedHintLayout
+import net.polyv.android.player.common.ui.component.more.PLVMediaPlayerMoreActionImageView
+import net.polyv.android.player.common.ui.component.more.PLVMediaPlayerMoreActionLayoutPortrait
+import net.polyv.android.player.common.ui.component.progress.PLVMediaPlayerProgressSeekBar
+import net.polyv.android.player.common.ui.component.progress.PLVMediaPlayerProgressTextView
 import net.polyv.android.player.scenes.feed.R
 import net.polyv.android.player.sdk.PLVDeviceManager.getNavigationBarHeight
 import net.polyv.android.player.sdk.PLVDeviceManager.getStatusBarHeight
@@ -52,11 +53,11 @@ class PLVMediaPlayerFeedPortraitItemLayout @JvmOverloads constructor(
     private val statusBarGuildLine by lazy { findViewById<Guideline>(R.id.plv_media_player_status_bar_guild_line) }
     private val navigationBarGuildLine by lazy { findViewById<Guideline>(R.id.plv_media_player_navigation_bar_guild_line) }
     private val videoFirstImageView by lazy { findViewById<PLVMediaPlayerVideoFirstImageView>(R.id.plv_media_player_video_first_image_view) }
-    private val videoViewContainer by lazy { findViewById<FrameLayout>(R.id.plv_media_player_video_view_container) }
+    private val videoViewContainer by lazy { findViewById<PLVMediaPlayerVideoViewContainer>(R.id.plv_media_player_video_view_container) }
     private val audioModeCoverPortrait by lazy { findViewById<PLVMediaPlayerAudioModeCoverLayoutPortrait>(R.id.plv_media_player_audio_mode_cover_portrait) }
     private val errorOverlayLayout by lazy { findViewById<PLVMediaPlayerPlayErrorOverlayLayout>(R.id.plv_media_player_error_overlay_layout) }
     private val switchVideoModeBtn by lazy { findViewById<PLVMediaPlayerSwitchToFullScreenButtonPortraitFullScreen>(R.id.plv_media_player_switch_video_mode_btn) }
-    private val longPressSpeedControlLayout by lazy { findViewById<PLVMediaPlayerGestureLongPressSpeedControlLayout>(R.id.plv_media_player_long_press_speed_control_layout) }
+    private val gestureHandleLayout by lazy { findViewById<PLVMediaPlayerGestureHandleLayout>(R.id.plv_media_player_gesture_handle_layout) }
     private val playButton by lazy { findViewById<PLVMediaPlayerPlayButtonPortraitFullScreen>(R.id.plv_media_player_play_button) }
     private val backIv by lazy { findViewById<PLVMediaPlayerBackImageView>(R.id.plv_media_player_back_iv) }
     private val titleTv by lazy { findViewById<PLVMediaPlayerTitleTextView>(R.id.plv_media_player_title_tv) }
@@ -126,7 +127,7 @@ class PLVMediaPlayerFeedPortraitItemLayout @JvmOverloads constructor(
 
     // <editor-fold defaultstate="collapsed" desc="Layout-方法-播放器皮肤-手势事件处理">
     override fun onTouchEvent(event: MotionEvent): Boolean {
-        if (longPressSpeedControlLayout.handleOnTouchEvent(event)) {
+        if (gestureHandleLayout.handleOnTouchEvent(event)) {
             return true
         }
         return super.onTouchEvent(event)
@@ -135,13 +136,7 @@ class PLVMediaPlayerFeedPortraitItemLayout @JvmOverloads constructor(
 
     // <editor-fold defaultstate="collapsed" desc="Layout-方法-播放器皮肤-设置裸播放器到皮肤容器">
     fun setVideoView(videoView: View?) {
-        videoViewContainer.removeAllViews()
-        if (videoView != null && videoView.parent != null) {
-            (videoView.parent as ViewGroup).removeView(videoView)
-        }
-        if (videoView != null && videoView.parent == null) {
-            videoViewContainer.addView(videoView)
-        }
+        videoViewContainer.setVideoView(videoView)
     }
 
     // </editor-fold>

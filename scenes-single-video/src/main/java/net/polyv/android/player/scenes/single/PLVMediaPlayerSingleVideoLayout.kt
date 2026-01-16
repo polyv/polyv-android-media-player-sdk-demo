@@ -23,11 +23,12 @@ import net.polyv.android.player.common.modules.media.view.PLVMPVideoView
 import net.polyv.android.player.common.modules.media.viewmodel.PLVMPMediaViewModel
 import net.polyv.android.player.common.modules.mediacontroller.viewmodel.LockMediaControllerAction
 import net.polyv.android.player.common.modules.mediacontroller.viewmodel.PLVMPMediaControllerViewModel
+import net.polyv.android.player.common.modules.mediacontroller.viewmodel.viewstate.PLVMPMediaViewTranslation
 import net.polyv.android.player.common.ui.component.PLVMediaPlayerHandleOnEnterBackgroundComponent
-import net.polyv.android.player.common.ui.component.PLVMediaPlayerMoreActionLayoutPortrait
 import net.polyv.android.player.common.ui.component.floatwindow.PLVMediaPlayerFloatWindowHelper
 import net.polyv.android.player.common.ui.component.floatwindow.PLVMediaPlayerFloatWindowManager
 import net.polyv.android.player.common.ui.component.floatwindow.layout.PLVMediaPlayerFloatWindowContentLayout
+import net.polyv.android.player.common.ui.component.more.PLVMediaPlayerMoreActionLayoutPortrait
 import net.polyv.android.player.common.utils.audiofocus.PLVMediaPlayerAudioFocusManager
 import net.polyv.android.player.common.utils.floatwindow.permission.PLVFloatPermissionUtils
 import net.polyv.android.player.common.utils.orientation.PLVActivityOrientationManager
@@ -224,6 +225,8 @@ class PLVMediaPlayerSingleVideoLayout @JvmOverloads constructor(
         if (isPortrait()) {
             // 只有横屏有操作锁定，竖屏没有
             mediaControllerViewModel.lockMediaController(LockMediaControllerAction.UNLOCK)
+            // 竖屏恢复视频缩放旋转
+            mediaControllerViewModel.setMediaViewTranslation(PLVMPMediaViewTranslation.IDENTITY)
         }
         mediaControllerViewModel.showControllerForDuration(5.seconds())
     }

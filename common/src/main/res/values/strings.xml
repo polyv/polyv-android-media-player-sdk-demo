@@ -35,4 +35,14 @@
     <string name="plv_media_player_ui_component_auto_continue_hint_feed_post">续播</string>
     <string name="plv_media_player_ui_component_screenshot_save_success">视频截图成功保存至：%s</string>
     <string name="plv_media_player_ui_component_screenshot_save_failed">视频截图保存失败</string>
+    <string name="plv_media_player_ui_component_knowledge_hint_text">知识点</string>
+    <string name="plv_media_player_danmu_content_hint">说点什么...</string>
+    <string name="plv_media_player_danmu_send">发送</string>
+    <string name="plv_media_player_danmu_color">弹幕颜色</string>
+    <string name="plv_media_player_danmu_mode">弹幕类型</string>
+    <string name="plv_media_player_danmu_mode_roll">滚动</string>
+    <string name="plv_media_player_danmu_mode_top">顶部</string>
+    <string name="plv_media_player_danmu_mode_bottom">底部</string>
+    <string name="plv_media_player_danmu_size">字体大小</string>
+    <string name="plv_media_player_reset_translation">还原屏幕</string>
 </resources>

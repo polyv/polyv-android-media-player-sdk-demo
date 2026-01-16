@@ -56,7 +56,6 @@ public class PLVMediaPlayerScreenshotImageView extends AppCompatImageView {
     }
 
     private void init() {
-        setImageResource(R.drawable.plv_media_player_screenshot_icon);
         setOnClickListener(new PLVDebounceClicker.OnClickListener(new OnClickListener() {
             @Override
             public void onClick(View v) {

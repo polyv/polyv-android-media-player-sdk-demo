@@ -33,7 +33,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
-            <net.polyv.android.player.common.ui.component.PLVMediaPlayerMoreLayoutAudioModeActionView
+            <net.polyv.android.player.common.ui.component.more.PLVMediaPlayerMoreLayoutAudioModeActionView
                 android:id="@+id/plv_media_player_more_audio_mode_action_view"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -45,7 +45,7 @@
                 app:plv_text_color_normal="#CC333333"
                 app:plv_text_color_selected="#CC3F76FC" />
 
-            <net.polyv.android.player.common.ui.component.PLVMediaPlayerMoreLayoutFloatWindowActionView
+            <net.polyv.android.player.common.ui.component.more.PLVMediaPlayerMoreLayoutFloatWindowActionView
                 android:id="@+id/plv_media_player_more_float_window_action_view"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -57,7 +57,7 @@
                 app:plv_text_color_normal="#CC333333"
                 app:plv_text_color_selected="#CC3F76FC" />
 
-            <net.polyv.android.player.common.ui.component.PLVMediaPlayerMoreLayoutSubtitleActionViewPort
+            <net.polyv.android.player.common.ui.component.more.PLVMediaPlayerMoreLayoutSubtitleActionViewPort
                 android:id="@+id/plv_media_player_more_subtitle_action_view"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -65,7 +65,7 @@
                 app:layout_constraintStart_toEndOf="@+id/plv_media_player_more_float_window_action_view"
                 app:layout_constraintTop_toTopOf="parent" />
 
-            <net.polyv.android.player.common.ui.component.PLVMediaPlayerMoreLayoutDownloadActionView
+            <net.polyv.android.player.common.ui.component.more.PLVMediaPlayerMoreLayoutDownloadActionView
                 android:id="@+id/plv_media_player_more_download_action_view"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

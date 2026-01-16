@@ -34,7 +34,7 @@
         app:layout_constraintTop_toTopOf="@+id/plv_media_player_video_view_container" />
 
     <!-- 裸播放器容器 -->
-    <FrameLayout
+    <net.polyv.android.player.common.ui.component.PLVMediaPlayerVideoViewContainer
         android:id="@+id/plv_media_player_video_view_container"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -44,6 +44,16 @@
         app:layout_constraintTop_toTopOf="parent"
         tools:layout_height="match_parent"
         tools:layout_width="match_parent" />
+
+    <!-- 弹幕 -->
+    <net.polyv.android.player.common.ui.component.danmu.PLVMediaPlayerDanmuLayout
+        android:id="@+id/plv_media_player_danmu_layout"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="@+id/plv_media_player_video_view_container"
+        app:layout_constraintEnd_toEndOf="@+id/plv_media_player_video_view_container"
+        app:layout_constraintStart_toStartOf="@+id/plv_media_player_video_view_container"
+        app:layout_constraintTop_toTopOf="@+id/plv_media_player_video_view_container" />
 
     <!-- 字幕 -->
     <net.polyv.android.player.common.ui.component.PLVMediaPlayerSubtitleTextLayout
@@ -55,7 +65,7 @@
         app:layout_constraintStart_toStartOf="parent" />
 
     <!-- 播放器跑马灯 -->
-    <net.polyv.android.player.common.ui.component.PLVMediaPlayerMarqueeLayout
+    <net.polyv.android.player.common.ui.component.marquee.PLVMediaPlayerMarqueeLayout
         android:layout_width="0dp"
         android:layout_height="0dp"
         app:layout_constraintBottom_toBottomOf="@+id/plv_media_player_video_view_container"
@@ -92,11 +102,12 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/plv_media_player_video_view_container" />
 
-    <!-- 长按快进手势控制层 -->
-    <net.polyv.android.player.common.ui.component.PLVMediaPlayerGestureLongPressSpeedControlLayout
-        android:id="@+id/plv_media_player_long_press_speed_control_layout"
+    <!-- 手势控制层 -->
+    <net.polyv.android.player.common.ui.component.gesture.PLVMediaPlayerGestureHandleLayout
+        android:id="@+id/plv_media_player_gesture_handle_layout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        app:plv_long_press_gesture_enable="true" />
 
     <!-- 播放/暂停按钮 -->
     <net.polyv.android.player.common.ui.component.PLVMediaPlayerPlayButtonPortraitFullScreen
@@ -135,7 +146,7 @@
         app:layout_constraintTop_toTopOf="@+id/plv_media_player_back_iv" />
 
     <!-- 更多功能按钮 -->
-    <net.polyv.android.player.common.ui.component.PLVMediaPlayerMoreActionImageView
+    <net.polyv.android.player.common.ui.component.more.PLVMediaPlayerMoreActionImageView
         android:id="@+id/plv_media_player_more_action_button"
         android:layout_width="44dp"
         android:layout_height="44dp"
@@ -146,7 +157,7 @@
         app:layout_constraintTop_toBottomOf="@+id/plv_media_player_status_bar_guild_line" />
 
     <!-- 播放进度文本 -->
-    <net.polyv.android.player.common.ui.component.PLVMediaPlayerProgressTextView
+    <net.polyv.android.player.common.ui.component.progress.PLVMediaPlayerProgressTextView
         android:id="@+id/plv_media_player_progress_text_view"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -156,7 +167,7 @@
         app:layout_constraintStart_toStartOf="parent" />
 
     <!-- 进度条 -->
-    <net.polyv.android.player.common.ui.component.PLVMediaPlayerProgressSeekBar
+    <net.polyv.android.player.common.ui.component.progress.PLVMediaPlayerProgressSeekBar
         android:id="@+id/plv_media_player_progress_seek_bar"
         android:layout_width="match_parent"
         android:layout_height="14dp"
@@ -182,7 +193,7 @@
         app:layout_constraintStart_toStartOf="parent" />
 
     <!-- 拖动进度条时缩略图预览 -->
-    <net.polyv.android.player.common.ui.component.PLVMediaPlayerSeekProgressPreviewLayout
+    <net.polyv.android.player.common.ui.component.progress.PLVMediaPlayerSeekProgressPreviewLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
@@ -210,7 +221,7 @@
         app:layout_constraintTop_toBottomOf="@+id/plv_media_player_more_action_button" />
 
     <!-- 长按快进控制提示 -->
-    <net.polyv.android.player.common.ui.component.PLVMediaPlayerLongPressSpeedHintLayout
+    <net.polyv.android.player.common.ui.component.gesture.PLVMediaPlayerLongPressSpeedHintLayout
         android:id="@+id/plv_media_player_long_press_speed_hint_layout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -221,13 +232,13 @@
         app:layout_constraintStart_toStartOf="parent" />
 
     <!-- 更多功能弹层 -->
-    <net.polyv.android.player.common.ui.component.PLVMediaPlayerMoreActionLayoutPortrait
+    <net.polyv.android.player.common.ui.component.more.PLVMediaPlayerMoreActionLayoutPortrait
         android:id="@+id/plv_media_player_more_action_layout_portrait"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
     <!-- 字幕设置弹层 -->
-    <net.polyv.android.player.common.ui.component.PLVMediaPlayerMoreSubtitleSettingLayoutPort
+    <net.polyv.android.player.common.ui.component.more.PLVMediaPlayerMoreSubtitleSettingLayoutPort
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 

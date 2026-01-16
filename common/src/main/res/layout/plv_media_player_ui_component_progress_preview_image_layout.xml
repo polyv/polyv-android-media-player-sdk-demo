@@ -4,7 +4,7 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content">
 
-    <net.polyv.android.player.common.ui.component.PLVMediaPlayerSeekProgressPreviewTextView
+    <net.polyv.android.player.common.ui.component.progress.PLVMediaPlayerSeekProgressPreviewTextView
         android:id="@+id/plv_media_player_seek_progress_preview_tv"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

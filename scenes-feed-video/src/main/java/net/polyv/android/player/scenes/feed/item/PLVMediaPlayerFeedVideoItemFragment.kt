@@ -15,6 +15,7 @@ import net.polyv.android.player.common.modules.media.view.PLVMPVideoView
 import net.polyv.android.player.common.modules.media.viewmodel.PLVMPMediaViewModel
 import net.polyv.android.player.common.modules.mediacontroller.viewmodel.LockMediaControllerAction
 import net.polyv.android.player.common.modules.mediacontroller.viewmodel.PLVMPMediaControllerViewModel
+import net.polyv.android.player.common.modules.mediacontroller.viewmodel.viewstate.PLVMPMediaViewTranslation
 import net.polyv.android.player.common.ui.component.PLVMediaPlayerHandleOnEnterBackgroundComponent
 import net.polyv.android.player.common.ui.component.floatwindow.PLVMediaPlayerFloatWindowHelper
 import net.polyv.android.player.common.ui.component.floatwindow.PLVMediaPlayerFloatWindowManager
@@ -218,6 +219,8 @@ class PLVMediaPlayerFeedVideoItemFragment : Fragment() {
             mediaControllerViewModel?.lockMediaController(LockMediaControllerAction.UNLOCK)
             // 竖屏控制栏长显
             mediaControllerViewModel?.changeControllerVisible(true)
+            // 竖屏恢复视频缩放旋转
+            mediaControllerViewModel?.setMediaViewTranslation(PLVMPMediaViewTranslation.IDENTITY)
         } else {
             mediaControllerViewModel?.showControllerForDuration(5.seconds())
         }

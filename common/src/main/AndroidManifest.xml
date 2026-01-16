@@ -15,4 +15,14 @@
         android:name="android.permission.READ_PHONE_STATE"
         tools:node="remove" />
 
+    <application>
+        <activity
+            android:name=".ui.component.danmu.PLVMediaPlayerDanmuInputActivity"
+            android:theme="@style/AppTheme.Translucent"
+            android:configChanges="orientation|keyboard|screenSize"
+            android:windowSoftInputMode="adjustResize"
+            android:screenOrientation="behind"
+            android:exported="false" />
+    </application>
+
 </manifest>

@@ -5,8 +5,8 @@
  * @author Hoshiiro
  */
 
-const val version_name = "2.7.1"
-const val version_code = 20701
+const val version_name = "2.7.2"
+const val version_code = 20702
 
 const val compile_sdk_version = 34
 const val target_sdk_version = 34
@@ -32,6 +32,8 @@ const val deps_rxjava_android_version = "2.1.1"
 const val deps_glide_version = "4.7.1"
 const val deps_circle_image_view_version = "2.2.0"
 const val deps_svga_version = "2.6.1"
+const val deps_flexbox_version = "1.0.0"
 const val deps_native_module = "1.0.2"
 const val deps_render_script = "1.0.2"
-const val deps_common_libs = "1.0.3"
+const val deps_common_libs = "1.0.5"
+const val deps_danmaku = "1.0.1"

@@ -10,8 +10,10 @@ import net.polyv.android.player.common.modules.media.viewmodel.viewstate.PLVMPMe
 import net.polyv.android.player.core.api.listener.event.PLVMediaPlayerOnCompletedEvent
 import net.polyv.android.player.core.api.listener.event.PLVMediaPlayerOnInfoEvent
 import net.polyv.android.player.core.api.listener.event.PLVMediaPlayerOnPreparedEvent
+import net.polyv.android.player.core.api.listener.event.PLVMediaPlayerOnSeekCompleteEvent
 import net.polyv.android.player.core.api.listener.state.PLVMediaPlayerPlayingState
 import net.polyv.android.player.core.api.listener.state.PLVMediaPlayerState
+import net.polyv.android.player.sdk.addon.business.PLVMediaPlayerAddonBusinessManager
 import net.polyv.android.player.sdk.foundation.di.LifecycleAwareDependComponent
 import net.polyv.android.player.sdk.foundation.lang.MutableEvent
 import net.polyv.android.player.sdk.foundation.lang.MutableSource
@@ -30,6 +32,7 @@ class PLVMPMediaMediator : LifecycleAwareDependComponent {
     val onPreparedEvent = MutableEvent<PLVMediaPlayerOnPreparedEvent>()
     val onAutoContinueEvent = MutableEvent<PLVMediaPlayerAutoContinueEvent>()
     val onInfoEvent = MutableEvent<PLVMediaPlayerOnInfoEvent>()
+    val onSeekCompleteEvent = MutableEvent<PLVMediaPlayerOnSeekCompleteEvent>()
     val onCompleteEvent = MutableEvent<PLVMediaPlayerOnCompletedEvent>()
     val playingState = MutableState(PLVMediaPlayerPlayingState.PAUSING)
     val playerState = MutableState(PLVMediaPlayerState.STATE_IDLE)
@@ -43,6 +46,7 @@ class PLVMPMediaMediator : LifecycleAwareDependComponent {
     var getVolume: (() -> Int)? = null
     var setVolume: ((Int) -> Unit)? = null
     var bindAuxiliaryPlayer: ((IPLVAuxiliaryMediaPlayer) -> Unit)? = null
+    var addonBusinessManager: (() -> PLVMediaPlayerAddonBusinessManager)? = null
 
     override fun onDestroy() {
         MutableSource.disposeAllSource(this)
