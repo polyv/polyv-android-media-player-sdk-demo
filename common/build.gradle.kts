@@ -30,9 +30,9 @@ dependencies {
     implementation("com.google.android.material:material:1.0.0")
     implementation("androidx.constraintlayout:constraintlayout:1.1.3")
 
-    api("net.polyv.android:media-player-full:2.7.2")
-    api("net.polyv.android:media-player-sdk-addon-business:2.7.2")
-    api("net.polyv.android:media-player-sdk-addon-download:2.7.2")
+    api("net.polyv.android:media-player-full:2.7.3")
+    api("net.polyv.android:media-player-sdk-addon-business:2.7.3")
+    api("net.polyv.android:media-player-sdk-addon-download:2.7.3")
 
     api("com.google.android:flexbox:$deps_flexbox_version")
     api("de.hdodenhof:circleimageview:$deps_circle_image_view_version")

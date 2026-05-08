@@ -10,7 +10,7 @@ import net.polyv.android.player.business.scene.common.model.vo.PLVMediaResource;
 import net.polyv.android.player.business.scene.common.model.vo.PLVViewerParam;
 import net.polyv.android.player.business.scene.common.model.vo.PLVVodAuthentication;
 import net.polyv.android.player.business.scene.common.model.vo.PLVVodMainAccountAuthentication;
-import net.polyv.android.player.sdk.addon.download.common.model.vo.PLVMediaDownloadSetting;
+import net.polyv.android.player.sdk.addon.download.PLVMediaDownloaderManager;
 import net.polyv.android.player.sdk.foundation.app.PLVApplicationContext;
 import net.polyv.android.player.sdk.foundation.collections.PLVSequences;
 import net.polyv.android.player.sdk.foundation.log.PLVMediaPlayerLogger;
@@ -33,7 +33,7 @@ import kotlin.jvm.functions.Function1;
 public class PLVMockMediaResourceData {
 
     private static final PLVVodAuthentication mockAuthentication = new PLVVodMainAccountAuthentication("e97dbe3e64", "zMV29c519P", null, null);
-    private static final PLVViewerParam mockViewerParam = new PLVViewerParam("123", "123", null, null, null, null, "param3", "param4", "param5");
+    private static PLVViewerParam mockViewerParam = new PLVViewerParam("123", "123", null, null, null, null, "param3", "param4", "param5");
 
     private static final PLVMockMediaResourceData INSTANCE = new PLVMockMediaResourceData();
 
@@ -48,7 +48,16 @@ public class PLVMockMediaResourceData {
         setup();
     }
 
+    // 切换用户
+    public void switchViewer(PLVViewerParam viewerParam) {
+        mockViewerParam = viewerParam;
+        // 切换用户后，需要重新配置与viewerParam相关的设置
+        setup();
+    }
+
     private void setup() {
+        // 切换用户后，需要重新配置与viewerParam相关的设置
+        setupMultiDownloadViewerId();
         setupMediaResourcesLocal();
 //        setupMediaResourcesFromVodServer();
     }
@@ -85,6 +94,11 @@ public class PLVMockMediaResourceData {
                 vod("e97dbe3e641b079d268330cc274fe3b4_e"),
                 vod("e97dbe3e642eb6b15f9983949ffbdea7_e")
         );
+    }
+
+    public void setupMultiDownloadViewerId() {
+        // 配置多用户下载的viewerId
+        PLVMediaDownloaderManager.setupMultiDownloadViewerId(mockViewerParam.getViewerId());
     }
 
     /**
@@ -129,7 +143,7 @@ public class PLVMockMediaResourceData {
 
     private static PLVMediaResource vod(String videoId) {
         // 播放器 SDK 默认下载路径
-        final String defaultDownloadRoot = PLVMediaDownloadSetting.defaultSetting(PLVApplicationContext.getApplicationContext()).getDownloadRootDirectory().getAbsolutePath();
+        String defaultDownloadRoot = PLVMediaDownloaderManager.downloadSetting.getDownloadRootDirectory().getAbsolutePath();
         // 点播 SDK 默认下载路径，需要提前调用 PLVMediaDownloaderVodMigrate.migrate 才能播放在点播 SDK 下载的视频
         final String vodSdkDownloadRoot = new File(PLVApplicationContext.getApplicationContext().getExternalFilesDir(null), "polyvdownload").getAbsolutePath();
         return PLVMediaResource.vod(videoId, mockAuthentication, mockViewerParam, listOf(defaultDownloadRoot, vodSdkDownloadRoot));

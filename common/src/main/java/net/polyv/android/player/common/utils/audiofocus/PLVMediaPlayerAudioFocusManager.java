@@ -2,6 +2,7 @@ package net.polyv.android.player.common.utils.audiofocus;
 
 import android.content.Context;
 import android.media.AudioManager;
+
 import androidx.annotation.NonNull;
 
 import net.polyv.android.common.libs.lang.state.MutableObserver;
@@ -45,6 +46,7 @@ public class PLVMediaPlayerAudioFocusManager implements AudioManager.OnAudioFocu
         this.mediaViewModel = null;
         this.lastAudioFocusState = AudioFocusState.NO_AUDIO_FOCUS;
         this.audioFocusState = AudioFocusState.NO_AUDIO_FOCUS;
+        audioManager.abandonAudioFocus(this);
     }
 
     private void startObserveMediaState() {
