@@ -2,6 +2,8 @@ package net.polyv.android.player.common.modules.download.list.viewstate
 
 import androidx.annotation.FloatRange
 import net.polyv.android.player.business.scene.common.model.vo.PLVMediaBitRate
+import net.polyv.android.player.common.modules.media.config.PLVMPMediaConfig
+import net.polyv.android.player.common.modules.media.config.customTokenRequestListener
 import net.polyv.android.player.sdk.addon.download.PLVMediaDownloaderManager
 import net.polyv.android.player.sdk.addon.download.common.PLVMediaDownloader
 import net.polyv.android.player.sdk.addon.download.common.model.vo.PLVMediaDownloadStatus
@@ -29,6 +31,9 @@ data class PLVMPDownloadListItemViewState(
     val downloadBytesPerSecond: Long
 ) {
     fun startDownload() {
+        if (PLVMPMediaConfig.useCustomToken) {
+            downloader.listenerRegistry.vodTokenRequestListener = customTokenRequestListener
+        }
         PLVMediaDownloaderManager.startDownloader(downloader)
     }
 

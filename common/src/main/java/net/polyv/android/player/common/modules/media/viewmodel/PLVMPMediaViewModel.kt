@@ -1,5 +1,7 @@
 package net.polyv.android.player.common.modules.media.viewmodel
 
+import net.polyv.android.player.common.modules.media.config.PLVMPMediaConfig
+import net.polyv.android.player.common.modules.media.config.customTokenRequestListener
 import net.polyv.android.player.common.modules.media.mediator.PLVMPMediaMediator
 import net.polyv.android.player.common.modules.media.model.IPLVMPMediaPlayer
 import net.polyv.android.player.common.modules.media.model.PLVMPMediaRepo
@@ -25,4 +27,9 @@ class PLVMPMediaViewModel internal constructor(
     val onCompleteEvent = this.mediator.onCompleteEvent
     val playerState = this.mediator.playerState
 
+    init {
+        if (PLVMPMediaConfig.useCustomToken) {
+            this.repo.player.getBusinessListenerRegistry().vodTokenRequestListener = customTokenRequestListener
+        }
+    }
 }

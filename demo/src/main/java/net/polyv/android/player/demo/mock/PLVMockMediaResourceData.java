@@ -10,6 +10,7 @@ import net.polyv.android.player.business.scene.common.model.vo.PLVMediaResource;
 import net.polyv.android.player.business.scene.common.model.vo.PLVViewerParam;
 import net.polyv.android.player.business.scene.common.model.vo.PLVVodAuthentication;
 import net.polyv.android.player.business.scene.common.model.vo.PLVVodMainAccountAuthentication;
+import net.polyv.android.player.common.modules.media.config.PLVMPMediaConfig;
 import net.polyv.android.player.sdk.addon.download.PLVMediaDownloaderManager;
 import net.polyv.android.player.sdk.foundation.app.PLVApplicationContext;
 import net.polyv.android.player.sdk.foundation.collections.PLVSequences;
@@ -31,8 +32,8 @@ import kotlin.jvm.functions.Function1;
  * @author Hoshiiro
  */
 public class PLVMockMediaResourceData {
-
-    private static final PLVVodAuthentication mockAuthentication = new PLVVodMainAccountAuthentication("e97dbe3e64", "zMV29c519P", null, null);
+    // 如果不配置secretKey，请参考 https://help.polyv.net/#/vod/android_player_sdk/4-加密视频版权保护 获取播放token传给播放器和下载器
+    private static final PLVVodAuthentication mockAuthentication = new PLVVodMainAccountAuthentication("e97dbe3e64", "", null, null);
     private static PLVViewerParam mockViewerParam = new PLVViewerParam("123", "123", null, null, null, null, "param3", "param4", "param5");
 
     private static final PLVMockMediaResourceData INSTANCE = new PLVMockMediaResourceData();
@@ -56,6 +57,10 @@ public class PLVMockMediaResourceData {
     }
 
     private void setup() {
+        // 如果没有配置secretKey，则认为使用自定义token播放
+        if (mockAuthentication.getSecretKey().isEmpty()) {
+            PLVMPMediaConfig.INSTANCE.setUseCustomToken(true);
+        }
         // 切换用户后，需要重新配置与viewerParam相关的设置
         setupMultiDownloadViewerId();
         setupMediaResourcesLocal();
