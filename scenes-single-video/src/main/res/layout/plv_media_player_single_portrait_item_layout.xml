@@ -183,6 +183,19 @@
         app:layout_constraintBottom_toBottomOf="@+id/plv_media_player_video_view_container"
         app:layout_constraintEnd_toEndOf="@+id/plv_media_player_video_view_container" />
 
+    <!-- 线路设置 -->
+    <net.polyv.android.player.common.ui.component.PLVMediaPlayerRouteImageView
+        android:id="@+id/plv_media_player_route_iv"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_marginEnd="12dp"
+        android:layout_marginBottom="4dp"
+        android:padding="8dp"
+        android:src="@drawable/plv_media_player_route_icon"
+        app:layout_constraintBottom_toBottomOf="@+id/plv_media_player_switch_video_mode_btn"
+        app:layout_constraintEnd_toStartOf="@+id/plv_media_player_switch_video_mode_btn"
+        app:layout_constraintTop_toTopOf="@+id/plv_media_player_switch_video_mode_btn" />
+
     <!-- 进度条 -->
     <net.polyv.android.player.common.ui.component.progress.PLVMediaPlayerProgressSeekBar
         android:id="@+id/plv_media_player_progress_seek_bar"

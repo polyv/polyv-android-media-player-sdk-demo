@@ -45,4 +45,19 @@
     <string name="plv_media_player_danmu_mode_bottom">底部</string>
     <string name="plv_media_player_danmu_size">字体大小</string>
     <string name="plv_media_player_reset_translation">还原屏幕</string>
+    <string name="plv_media_player_ui_component_route_title">播放线路</string>
+    <string name="plv_media_player_ui_component_decode_title">解码</string>
+    <string name="plv_media_player_ui_component_hardware_decode">硬解</string>
+    <string name="plv_media_player_ui_component_hardware_decode_desc">更省电</string>
+    <string name="plv_media_player_ui_component_software_decode">软解</string>
+    <string name="plv_media_player_ui_component_software_decode_desc">兼容性好（推荐）</string>
+    <string name="plv_media_player_ui_component_route_section_title">线路</string>
+    <string name="plv_media_player_ui_component_route_name">线路%d</string>
+    <string name="plv_media_player_ui_component_route_recommended_desc">推荐线路，首选尝试</string>
+    <string name="plv_media_player_ui_component_route_backup_desc">主线路不畅时切换</string>
+    <string name="plv_media_player_ui_component_dns_title">解析</string>
+    <string name="plv_media_player_ui_component_http_dns">httpdns</string>
+    <string name="plv_media_player_ui_component_http_dns_desc">一般网络下更稳定</string>
+    <string name="plv_media_player_ui_component_local_dns">localdns</string>
+    <string name="plv_media_player_ui_component_local_dns_desc">网络受限环境下使用</string>
 </resources>

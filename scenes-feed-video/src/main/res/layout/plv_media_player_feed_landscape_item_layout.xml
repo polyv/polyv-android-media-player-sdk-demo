@@ -214,6 +214,18 @@
         app:layout_constraintEnd_toStartOf="@+id/plv_media_player_bit_rate_text_view"
         tools:text="1.0x" />
 
+    <!-- 线路设置（倍速按钮左侧） -->
+    <net.polyv.android.player.common.ui.component.PLVMediaPlayerRouteImageView
+        android:id="@+id/plv_media_player_route_iv"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginEnd="14dp"
+        android:layout_marginBottom="20dp"
+        android:padding="8dp"
+        android:src="@drawable/plv_media_player_route_icon"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/plv_media_player_speed_text_view" />
+
     <!-- 进度条 -->
     <net.polyv.android.player.common.ui.component.progress.PLVMediaPlayerProgressSeekBar
         android:id="@+id/plv_media_player_progress_seek_bar"
@@ -341,6 +353,11 @@
 
     <!-- 播放完成自动重播组件 -->
     <net.polyv.android.player.common.ui.component.PLVMediaPlayerPlayCompleteAutoRestartComponent
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone" />
+
+    <net.polyv.android.player.common.ui.component.PLVMediaPlayerRouteSelectLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:visibility="gone" />

@@ -5,15 +5,19 @@ import net.polyv.android.common.libs.lang.state.MutableObserver.Companion.dispos
 import net.polyv.android.player.business.scene.common.model.vo.PLVMediaBitRate
 import net.polyv.android.player.business.scene.common.model.vo.PLVMediaOutputMode
 import net.polyv.android.player.business.scene.common.model.vo.PLVMediaResource
+import net.polyv.android.player.business.scene.common.model.vo.PLVMediaRoute
 import net.polyv.android.player.business.scene.common.model.vo.PLVMediaSubtitle
 import net.polyv.android.player.common.modules.media.mediator.PLVMPMediaMediator
 import net.polyv.android.player.core.api.listener.state.PLVMediaPlayerPlayingState
 import net.polyv.android.player.core.api.option.PLVMediaPlayerOption
+import net.polyv.android.player.core.api.option.PLVMediaPlayerOptionEnum
 import net.polyv.android.player.core.api.render.IPLVMediaPlayerRenderView
 import net.polyv.android.player.sdk.PLVMediaPlayer
 import net.polyv.android.player.sdk.addon.business.addonBusinessManager
 import net.polyv.android.player.sdk.foundation.di.LifecycleAwareDependComponent
 import net.polyv.android.player.sdk.foundation.lang.MutableObserver
+import net.polyv.android.player.sdk.foundation.lang.MutableState
+import net.polyv.android.player.sdk.foundation.network.httpdns.PLVMediaPlayerHttpDns
 
 /**
  * @author Hoshiiro
@@ -23,6 +27,8 @@ internal class PLVMPMediaRepo(
 ) : IPLVMPMediaPlayer, LifecycleAwareDependComponent {
 
     val player: PLVMediaPlayer = PLVMediaPlayer()
+    val useMediaCodec = MutableState(false)
+    val httpDnsEnabled = MutableState(PLVMediaPlayerHttpDns.enable)
     private val observers = mutableListOf<MutableObserver<*>>()
 
     init {
@@ -61,6 +67,9 @@ internal class PLVMPMediaRepo(
     }
 
     override fun setPlayerOption(options: List<PLVMediaPlayerOption>) {
+        options.find { it.option == PLVMediaPlayerOptionEnum.USE_MEDIA_CODEC }?.let {
+            useMediaCodec.setValue(it.value == "1")
+        }
         this.player.setPlayerOption(options)
     }
 
@@ -87,6 +96,10 @@ internal class PLVMPMediaRepo(
         this.player.restart()
     }
 
+    override fun reload() {
+        this.player.reload()
+    }
+
     override fun setSpeed(speed: Float) {
         this.player.setSpeed(speed)
     }
@@ -98,6 +111,22 @@ internal class PLVMPMediaRepo(
     override fun changeBitRate(bitRate: PLVMediaBitRate) {
         this.player.changeBitRate(bitRate)
         this.mediator.onChangeBitRateEvent.setValue(bitRate)
+    }
+
+    override fun changeRoute(route: PLVMediaRoute) {
+        player.changeRoute(route)
+    }
+
+    override fun changeDecodeMode(useMediaCodec: Boolean) {
+        this.useMediaCodec.setValue(useMediaCodec)
+        player.setPlayerOption(listOf(PLVMediaPlayerOptionEnum.USE_MEDIA_CODEC.value(if (useMediaCodec) "1" else "0")))
+        player.reload()
+    }
+
+    override fun changeHttpDns(enable: Boolean) {
+        PLVMediaPlayerHttpDns.enable = enable
+        httpDnsEnabled.setValue(enable)
+        player.reload()
     }
 
     override fun changeMediaOutputMode(outputMode: PLVMediaOutputMode) {

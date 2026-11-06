@@ -4,6 +4,7 @@ import android.graphics.Bitmap
 import net.polyv.android.player.business.scene.common.model.vo.PLVMediaBitRate
 import net.polyv.android.player.business.scene.common.model.vo.PLVMediaOutputMode
 import net.polyv.android.player.business.scene.common.model.vo.PLVMediaResource
+import net.polyv.android.player.business.scene.common.model.vo.PLVMediaRoute
 import net.polyv.android.player.business.scene.common.model.vo.PLVMediaSubtitle
 import net.polyv.android.player.core.api.option.PLVMediaPlayerOption
 import net.polyv.android.player.core.api.render.IPLVMediaPlayerRenderView
@@ -29,11 +30,19 @@ interface IPLVMPMediaPlayer {
 
     fun restart()
 
+    fun reload()
+
     fun setSpeed(speed: Float)
 
     fun setVolume(volume: Int)
 
     fun changeBitRate(bitRate: PLVMediaBitRate)
+
+    fun changeRoute(route: PLVMediaRoute)
+
+    fun changeDecodeMode(useMediaCodec: Boolean)
+
+    fun changeHttpDns(enable: Boolean)
 
     fun changeMediaOutputMode(outputMode: PLVMediaOutputMode)
 

@@ -28,4 +28,10 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
+    <!-- 线路、解码与 DNS 设置弹层 -->
+    <net.polyv.android.player.common.ui.component.PLVMediaPlayerRouteSelectLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

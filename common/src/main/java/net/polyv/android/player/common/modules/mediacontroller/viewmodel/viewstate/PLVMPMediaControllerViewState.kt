@@ -53,4 +53,5 @@ enum class PLVMPMediaControllerFloatAction {
     SPEED,
     SUBTITLE,
     KNOWLEDGE,
+    ROUTE,
 }

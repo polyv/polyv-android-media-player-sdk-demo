@@ -24,8 +24,8 @@ class UpdateMediaStateUseCase internal constructor(
 
     private val mediaPlayViewState = DerivedState {
         PLVMPMediaPlayViewState(
-            currentProgress = repo.player.getStateListenerRegistry().progressState.value ?: 0,
-            duration = repo.player.getStateListenerRegistry().durationState.value ?: 0,
+            currentProgress = getCurrentProgress(),
+            duration = getDuration(),
             isPlaying = repo.player.getStateListenerRegistry().playingState.value == PLVMediaPlayerPlayingState.PLAYING,
             playerState = repo.player.getStateListenerRegistry().playerState.value ?: PLVMediaPlayerState.STATE_IDLE,
             isBuffering = repo.player.getStateListenerRegistry().isBuffering.value ?: false,
@@ -41,6 +41,10 @@ class UpdateMediaStateUseCase internal constructor(
             videoSize = repo.player.getStateListenerRegistry().videoSize.value ?: Rect(),
             bitRate = repo.player.getBusinessListenerRegistry().currentMediaBitRate.value,
             supportBitRates = repo.player.getBusinessListenerRegistry().supportMediaBitRates.value ?: emptyList(),
+            route = repo.player.getBusinessListenerRegistry().currentMediaRoute.value,
+            supportRoutes = repo.player.getBusinessListenerRegistry().supportMediaRoutes.value ?: emptyList(),
+            useMediaCodec = repo.useMediaCodec.value ?: false,
+            httpDnsEnabled = repo.httpDnsEnabled.value ?: false,
             outputMode = repo.player.getBusinessListenerRegistry().currentMediaOutputMode.value
                 ?: PLVMediaOutputMode.AUDIO_VIDEO,
             supportOutputModes = repo.player.getBusinessListenerRegistry().supportMediaOutputModes.value ?: emptyList(),
@@ -53,6 +57,22 @@ class UpdateMediaStateUseCase internal constructor(
             bottomSubtitleTextStyle = getSubtitleTextStyle("bottom")
         )
     }.also { it.relayTo(repo.mediator.mediaInfoViewState) }
+
+    private fun getCurrentProgress(): Long {
+        val currentProgress = repo.player.getStateListenerRegistry().progressState.value ?: 0
+        val duration = getDuration()
+        return if (repo.player.getStateListenerRegistry().playerState.value == PLVMediaPlayerState.STATE_COMPLETED
+            || currentProgress > duration
+        ) {
+            duration
+        } else {
+            currentProgress
+        }
+    }
+
+    private fun getDuration(): Long {
+        return (repo.player.getBusinessListenerRegistry().vodVideoJson.value?.durationSeconds ?: 0) * 1000
+    }
 
     @OptIn(ExperimentalStdlibApi::class)
     private fun getSupportSubtitles(): List<List<PLVMediaSubtitle>> {

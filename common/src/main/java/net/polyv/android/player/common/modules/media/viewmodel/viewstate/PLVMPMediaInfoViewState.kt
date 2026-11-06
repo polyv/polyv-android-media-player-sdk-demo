@@ -4,6 +4,7 @@ import android.graphics.Color
 import android.graphics.Rect
 import net.polyv.android.player.business.scene.common.model.vo.PLVMediaBitRate
 import net.polyv.android.player.business.scene.common.model.vo.PLVMediaOutputMode
+import net.polyv.android.player.business.scene.common.model.vo.PLVMediaRoute
 import net.polyv.android.player.business.scene.common.model.vo.PLVMediaSubtitle
 import net.polyv.android.player.sdk.foundation.lang.Duration
 
@@ -15,6 +16,10 @@ data class PLVMPMediaInfoViewState(
     val videoSize: Rect = Rect(),
     val bitRate: PLVMediaBitRate? = null,
     val supportBitRates: List<PLVMediaBitRate> = emptyList(),
+    val route: PLVMediaRoute? = null,
+    val supportRoutes: List<PLVMediaRoute> = emptyList(),
+    val useMediaCodec: Boolean = false,
+    val httpDnsEnabled: Boolean = false,
     val outputMode: PLVMediaOutputMode = PLVMediaOutputMode.AUDIO_VIDEO,
     val supportOutputModes: List<PLVMediaOutputMode> = emptyList(),
     val currentSubtitle: List<PLVMediaSubtitle>? = null,
