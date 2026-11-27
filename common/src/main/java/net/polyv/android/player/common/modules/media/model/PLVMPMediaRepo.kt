@@ -33,6 +33,11 @@ internal class PLVMPMediaRepo(
 
     init {
         this.mediator.seekTo = { this.seekTo(it) }
+        this.mediator.getCurrentPosition = { this.player.getCurrentPosition() }
+        this.mediator.seekToKeepingPlayState = { position ->
+            val duration = player.getStateListenerRegistry().durationState.value ?: 0L
+            player.seek(position.coerceIn(0L, duration.coerceAtLeast(0L)))
+        }
         this.mediator.getSpeed = { this.player.getStateListenerRegistry().speed.value ?: 1F }
         this.mediator.setSpeed = { this.player.setSpeed(it) }
         this.mediator.isPlaying = { this.player.getStateListenerRegistry().playingState.value == PLVMediaPlayerPlayingState.PLAYING }
@@ -142,6 +147,8 @@ internal class PLVMPMediaRepo(
     }
 
     override fun onDestroy() {
+        this.mediator.seekToKeepingPlayState = null
+        this.mediator.getCurrentPosition = null
         this.player.addonBusinessManager.destroy()
         this.player.destroy()
         this.observers.disposeAll()

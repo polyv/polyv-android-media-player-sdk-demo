@@ -164,6 +164,17 @@
 
     </LinearLayout>
 
+    <!-- 中央快退 / 播放暂停 / 快进，与控制栏一起显隐 -->
+    <net.polyv.android.player.common.ui.component.PLVMediaPlayerStepSeekLayout
+        android:id="@+id/plv_media_player_step_seek_layout"
+        android:layout_width="wrap_content"
+        android:layout_height="56dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="@+id/plv_media_player_video_view_container"
+        app:layout_constraintEnd_toEndOf="@+id/plv_media_player_video_view_container"
+        app:layout_constraintStart_toStartOf="@+id/plv_media_player_video_view_container"
+        app:layout_constraintTop_toTopOf="@+id/plv_media_player_video_view_container" />
+
     <!-- 播放/暂停按钮 -->
     <net.polyv.android.player.common.ui.component.PLVMediaPlayerPlayButtonLandscape
         android:id="@+id/plv_media_player_play_button"

@@ -13,10 +13,10 @@ import android.widget.FrameLayout
 import net.polyv.android.player.business.scene.common.model.vo.PLVMediaOutputMode
 import net.polyv.android.player.common.di.PLVMediaPlayerLocalProvider
 import net.polyv.android.player.common.modules.media.viewmodel.PLVMPMediaViewModel
+import net.polyv.android.player.common.modules.mediacontroller.viewmodel.PLVMPMediaControllerViewModel
 import net.polyv.android.player.common.ui.component.PLVMediaPlayerAudioModeCoverLayoutPortrait
 import net.polyv.android.player.common.ui.component.PLVMediaPlayerAutoContinueHintFeedStyleLayout
 import net.polyv.android.player.common.ui.component.PLVMediaPlayerBackImageView
-import net.polyv.android.player.common.ui.component.PLVMediaPlayerPlayButtonPortraitFullScreen
 import net.polyv.android.player.common.ui.component.PLVMediaPlayerPlayErrorOverlayLayout
 import net.polyv.android.player.common.ui.component.PLVMediaPlayerSwitchToFullScreenButtonPortraitFullScreen
 import net.polyv.android.player.common.ui.component.PLVMediaPlayerTitleTextView
@@ -58,7 +58,6 @@ class PLVMediaPlayerFeedPortraitItemLayout @JvmOverloads constructor(
     private val errorOverlayLayout by lazy { findViewById<PLVMediaPlayerPlayErrorOverlayLayout>(R.id.plv_media_player_error_overlay_layout) }
     private val switchVideoModeBtn by lazy { findViewById<PLVMediaPlayerSwitchToFullScreenButtonPortraitFullScreen>(R.id.plv_media_player_switch_video_mode_btn) }
     private val gestureHandleLayout by lazy { findViewById<PLVMediaPlayerGestureHandleLayout>(R.id.plv_media_player_gesture_handle_layout) }
-    private val playButton by lazy { findViewById<PLVMediaPlayerPlayButtonPortraitFullScreen>(R.id.plv_media_player_play_button) }
     private val backIv by lazy { findViewById<PLVMediaPlayerBackImageView>(R.id.plv_media_player_back_iv) }
     private val titleTv by lazy { findViewById<PLVMediaPlayerTitleTextView>(R.id.plv_media_player_title_tv) }
     private val moreActionButton by lazy { findViewById<PLVMediaPlayerMoreActionImageView>(R.id.plv_media_player_more_action_button) }
@@ -81,6 +80,10 @@ class PLVMediaPlayerFeedPortraitItemLayout @JvmOverloads constructor(
     // <editor-fold defaultstate="collapsed" desc="Layout-方法-初始化 & 设置监听">
     init {
         LayoutInflater.from(context).inflate(R.layout.plv_media_player_feed_portrait_item_layout, this)
+
+        // 视频底部依赖进度条及时间文本的位置，控制栏隐藏时仍须保留它们的占位。
+        progressSeekBar.retainSpaceWhenHidden = true
+        progressTextView.retainSpaceWhenHidden = true
 
         statusBarGuildLine.setGuidelineBegin(getStatusBarHeight().px())
         navigationBarGuildLine.setGuidelineEnd(getNavigationBarHeight().px())
@@ -115,6 +118,12 @@ class PLVMediaPlayerFeedPortraitItemLayout @JvmOverloads constructor(
     // <editor-fold defaultstate="collapsed" desc="Layout-方法-播放器皮肤-点击事件处理">
     override fun onClick(v: View) {
         val dependScope = PLVMediaPlayerLocalProvider.localDependScope.on(this).current() ?: return
+        val controllerViewModel = dependScope.get(PLVMPMediaControllerViewModel::class.java)
+        // 开启中央快进退布局后，画面单击负责唤出/隐藏控制栏。
+        if (controllerViewModel.mediaControllerViewState.value?.seekButtonsEnabled == true) {
+            controllerViewModel.onClickChangeControllerVisible()
+            return
+        }
         val mediaViewModel = dependScope.get(PLVMPMediaViewModel::class.java)
         val isPlaying = mediaViewModel.mediaPlayViewState.value!!.isPlaying
         if (isPlaying) {

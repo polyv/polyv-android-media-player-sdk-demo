@@ -159,6 +159,16 @@ class PLVMediaPlayerSingleVideoLayout @JvmOverloads constructor(
     // </editor-fold>
 
     // <editor-fold defaultstate="collapsed" desc="Layout-setter/getter">
+    /** 是否使用中央快进退布局，默认关闭。 */
+    fun setSeekButtonsEnabled(enabled: Boolean) {
+        mediaControllerViewModel.setSeekButtonsEnabled(enabled)
+    }
+
+    /** 快进退步长，5–60 秒，越界回落到 15 秒。 */
+    fun setSeekStepSeconds(seconds: Int) {
+        mediaControllerViewModel.setSeekStepSeconds(seconds)
+    }
+
     fun setMediaResource(mediaResource: PLVMediaResource?) {
         this.mediaResource = mediaResource
         if (mediaResource != null) {

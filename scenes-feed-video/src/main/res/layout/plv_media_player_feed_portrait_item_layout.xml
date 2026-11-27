@@ -109,11 +109,22 @@
         android:layout_height="match_parent"
         app:plv_long_press_gesture_enable="true" />
 
-    <!-- 播放/暂停按钮 -->
+    <!-- 关闭快进退时保留原有的短视频播放按钮 -->
     <net.polyv.android.player.common.ui.component.PLVMediaPlayerPlayButtonPortraitFullScreen
         android:id="@+id/plv_media_player_play_button"
         android:layout_width="80dp"
         android:layout_height="80dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="@+id/plv_media_player_video_view_container"
+        app:layout_constraintEnd_toEndOf="@+id/plv_media_player_video_view_container"
+        app:layout_constraintStart_toStartOf="@+id/plv_media_player_video_view_container"
+        app:layout_constraintTop_toTopOf="@+id/plv_media_player_video_view_container" />
+
+    <!-- 中央快退 / 播放暂停 / 快进，与控制栏一起显隐 -->
+    <net.polyv.android.player.common.ui.component.PLVMediaPlayerStepSeekLayout
+        android:id="@+id/plv_media_player_step_seek_layout"
+        android:layout_width="wrap_content"
+        android:layout_height="56dp"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="@+id/plv_media_player_video_view_container"
         app:layout_constraintEnd_toEndOf="@+id/plv_media_player_video_view_container"

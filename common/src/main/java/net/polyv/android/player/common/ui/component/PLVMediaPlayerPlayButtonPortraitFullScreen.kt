@@ -6,6 +6,7 @@ import android.util.AttributeSet
 import net.polyv.android.player.common.R
 import net.polyv.android.player.common.di.PLVMediaPlayerLocalProvider
 import net.polyv.android.player.common.modules.media.viewmodel.PLVMPMediaViewModel
+import net.polyv.android.player.common.modules.mediacontroller.viewmodel.PLVMPMediaControllerViewModel
 import net.polyv.android.player.core.api.listener.event.PLVMediaPlayerOnInfoEvent
 import net.polyv.android.player.core.api.listener.state.PLVMediaPlayerState
 import net.polyv.android.player.sdk.foundation.lang.MutableState
@@ -31,6 +32,8 @@ class PLVMediaPlayerPlayButtonPortraitFullScreen @JvmOverloads constructor(
 
         val mediaViewModel = PLVMediaPlayerLocalProvider.localDependScope.on(this).current()!!
             .get<PLVMPMediaViewModel>()
+        val controllerViewModel = PLVMediaPlayerLocalProvider.localDependScope.on(this).current()!!
+            .get<PLVMPMediaControllerViewModel>()
 
         mediaViewModel.onInfoEvent
             .observe { event ->
@@ -43,7 +46,8 @@ class PLVMediaPlayerPlayButtonPortraitFullScreen @JvmOverloads constructor(
         watchStates {
             val isPaused = mediaViewModel.mediaPlayViewState.value?.playerState == PLVMediaPlayerState.STATE_PAUSED
             val isFirstFrameRendered = isFirstFrameRendered.value ?: false
-            val isVisible = isPaused && isFirstFrameRendered
+            val seekButtonsEnabled = controllerViewModel.mediaControllerViewState.value?.seekButtonsEnabled ?: false
+            val isVisible = !seekButtonsEnabled && isPaused && isFirstFrameRendered
             visibility = if (isVisible) VISIBLE else GONE
         }.disposeOnDetached(this)
     }

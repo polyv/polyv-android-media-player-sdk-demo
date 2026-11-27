@@ -9,6 +9,7 @@ import kotlinx.coroutines.launch
 import net.polyv.android.common.libs.lang.state.MutableObserver.Companion.disposeAll
 import net.polyv.android.player.business.scene.common.coroutine.PLVMediaPlayerGlobalCoroutineScope
 import net.polyv.android.player.common.modules.mediacontroller.model.PLVMPMediaControllerRepo
+import net.polyv.android.player.common.modules.mediacontroller.model.stepSeekTarget
 import net.polyv.android.player.common.modules.mediacontroller.viewmodel.usecase.PLVMPMediaControllerUseCases
 import net.polyv.android.player.common.modules.mediacontroller.viewmodel.viewstate.PLVMPMediaControllerFloatAction
 import net.polyv.android.player.common.modules.mediacontroller.viewmodel.viewstate.PLVMPMediaControllerViewState
@@ -39,18 +40,88 @@ class PLVMPMediaControllerViewModel internal constructor(
         set(value) = repo.mediator.mediaControllerViewState.setValue(value)
 
     private var showControllerForDurationJob: Job? = null
+    private var stepSeekTimeoutJob: Job? = null
+    private var submittedStepSeekPosition: Long? = null
 
     private val observers = mutableListOf<MutableObserver<*>>()
 
     init {
         observeSeekFinishEvent()
         observeMediaStopState()
+        observeStepSeek()
+    }
+
+    /** 当前播放器的步长配置；非法范围回落到 15 秒。 */
+    fun setSeekStepSeconds(seconds: Int) {
+        viewState = viewState.copy(seekStepSeconds = if (seconds in 5..60) seconds else 15)
+    }
+
+    fun setSeekButtonsEnabled(enabled: Boolean) {
+        if (!enabled) clearStepSeek()
+        viewState = viewState.copy(seekButtonsEnabled = enabled)
+    }
+
+    fun seekByStep(forward: Boolean) {
+        if (!viewState.seekButtonsEnabled) return
+        val media = repo.mediaMediator.mediaPlayViewState.value ?: return
+        if (repo.mediaMediator.seekToKeepingPlayState == null) return
+        if (media.duration <= 0 || viewState.isMediaStopOverlayVisible || viewState.progressSeekBarDragging) return
+        val current = repo.mediaMediator.getCurrentPosition?.invoke() ?: media.currentProgress
+        val target = stepSeekTarget(current, viewState.stepSeekPosition, media.duration, viewState.seekStepSeconds, forward)
+        viewState = viewState.copy(stepSeekPosition = target, progressSeekBarWaitSeekFinish = false)
+        submitStepSeek()
+        showControllerForDuration(5.seconds())
+    }
+
+    private fun submitStepSeek() {
+        if (submittedStepSeekPosition != null) return
+        val target = viewState.stepSeekPosition ?: return
+        val seek = repo.mediaMediator.seekToKeepingPlayState ?: return
+        if (repo.mediaMediator.getCurrentPosition?.invoke() == target) {
+            clearStepSeek()
+            return
+        }
+        // 同时只提交一个 seek；期间的点击只更新累加目标。
+        submittedStepSeekPosition = target
+        stepSeekTimeoutJob?.cancel()
+        // 异常或未收到 seek 完成时，不让待定位进度永久滞留。
+        stepSeekTimeoutJob = PLVMediaPlayerGlobalCoroutineScope.launch(Dispatchers.Main) {
+            delay(10_000)
+            clearStepSeek()
+        }
+        seek(target)
+    }
+
+    private fun clearStepSeek() {
+        stepSeekTimeoutJob?.cancel()
+        stepSeekTimeoutJob = null
+        submittedStepSeekPosition = null
+        if (viewState.stepSeekPosition != null) {
+            viewState = viewState.copy(stepSeekPosition = null)
+        }
+    }
+
+    private fun observeStepSeek() {
+        repo.mediaMediator.onSeekCompleteEvent.observe {
+            val submitted = submittedStepSeekPosition ?: return@observe
+            submittedStepSeekPosition = null
+            // 回调对应唯一在途请求，不依赖此刻内核位置是否已刷新。
+            if (viewState.stepSeekPosition == submitted) {
+                clearStepSeek()
+            } else {
+                submitStepSeek()
+            }
+        }.addTo(this.observers)
+        repo.mediaMediator.mediaResource.observe { clearStepSeek() }.addTo(this.observers)
+        repo.mediator.playCompleteState.observe { if (it) clearStepSeek() }.addTo(this.observers)
+        repo.mediator.businessErrorState.observe { if (it != null) clearStepSeek() }.addTo(this.observers)
     }
 
     @JvmOverloads
     fun handleDragSeekBar(action: DragSeekBarAction, progress: Long = 0) {
         when (action) {
             DragSeekBarAction.DRAG -> {
+                clearStepSeek()
                 viewState = viewState.copy(
                     progressSeekBarDragging = true,
                     progressSeekBarWaitSeekFinish = true,
@@ -217,6 +288,8 @@ class PLVMPMediaControllerViewModel internal constructor(
     }
 
     override fun onDestroy() {
+        stepSeekTimeoutJob?.cancel()
+        showControllerForDurationJob?.cancel()
         this.observers.disposeAll()
         this.observers.clear()
     }

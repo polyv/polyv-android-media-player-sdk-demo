@@ -24,6 +24,9 @@ class PLVMediaPlayerProgressSeekBar @JvmOverloads constructor(
     attrs: AttributeSet? = null,
     defStyle: Int = 0
 ) : AppCompatSeekBar(context, attrs, defStyle), OnSeekBarChangeListener {
+    /** 隐藏时保留布局占位，供视频位置依赖进度条的皮肤使用。 */
+    var retainSpaceWhenHidden: Boolean = false
+
     private var seekBarHeight = 0f
     private var seekBarHeightOnDrag = 0f
     private var progressDrawableOnDrag: Drawable? = null
@@ -114,7 +117,7 @@ class PLVMediaPlayerProgressSeekBar @JvmOverloads constructor(
     }
 
     private fun updateVisible() {
-        visibility = if (isVisible) VISIBLE else GONE
+        visibility = if (isVisible) VISIBLE else if (retainSpaceWhenHidden) INVISIBLE else GONE
     }
 
     // <editor-fold defaultstate="collapsed" desc="OnSeekBarChangeListener">

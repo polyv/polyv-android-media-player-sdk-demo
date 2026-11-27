@@ -1,5 +1,7 @@
 package net.polyv.android.player.common.modules.mediacontroller.viewmodel.viewstate
 
+import net.polyv.android.player.common.modules.media.config.PLVMPMediaConfig
+
 /**
  * @author Hoshiiro
  */
@@ -14,7 +16,11 @@ data class PLVMPMediaControllerViewState(
     val speedBeforeLongPress: Float = 1F,
     val floatActionLayouts: List<PLVMPMediaControllerFloatAction> = emptyList(),
     val errorOverlayLayoutVisible: Boolean = false,
-    val completeOverlayLayoutVisible: Boolean = false
+    val completeOverlayLayoutVisible: Boolean = false,
+    val seekButtonsEnabled: Boolean = PLVMPMediaConfig.seekButtonsEnabled,
+    val seekStepSeconds: Int = PLVMPMediaConfig.seekStepSeconds,
+    // 仅供连续点击累加和提交使用，UI 进度仍读取真实播放位置。
+    val stepSeekPosition: Long? = null
 ) {
     val isFloatActionLayoutVisible: Boolean
         get() = floatActionLayouts.isNotEmpty()

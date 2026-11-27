@@ -21,6 +21,15 @@ object PLVMPMediaConfig {
      * false: 使用默认认证方式，需要在PLVVodMainAccountAuthentication中配置secretKey
      */
     var useCustomToken = false
+
+    /** 是否使用中央快进退布局，默认关闭。在播放器初始化前配置。 */
+    var seekButtonsEnabled = false
+
+    /** 快进、快退步长，单位秒。在播放器初始化前设置，范围 5–60，越界回落到 15。 */
+    var seekStepSeconds = 15
+        set(value) {
+            field = if (value in 5..60) value else 15
+        }
 }
 
 const val demoUserId = "e97dbe3e64"

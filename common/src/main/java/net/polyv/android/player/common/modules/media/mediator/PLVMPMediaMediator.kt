@@ -40,6 +40,9 @@ class PLVMPMediaMediator : LifecycleAwareDependComponent {
     val businessErrorState = MutableState<PLVMediaPlayerBusinessError?>(null)
 
     var seekTo: ((Long) -> Unit)? = null
+    // 快进退仅定位，不改变播放/暂停状态。
+    var seekToKeepingPlayState: ((Long) -> Unit)? = null
+    var getCurrentPosition: (() -> Long)? = null
     var getSpeed: (() -> Float)? = null
     var setSpeed: ((Float) -> Unit)? = null
     var isPlaying: (() -> Boolean)? = null

@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="plv_media_player_step_backward">快退 %1$d 秒</string>
+    <string name="plv_media_player_step_forward">快进 %1$d 秒</string>
+    <string name="plv_media_player_play">播放</string>
+    <string name="plv_media_player_pause">暂停</string>
+</resources>

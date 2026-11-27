@@ -21,6 +21,9 @@ class PLVMediaPlayerProgressTextView @JvmOverloads constructor(
     attrs: AttributeSet? = null,
     defStyle: Int = 0
 ) : FrameLayout(context, attrs, defStyle) {
+    /** 隐藏时保留布局占位，避免依赖时间文本的控件重新定位。 */
+    var retainSpaceWhenHidden: Boolean = false
+
     private val progressTv by lazy { findViewById<TextView>(R.id.plv_media_player_ui_component_media_progress_text_progress) }
     private val durationTv by lazy { findViewById<TextView>(R.id.plv_media_player_ui_component_media_progress_text_duration) }
 
@@ -41,7 +44,7 @@ class PLVMediaPlayerProgressTextView @JvmOverloads constructor(
         watchStates {
             val progress = mediaViewModel.mediaPlayViewState.value?.currentProgress ?: 0
             val duration = mediaViewModel.mediaPlayViewState.value?.duration ?: 0
-            if (progress > 0) {
+            if (progress >= 0) {
                 progressTv.text = PLVTimeUtils.formatTime(progress)
             }
             if (duration > 0) {
@@ -55,7 +58,7 @@ class PLVMediaPlayerProgressTextView @JvmOverloads constructor(
                     && !controllerState.isMediaStopOverlayVisible
                     && !controllerState.controllerLocking
                     && !(controllerState.isFloatActionLayoutVisible && isLandscape())
-            visibility = if (isVisible) VISIBLE else GONE
+            visibility = if (isVisible) VISIBLE else if (retainSpaceWhenHidden) INVISIBLE else GONE
         }.disposeOnDetached(this)
     }
 
